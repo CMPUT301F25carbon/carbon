@@ -6,6 +6,3 @@ public abstract class Shape {
 
 }
 
-public class Circle extends Shape {
-
-}
