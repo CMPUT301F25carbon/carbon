@@ -5,3 +5,7 @@ public abstract class Shape {
     String color= "violet";
 
 }
+
+public class Circle extends Shape {
+
+}
