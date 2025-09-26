@@ -1,6 +1,6 @@
 package com.example.carbon;
 
 
-public class Square  {
-    
+public class Square extends Shape  {
+
 }
