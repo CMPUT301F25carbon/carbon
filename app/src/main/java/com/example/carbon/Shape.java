@@ -2,6 +2,7 @@ package com.example.carbon;
 
 public abstract class Shape {
     private int x, y;
-    String color = "purple";
+
+    String color = "very very blue";
 }
 
