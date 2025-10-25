@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "88255151731",
+    "project_id": "carbonate-3f11a",
+    "storage_bucket": "carbonate-3f11a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:88255151731:android:a3ace187c75b1af6767406",
+        "android_client_info": {
+          "package_name": "com.example.carbon"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBylt4nmQTQtyxiQoTIVDaRGM7T_XVrMC0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
