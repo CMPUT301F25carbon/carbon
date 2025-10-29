@@ -1,0 +1,42 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bottom_menu"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="#8C154F"
+    android:gravity="center"
+    android:padding="24dp"
+    android:layout_marginBottom="8dp">
+
+    <ImageButton
+        android:id="@+id/back_button"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@drawable/rounded_icon_button"
+        android:src="@drawable/ic_arrow_back"
+        android:contentDescription="Back"
+        android:layout_marginHorizontal="32dp"
+        app:tint="#E8CF7D" />
+
+    <ImageButton
+        android:id="@+id/home_button"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginHorizontal="32dp"
+        android:background="@drawable/rounded_icon_button_wide"
+        android:contentDescription="Home"
+        android:src="@drawable/ic_home"
+        app:tint="#E8CF7D" />
+
+    <ImageButton
+        android:id="@+id/profile_button"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@drawable/rounded_icon_button"
+        android:src="@drawable/ic_person"
+        android:contentDescription="Profile"
+        android:layout_marginHorizontal="32dp"
+        app:tint="#E8CF7D" />
+
+</LinearLayout>

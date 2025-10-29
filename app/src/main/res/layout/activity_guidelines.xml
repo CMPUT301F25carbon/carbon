@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/guidelines_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#8C154F">
+
+    <include
+        android:id="@+id/include_header"
+        layout="@layout/top_header" />
+
+    <include
+        android:id="@+id/include_bottom_menu"
+        layout="@layout/bottom_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
+
+    <FrameLayout
+        android:id="@+id/page_card"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/include_header"
+        android:layout_above="@id/include_bottom_menu"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="48dp"
+        android:paddingBottom="32dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginBottom="0dp"
+        android:background="@drawable/rounded_panel">
+
+        <ScrollView
+            android:id="@+id/guidelines_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+
+                <TextView
+                    android:id="@+id/guidelines_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Guidelines"
+                    android:textColor="#FFFFFF"
+                    android:textSize="24sp"
+                    android:fontFamily="@font/italiana"
+                    android:layout_marginBottom="32dp"
+                    android:gravity="center" />
+
+                <TextView
+                    android:id="@+id/guidelines_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:lineSpacingExtra="6dp"
+                    android:fontFamily="@font/italiana"
+                    android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam leo elit, ultrices vitae velit sit amet, cursus feugiat odio. Interdum et malesuada fames ac ante ipsum primis in faucibus. Morbi eu mi imperdiet, facilisis dui sit amet, interdum lorem. Proin congue, elit nec hendrerit malesuada, lacus eros maximus lorem, et lobortis nunc sapien et risus. Praesent sagittis ligula bibendum justo sollicitudin, id aliquet orci ornare. Sed commodo id libero id sollicitudin. Fusce ut erat a arcu porttitor iaculis. Fusce gravida justo at enim rutrum, a mollis eros tincidunt. Aliquam at sapien augue. Interdum et malesuada fames ac ante ipsum primis in faucibus. Morbi euismod ante tellus, ac placerat leo luctus vel. Mauris gravida, libero sit amet laoreet auctor, purus risus molestie risus, vitae porta urna tellus ac quam. Nullam interdum molestie risus. Ut congue vitae velit nec congue.
+
+Nulla id egestas enim. Duis efficitur ut arcu eget varius. Donec interdum felis vitae orci varius, at semper nunc mattis. Curabitur interdum lorem nec rutrum scelerisque. Nulla sapien tellus, bibendum ac accumsan sit amet, congue ac justo. Maecenas sed bibendum est. Integer placerat congue ante a posuere. Sed congue congue hendrerit. Donec condimentum tellus ut erat mollis, id eleifend orci eleifend. Nullam et sapien arcu. Donec tempus erat nisi, vitae efficitur ante ultrices id. Curabitur tempor augue at gravida sodales. Integer consequat sapien vel vestibulum feugiat.
+
+Duis et facilisis sapien. Aliquam erat volutpat. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Aliquam erat volutpat. Etiam scelerisque magna sed posuere sodales. Curabitur bibendum orci et elementum ornare. Ut quis feugiat turpis.
+
+Vivamus ullamcorper posuere lectus placerat accumsan. Nam facilisis congue nunc, placerat bibendum augue ornare nec. Duis sit amet efficitur turpis. Ut cursus, enim viverra fringilla condimentum, felis sapien suscipit mauris, a tincidunt est ipsum et nibh. Fusce cursus." />
+            </LinearLayout>
+        </ScrollView>
+    </FrameLayout>
+</RelativeLayout>

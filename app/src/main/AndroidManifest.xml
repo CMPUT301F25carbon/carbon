@@ -11,16 +11,32 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Carbon">
+
+        <!-- 🔹 Dit is de launcher activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Carbon">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".SignUpActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Carbon" />
+
+        <activity
+            android:name=".LogInActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Carbon" />
+
+        <activity
+            android:name=".GuidelinesActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Carbon" />
     </application>
 
 </manifest>
