@@ -14,7 +14,7 @@ public class MainActivity extends AppCompatActivity {
 
         View rootView = findViewById(R.id.start_screen);
         rootView.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, GuidelinesActivity.class);
+            Intent intent = new Intent(MainActivity.this, LogInActivity.class);
             startActivity(intent);
         });
     }
