@@ -32,6 +32,11 @@
             android:name=".LogInActivity"
             android:exported="true"
             android:theme="@style/Theme.Carbon" />
+
+        <activity
+            android:name=".GuidelinesActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Carbon" />
     </application>
 
 </manifest>
