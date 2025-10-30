@@ -1,10 +1,10 @@
-package com.example.carbon.model;
+package com.example.carbon;
 
 public class Entry {
     public String id;
     public String eventId;
     public String userId;
-    public EntryStatus status;
+    public String status;
 
     public Entry() {}
 }
