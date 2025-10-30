@@ -1,4 +1,6 @@
-package com.example.carbon;import androidx.appcompat.app.AppCompatActivity;
+package com.example.carbon;
+
+import androidx.appcompat.app.AppCompatActivity;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,6 +22,7 @@ import java.util.Locale;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+
 
 public class CreateEventActivity extends AppCompatActivity {
 
@@ -247,13 +250,18 @@ public class CreateEventActivity extends AppCompatActivity {
             openingDate = new Date(); // If no opening is provided, set it to now
         }
 
-        // --- 3. CREATE THE EVENT OBJECT ---
-        Waitlist newWaitlist = new Waitlist(deadlineDate, openingDate);
+        // --- 3. CREATE FIRESTORE INSTANCE AND GENERATE EVENT ID FIRST ---
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        // Create a new document reference so we can get its ID before saving
+        String eventId = db.collection("events").document().getId();
+
+        // --- 4. CREATE THE WAITLIST WITH THE EVENT ID ---
+        Waitlist newWaitlist = new Waitlist(eventId, openingDate, deadlineDate);
+
+        // --- 5. CREATE THE EVENT OBJECT AND INCLUDE THE WAITLIST ---
         Event newEvent = new Event(title, des, seats, eventDate, address, city, province, country, ownerId, newWaitlist);
 
-
-        // --- 4. PROVIDE FEEDBACK AND PROCEED ---
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        // --- 6. PROVIDE FEEDBACK AND PROCEED ---
         db.collection("events")
                 .add(newEvent)
                 .addOnSuccessListener(documentReference -> {
