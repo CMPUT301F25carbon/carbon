@@ -10,7 +10,6 @@ public class Event {
     private Date eventDate;
 
 
-
     public Event(String title, String des, Integer totalSpots, Date newEventDate) {
         this.title = title;
         this.description = des;
@@ -42,5 +41,23 @@ public class Event {
     public void enableEvent() {
         active = true;
     }
+
+    public Integer getTotalSpots() {
+        return totalSpots;
+    }
+
+    public void setTotalSpots(Integer totalSpots) {
+        this.totalSpots = totalSpots;
+    }
+
+    public Date getEventDate() {
+        return eventDate;
+    }
+
+    public void setEventDate(Date eventDate) {
+        this.eventDate = eventDate;
+    }
+
+
 
 }
