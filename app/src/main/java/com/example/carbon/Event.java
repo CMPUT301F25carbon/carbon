@@ -1,6 +1,7 @@
 package com.example.carbon;
 
 import java.util.Date;
+import java.util.UUID;
 
 public class Event {
     private String title;
@@ -14,6 +15,7 @@ public class Event {
     private String eventCountry;
     private String ownerId;
     private Waitlist waitlist;
+    private String uuid;
 
 
     // Required empty public constructor for Firestore
@@ -32,6 +34,7 @@ public class Event {
         this.eventCountry = eventCountry;
         this.ownerId = ownerId;
         this.waitlist = waitlist;
+        this.uuid = UUID.randomUUID().toString();
     }
 
     // --- GETTERS & SETTERS ---
@@ -47,6 +50,8 @@ public class Event {
     public String getEventCountry() { return eventCountry; }
     public String getOwnerId() { return ownerId; }
     public Waitlist getWaitlist() { return waitlist; }
+    public String getUuid() { return uuid; }
+
 
 
     public void setTitle(String title) { this.title = title; }
