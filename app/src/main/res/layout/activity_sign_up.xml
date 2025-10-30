@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:padding="24dp"
+    android:background="#8c144e"
+    android:fontFamily="@font/italiana">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:fontFamily="@font/italiana">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/italiana"
+            android:text="CarbonDate"
+            android:textColor="#E8CF7D"
+            android:textSize="28sp"
+            android:gravity="center"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sign Up"
+            android:textSize="24sp"
+            android:textColor="#E8CF7D"
+            android:layout_marginTop="128dp"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="@font/italiana"/>
+
+        <EditText
+            android:hint="First Name"
+            android:id="@+id/first_name"
+            android:backgroundTint="#FCD694"
+            android:layout_marginVertical="8dp"
+            android:padding="12dp"
+            android:textColor="#731B3F"
+            android:textColorHint="#A67852"
+            android:background="@drawable/rounded_edittext"
+            android:layout_width="325dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/italiana"/>
+
+        <EditText
+            android:hint="Last Name"
+            android:id="@+id/last_name"
+            android:backgroundTint="#FCD694"
+            android:layout_marginVertical="8dp"
+            android:padding="12dp"
+            android:textColor="#731B3F"
+            android:textColorHint="#A67852"
+            android:background="@drawable/rounded_edittext"
+            android:layout_width="325dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/italiana"/>
+
+        <EditText
+            android:hint="Email Address"
+            android:id="@+id/email"
+            android:backgroundTint="#FCD694"
+            android:inputType="textEmailAddress"
+            android:background="@drawable/rounded_edittext"
+            android:layout_marginVertical="8dp"
+            android:padding="12dp"
+            android:textColor="#731B3F"
+            android:textColorHint="#A67852"
+            android:layout_width="325dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/italiana"/>
+
+        <EditText
+            android:hint="Set Password"
+            android:id="@+id/password1"
+            android:backgroundTint="#FCD694"
+            android:inputType="textPassword"
+            android:background="@drawable/rounded_edittext"
+            android:layout_marginVertical="8dp"
+            android:padding="12dp"
+            android:textColor="#731B3F"
+            android:textColorHint="#A67852"
+            android:layout_width="325dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/italiana"/>
+
+        <EditText
+            android:hint="Confirm Password"
+            android:id="@+id/password2"
+            android:backgroundTint="#FCD694"
+            android:inputType="textPassword"
+            android:background="@drawable/rounded_edittext"
+            android:layout_marginVertical="8dp"
+            android:padding="12dp"
+            android:textColor="#731B3F"
+            android:textColorHint="#A67852"
+            android:layout_width="325dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/italiana"
+            />
+
+        <EditText
+            android:hint="Phone no. (optional)"
+            android:id="@+id/phone_no"
+            android:backgroundTint="#FCD694"
+            android:inputType="phone"
+            android:background="@drawable/rounded_edittext"
+            android:layout_marginVertical="8dp"
+            android:padding="12dp"
+            android:textColor="#731B3F"
+            android:textColorHint="#A67852"
+            android:layout_width="325dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/italiana"/>
+
+        <Button
+            android:text="Sign Up"
+            android:id="@+id/sign_up_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#ED9029"
+            android:fontFamily="@font/italiana"/>
+
+        <TextView
+            android:id="@+id/log_in_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Already have an account? Log in here"
+            android:textSize="14sp"
+            android:textColor="#FFFFFF"
+            android:layout_marginTop="24dp"
+            android:textAlignment="center"
+            android:fontFamily="@font/italiana"/>
+    </LinearLayout>
+</LinearLayout>
