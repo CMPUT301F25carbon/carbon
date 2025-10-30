@@ -59,7 +59,7 @@ public class LogInActivity extends AppCompatActivity {
                                         if (document.exists()) {
                                             String role = document.getString("role");
                                             saveUserToCache(userId, role);
-                                            startActivity(new Intent(LogInActivity.this, MainActivity.class));
+                                            startActivity(new Intent(LogInActivity.this, CreateEventActivity.class));
                                             finish();
                                         } else {
                                             Toast.makeText(LogInActivity.this, "User data not found.", Toast.LENGTH_SHORT).show();
