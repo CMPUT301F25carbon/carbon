@@ -51,5 +51,6 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
-    
+    // Zxing Core for QR Code Generation
+    implementation("com.google.zxing:core:3.5.3")
 }

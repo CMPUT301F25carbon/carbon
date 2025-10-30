@@ -258,6 +258,20 @@ public class CreateEventActivity extends AppCompatActivity {
                 .add(newEvent)
                 .addOnSuccessListener(documentReference -> {
                     Snackbar.make(findViewById(R.id.create_event_root), "Event created successfully!", Snackbar.LENGTH_LONG).show();
+
+                    // Get the UUID from the event we just created
+                    String eventUuidString = newEvent.getUuid();
+
+                    // Create an Intent to start DisplayQRCodeActivity
+                    Intent intent = new Intent(CreateEventActivity.this, DisplayQRCodeActivity.class);
+
+                    // Pass the event's UUID to the new activity
+                    intent.putExtra("EVENT_UUID", eventUuidString);
+
+                    // Start the new activity
+                    startActivity(intent);
+
+                    // Finish this activity so the user can't come back to the form
                     finish();
                 })
                 .addOnFailureListener(e -> {
