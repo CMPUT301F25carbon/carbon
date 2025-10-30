@@ -10,10 +10,10 @@ import android.view.ViewGroup;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link EventListPageFragment#newInstance} factory method to
+ * Use the {@link EventListFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class EventListPageFragment extends Fragment {
+public class EventListFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -24,7 +24,7 @@ public class EventListPageFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public EventListPageFragment() {
+    public EventListFragment() {
         // Required empty public constructor
     }
 
@@ -37,8 +37,8 @@ public class EventListPageFragment extends Fragment {
      * @return A new instance of fragment EventListPageFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static EventListPageFragment newInstance(String param1, String param2) {
-        EventListPageFragment fragment = new EventListPageFragment();
+    public static EventListFragment newInstance(String param1, String param2) {
+        EventListFragment fragment = new EventListFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
