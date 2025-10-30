@@ -37,6 +37,11 @@
             android:name=".GuidelinesActivity"
             android:exported="true"
             android:theme="@style/Theme.Carbon" />
+        <activity android:name=".CreateEventActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Carbon">
+
+        </activity>
     </application>
 
 </manifest>
