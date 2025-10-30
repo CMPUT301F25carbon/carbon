@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/top_header"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#8C154F"
+    android:paddingVertical="12dp"
+    android:paddingHorizontal="16dp"
+    android:layout_marginTop="8dp">
+
+    <ImageButton
+        android:id="@+id/settings_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentStart="true"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_settings"
+        android:scaleType="centerInside"
+        android:contentDescription="Settings"
+        app:tint="#E8CF7D" />
+
+    <TextView
+        android:id="@+id/header_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CarbonDate"
+        android:textColor="#E8CF7D"
+        android:textSize="28sp"
+        android:fontFamily="@font/italiana"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true" />
+
+    <ImageButton
+        android:id="@+id/notification_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentEnd="true"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_notifications"
+        android:scaleType="centerInside"
+        android:contentDescription="Notifications"
+        app:tint="#E8CF7D" />
+</RelativeLayout>
