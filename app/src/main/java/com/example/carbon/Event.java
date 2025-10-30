@@ -9,7 +9,7 @@ public class Event {
     private Integer totalSpots;
     private Date eventDate;
 
-
+    public Event() {}
 
     public Event(String title, String des, Integer totalSpots, Date newEventDate) {
         this.title = title;
@@ -22,7 +22,6 @@ public class Event {
     public String getTitle() {
         return title;
     }
-
     public void setTitle(String title) {
         this.title = title;
     }
@@ -30,15 +29,16 @@ public class Event {
     public String getDescription() {
         return description;
     }
-
     public void setDescription(String description) {
         this.description = description;
     }
 
+    public Integer getTotalSpots() { return totalSpots; }
+    public void setTotalSpots(Integer totalSpots) { this.totalSpots = totalSpots; }
+
     public void deactivateEvent() {
         active = false;
     }
-
     public void enableEvent() {
         active = true;
     }
