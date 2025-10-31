@@ -2,8 +2,9 @@ package com.example.carbon;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageButton;
+import android.widget.CompoundButton;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,8 +19,10 @@ import java.util.List;
 public class BrowseEventsActivity extends AppCompatActivity {
 
     private ActivityBrowseEventsBinding binding;
-    private EventsAdapter adapter;
+    private EventsAdapter eventsAdapter;
+    private UsersAdapter usersAdapter;
     private boolean isEditMode = false;
+    private boolean isProfilesView = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,22 +31,42 @@ public class BrowseEventsActivity extends AppCompatActivity {
         binding = ActivityBrowseEventsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Setup RecyclerView
+        // Setup the RecyclerView
         RecyclerView rv = binding.recyclerEvents;
         rv.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new EventsAdapter();
-        rv.setAdapter(adapter);
+        eventsAdapter = new EventsAdapter();
+        usersAdapter = new UsersAdapter();
+        rv.setAdapter(eventsAdapter);
 
-        adapter.setEditModeListener(() -> toggleEditMode());
-
-
-
-        // Add Delete listener
-        adapter.setDeleteListener((event, position) -> {
-            deleteEvent(event, position);
+        // Toggle switch for profiles in admin mode between events and profiles view
+        SwitchCompat toggleProfiles = binding.toggleProfiles;
+        toggleProfiles.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            isProfilesView = isChecked;
+            if (isProfilesView) {
+                loadUsers();
+            } else {
+                loadEvents();
+            }
         });
 
-        // Load the events
+        // Set long press listener to swich to admin mode
+        eventsAdapter.setLongPressListener(this::toggleEditMode);
+
+        // Set the delete listener for events
+        eventsAdapter.setDeleteListener(this::deleteEvent);
+
+        // Load the initial events
+        loadEvents();
+    }
+
+    private void toggleEditMode() {
+        isEditMode = !isEditMode;
+        eventsAdapter.setEditMode(isEditMode);
+        binding.toggleProfiles.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
+        Snackbar.make(binding.getRoot(), isEditMode ? "Admin Mode" : "Normal Mode", Snackbar.LENGTH_SHORT).show();
+    }
+
+    private void loadEvents() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("events")
                 .addSnapshotListener((snapshots, error) -> {
@@ -61,20 +84,32 @@ public class BrowseEventsActivity extends AppCompatActivity {
                             }
                         }
                     }
-                    adapter.updateList(eventList);
+                    eventsAdapter.updateList(eventList);
+                    binding.recyclerEvents.setAdapter(eventsAdapter);
                 });
-
-        ImageButton backButton = findViewById(R.id.back_button);
-        if (backButton != null) {
-            backButton.setOnClickListener(v -> finish());
-        }
     }
 
-    private void toggleEditMode() {
-        isEditMode = !isEditMode;
-        adapter.setEditMode(isEditMode);
-        String msg = isEditMode ? "Switched to Admin Mode" : "User Mode";
-        Snackbar.make(binding.getRoot(), msg, Snackbar.LENGTH_SHORT).show();
+    private void loadUsers() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users")
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Snackbar.make(binding.getRoot(), "Failed to load profiles", Snackbar.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    List<User> userList = new ArrayList<>();
+                    if (snapshots != null) {
+                        for (DocumentSnapshot doc : snapshots.getDocuments()) {
+                            User user = doc.toObject(User.class);
+                            if (user != null) {
+                                userList.add(user);
+                            }
+                        }
+                    }
+                    usersAdapter.updateList(userList);
+                    binding.recyclerEvents.setAdapter(usersAdapter);
+                });
     }
 
     private void deleteEvent(Event event, int position) {
@@ -87,11 +122,10 @@ public class BrowseEventsActivity extends AppCompatActivity {
                         String docId = querySnapshot.getDocuments().get(0).getId();
                         db.collection("events").document(docId).delete()
                                 .addOnSuccessListener(aVoid -> {
-                                    adapter.updateList(new ArrayList<>(adapter.getEvents()));
                                     Snackbar.make(binding.getRoot(), "Event deleted", Snackbar.LENGTH_SHORT).show();
                                 })
                                 .addOnFailureListener(e -> {
-                                    Snackbar.make(binding.getRoot(), "Delete failed", Snackbar.LENGTH_LONG).show();
+                                    Snackbar.make(binding.getRoot(), "Delete failed", Snackbar.LENGTH_SHORT).show();
                                 });
                     }
                 });
