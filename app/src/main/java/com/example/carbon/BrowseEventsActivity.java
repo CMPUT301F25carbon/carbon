@@ -1,25 +1,22 @@
 package com.example.carbon;
 
 import android.os.Bundle;
-
-import com.google.android.material.snackbar.Snackbar;
-
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.view.View;
-
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.carbon.databinding.ActivityBrowseEventsBinding;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BrowseEventsActivity extends AppCompatActivity {
 
-    private AppBarConfiguration appBarConfiguration;
     private ActivityBrowseEventsBinding binding;
+    private EventsAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,19 +25,29 @@ public class BrowseEventsActivity extends AppCompatActivity {
         binding = ActivityBrowseEventsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        binding.eventCard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Clicked on an event card!", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-    }
+        RecyclerView rv = binding.recyclerEvents;
+        rv.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new EventsAdapter();
+        rv.setAdapter(adapter);
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main2);
-        return NavigationUI.navigateUp(navController, appBarConfiguration)
-                || super.onSupportNavigateUp();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("events")
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Snackbar.make(binding.getRoot(), "Failed to load events", Snackbar.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    List<Event> eventList = new ArrayList<>();
+                    if (snapshots != null) {
+                        for (DocumentSnapshot doc : snapshots.getDocuments()) {
+                            Event event = doc.toObject(Event.class);
+                            if (event != null) {
+                                eventList.add(event);
+                            }
+                        }
+                    }
+                    adapter.updateList(eventList);
+                });
     }
 }

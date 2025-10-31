@@ -12,6 +12,7 @@ import android.widget.EditText;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import android.widget.ImageButton;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -57,6 +58,14 @@ public class CreateEventActivity extends AppCompatActivity {
                 createEvent();
             }
         });
+
+        // Set home button in bottom menu
+        ImageButton homeButton = findViewById(R.id.home_button);
+        if (homeButton != null) {
+            homeButton.setOnClickListener(v -> {
+                startActivity(new Intent(CreateEventActivity.this, BrowseEventsActivity.class));
+            });
+        }
     }
 
     /**
