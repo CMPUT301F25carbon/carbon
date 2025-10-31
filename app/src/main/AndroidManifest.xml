@@ -11,7 +11,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Carbon">
-
+        <activity
+            android:name=".BrowseEventsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Carbon" />
         <!-- 🔹 Dit is de launcher activity -->
         <activity
             android:name=".MainActivity"
@@ -19,33 +22,30 @@
             android:theme="@style/Theme.Carbon">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".SignUpActivity"
             android:exported="true"
             android:theme="@style/Theme.Carbon" />
-
         <activity
             android:name=".LogInActivity"
             android:exported="true"
             android:theme="@style/Theme.Carbon" />
-
         <activity
             android:name=".GuidelinesActivity"
             android:exported="true"
             android:theme="@style/Theme.Carbon" />
-        <activity android:name=".CreateEventActivity"
+        <activity
+            android:name=".CreateEventActivity"
             android:exported="true"
-            android:theme="@style/Theme.Carbon">
-
-        </activity>
-        <activity android:name=".DisplayQRCodeActivity"
+            android:theme="@style/Theme.Carbon"></activity>
+        <activity
+            android:name=".DisplayQRCodeActivity"
             android:exported="true"
-            android:theme="@style/Theme.Carbon"/>
-
+            android:theme="@style/Theme.Carbon" />
     </application>
 
 </manifest>

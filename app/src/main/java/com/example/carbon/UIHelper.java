@@ -45,5 +45,6 @@ public class UIHelper {
                 activity.startActivity(intent);
             });
         }
+
     }
 }
