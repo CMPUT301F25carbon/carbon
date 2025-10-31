@@ -74,7 +74,7 @@ public class BrowseEventsActivity extends AppCompatActivity {
     private void toggleEditMode() {
         isEditMode = !isEditMode;
         adapter.setEditMode(isEditMode);
-        String msg = isEditMode ? "Edit Mode: Tap trash to delete" : "Read Mode";
+        String msg = isEditMode ? "Switched to Admin Mode" : "User Mode";
         Snackbar.make(binding.getRoot(), msg, Snackbar.LENGTH_SHORT).show();
     }
 
