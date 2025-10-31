@@ -38,12 +38,12 @@ public class BrowseEventsActivity extends AppCompatActivity {
 
 
 
-        // Delete listener
+        // Add Delete listener
         adapter.setDeleteListener((event, position) -> {
             deleteEvent(event, position);
         });
 
-        // Load events
+        // Load the events
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("events")
                 .addSnapshotListener((snapshots, error) -> {
@@ -64,7 +64,6 @@ public class BrowseEventsActivity extends AppCompatActivity {
                     adapter.updateList(eventList);
                 });
 
-        // Bottom menu: Home button (already works), Back button
         ImageButton backButton = findViewById(R.id.back_button);
         if (backButton != null) {
             backButton.setOnClickListener(v -> finish());
