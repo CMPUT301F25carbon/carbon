@@ -18,24 +18,22 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.VH> {
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.US);
     private boolean isEditMode = false;
     private OnDeleteClickListener deleteListener;
-    private OnEditModeListener editModeListener;
-
-    public List<Event> getEvents() {
-        return events;
-    }
+    private OnLongPressListener longPressListener;
 
     public interface OnDeleteClickListener {
         void onDelete(Event event, int position);
     }
-    public interface OnEditModeListener {
-        void onEditMode();
+
+    public interface OnLongPressListener {
+        void onLongPress();
     }
 
     public void setDeleteListener(OnDeleteClickListener listener) {
         this.deleteListener = listener;
     }
-    public void setEditModeListener(OnEditModeListener listener) {
-        this.editModeListener = listener;
+
+    public void setLongPressListener(OnLongPressListener listener) {
+        this.longPressListener = listener;
     }
 
     public void setEditMode(boolean editMode) {
@@ -77,8 +75,8 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.VH> {
         }
 
         h.itemView.setOnLongClickListener(v -> {
-            if (editModeListener != null) {
-                editModeListener.onEditMode();
+            if (longPressListener != null) {
+                longPressListener.onLongPress();
             }
             return true;
         });
