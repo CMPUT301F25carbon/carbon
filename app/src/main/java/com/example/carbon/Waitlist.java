@@ -6,7 +6,6 @@ import java.util.List;
 
 public class Waitlist {
 
-    private String eventId;             // ID of the event this waitlist belongs to
     private List<String> userIds;       // Firebase stores user IDs (not the objects entirely)
     private Date opening;               // When waitlist opens
     private Date deadline;              // When waitlist closes
@@ -16,8 +15,7 @@ public class Waitlist {
     public Waitlist() {}
 
     // --- Constructor ---
-    public Waitlist(String eventId, Date opening, Date deadline){ //, int maxLimit) {
-        this.eventId = eventId;
+    public Waitlist(Date opening, Date deadline){ //, int maxLimit) {
         this.userIds = new ArrayList<>();
         this.opening = opening;
         this.deadline = deadline;
@@ -71,14 +69,12 @@ public class Waitlist {
     }
 
     // --- Getters for Firebase serialization ---
-    public String getEventId() { return eventId; }
     public List<String> getUserIds() { return userIds; }
     public Date getOpening() { return opening; }
     public Date getDeadline() { return deadline; }
     //public int getMaxLimit() { return maxLimit; }
 
     // --- Optional: Setter if needed by Firestore ---
-    public void setEventId(String eventId) { this.eventId = eventId; }
     public void setUserIds(List<String> userIds) { this.userIds = userIds; }
     public void setOpening(Date opening) { this.opening = opening; }
     public void setDeadline(Date deadline) { this.deadline = deadline; }

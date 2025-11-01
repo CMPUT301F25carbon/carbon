@@ -265,7 +265,7 @@ public class CreateEventActivity extends AppCompatActivity {
         String eventId = db.collection("events").document().getId();
 
         // --- 4. CREATE THE WAITLIST WITH THE EVENT ID ---
-        Waitlist newWaitlist = new Waitlist(eventId, openingDate, deadlineDate);
+        Waitlist newWaitlist = new Waitlist(openingDate, deadlineDate);
 
         // --- 5. CREATE THE EVENT OBJECT AND INCLUDE THE WAITLIST ---
         Event newEvent = new Event(title, des, seats, eventDate, address, city, province, country, ownerId, newWaitlist);
