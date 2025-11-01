@@ -43,6 +43,8 @@ public class CreateEventActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_event);
 
+        UIHelper.setupHeaderAndMenu(this);
+
         // Initialize all views from the layout
         setupViews();
 
