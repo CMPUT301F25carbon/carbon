@@ -46,6 +46,11 @@
             android:exported="true"
             android:theme="@style/Theme.Carbon"/>
 
+        <activity
+            android:name=".NotificationActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Carbon"/>
+
     </application>
 
 </manifest>
