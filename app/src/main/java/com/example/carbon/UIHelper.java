@@ -27,7 +27,7 @@ public class UIHelper {
 
         if (notificationsButton != null) {
             notificationsButton.setOnClickListener(v -> {
-                Intent intent = new Intent(activity, MainActivity.class);
+                Intent intent = new Intent(activity, NotificationActivity.class);
                 activity.startActivity(intent);
             });
         }

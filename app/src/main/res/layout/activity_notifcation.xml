@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/notifications_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#8C154F">
+
+    <!-- Include top header -->
+    <include
+        android:id="@+id/include_header"
+        layout="@layout/top_header" />
+
+    <!-- Include bottom navigation -->
+    <include
+        android:id="@+id/include_bottom_menu"
+        layout="@layout/bottom_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
+
+    <!-- Main notification container -->
+    <FrameLayout
+        android:id="@+id/notifications_panel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/include_header"
+        android:layout_above="@id/include_bottom_menu"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="32dp"
+        android:background="@drawable/rounded_panel">
+
+        <!-- Scrollable notification list -->
+        <ScrollView
+            android:id="@+id/notifications_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:id="@+id/notifications_list_container"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="80dp">
+
+                <!-- Notification items will be added here dynamically -->
+            </LinearLayout>
+
+        </ScrollView>
+
+    </FrameLayout>
+
+</RelativeLayout>
