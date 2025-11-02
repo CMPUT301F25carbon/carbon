@@ -23,6 +23,7 @@ public class BrowseEventsActivity extends AppCompatActivity {
     private UsersAdapter usersAdapter;
     private boolean isEditMode = false;
     private boolean isProfilesView = false;
+    private ArrayList<Event> currentEvents = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +35,7 @@ public class BrowseEventsActivity extends AppCompatActivity {
         // Setup the RecyclerView
         RecyclerView rv = binding.recyclerEvents;
         rv.setLayoutManager(new LinearLayoutManager(this));
-        eventsAdapter = new EventsAdapter();
+        eventsAdapter = new EventsAdapter(currentEvents);
         usersAdapter = new UsersAdapter();
         rv.setAdapter(eventsAdapter);
 

@@ -20,6 +20,10 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.VH> {
     private OnDeleteClickListener deleteListener;
     private OnLongPressListener longPressListener;
 
+    public EventsAdapter(ArrayList<Event> displayedEvents) {
+        this.events = displayedEvents;
+    }
+
     public interface OnDeleteClickListener {
         void onDelete(Event event, int position);
     }

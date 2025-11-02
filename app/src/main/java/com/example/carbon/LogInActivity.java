@@ -22,6 +22,8 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.Objects;
+
 public class LogInActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
@@ -59,7 +61,12 @@ public class LogInActivity extends AppCompatActivity {
                                         if (document.exists()) {
                                             String role = document.getString("role");
                                             saveUserToCache(userId, role);
-                                            startActivity(new Intent(LogInActivity.this, CreateEventActivity.class));
+                                            if (Objects.equals(role, "organizer")) {
+                                                startActivity(new Intent(LogInActivity.this, BrowseOrganizerEventsActivity.class));
+                                            }
+                                            else {
+                                                startActivity(new Intent(LogInActivity.this, BrowseEventsActivity.class));
+                                            }
                                             finish();
                                         } else {
                                             Toast.makeText(LogInActivity.this, "User data not found.", Toast.LENGTH_SHORT).show();
