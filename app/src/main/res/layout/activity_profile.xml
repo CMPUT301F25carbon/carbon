@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/profile_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#8C154F">
+
+    <!-- Top header -->
+    <include
+        android:id="@+id/include_header"
+        layout="@layout/top_header" />
+
+    <!-- Bottom nav -->
+    <include
+        android:id="@+id/include_bottom_menu"
+        layout="@layout/bottom_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
+
+    <!-- Purple panel -->
+    <LinearLayout
+        android:id="@+id/profile_panel"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/include_header"
+        android:layout_above="@id/include_bottom_menu"
+        android:padding="16dp"
+        android:background="@drawable/rounded_panel">
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tv_profile_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Profile"
+            android:textColor="#FCD694"
+            android:textSize="32sp"
+            android:fontFamily="@font/italiana"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Avatar + name/email -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:layout_marginBottom="12dp">
+
+            <ImageView
+                android:id="@+id/img_avatar"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:src="@drawable/ic_person"
+                android:contentDescription="Avatar"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/tv_profile_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Guest User"
+                android:textColor="#FCD694"
+                android:textSize="18sp"
+                android:fontFamily="@font/italiana" />
+
+            <TextView
+                android:id="@+id/tv_profile_email"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="guest@example.com"
+                android:textColor="#FCD694"
+                android:textSize="14sp"
+                android:fontFamily="@font/italiana"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <!-- Buttons row: Edit | Registrations -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <Button
+                android:id="@+id/btn_edit_profile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Edit"
+                android:backgroundTint="#F0F0F0"
+                android:textColor="#731B3F"
+                android:fontFamily="@font/italiana"
+                android:layout_marginEnd="12dp" />
+
+            <Button
+                android:id="@+id/btn_registrations"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Registrations"
+                android:backgroundTint="#F0F0F0"
+                android:textColor="#731B3F"
+                android:fontFamily="@font/italiana" />
+        </LinearLayout>
+
+        <!-- Section header -->
+        <TextView
+            android:id="@+id/tv_upcoming_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Your Upcoming Events"
+            android:textColor="#FCD694"
+            android:textSize="18sp"
+            android:fontFamily="@font/italiana"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Upcoming events list (placeholder; reuse your adapter later) -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_upcoming_events"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- Optional: Organized Events CTA (matches mockup, can hide for now) -->
+        <Button
+            android:id="@+id/btn_organized_events"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Organized Events"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp"
+            android:backgroundTint="#ED9029"
+            android:textColor="#FFFFFF"
+            android:fontFamily="@font/italiana" />
+    </LinearLayout>
+</RelativeLayout>

@@ -14,3 +14,19 @@
 .externalNativeBuild
 .cxx
 local.properties
+<<<<<<< HEAD
+/.idea/
+/build/
+/app/build/
+/.gradle/
+/caches/
+/wrapper/
+/captures/
+*.iml
+# Gradle daemon
+/daemon/
+
+=======
+>>>>>>> origin/main
+
+.idea/
