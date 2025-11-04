@@ -1,15 +1,23 @@
 package com.example.carbon;
 
+<<<<<<< HEAD
 import android.content.Intent;
+=======
+>>>>>>> origin/main
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+<<<<<<< HEAD
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+=======
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+>>>>>>> origin/main
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,14 +73,20 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.VH> {
         h.tvLocation.setText(e.getEventLocation() + ", " + e.getEventCity());
         h.tvSpots.setText(e.getTotalSpots() + " spots");
 
+<<<<<<< HEAD
         // delete button only in edit mode
         h.btnDelete.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
+=======
+        h.btnDelete.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
+
+>>>>>>> origin/main
         if (isEditMode) {
             h.btnDelete.setOnClickListener(v -> {
                 if (deleteListener != null) {
                     deleteListener.onDelete(e, h.getAdapterPosition());
                 }
             });
+<<<<<<< HEAD
             // disable open-details click when editing
             h.itemView.setOnClickListener(null);
         } else {
@@ -97,6 +111,12 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.VH> {
         }
 
         // Long press toggles edit mode (unchanged)
+=======
+        } else {
+            h.btnDelete.setOnClickListener(null);
+        }
+
+>>>>>>> origin/main
         h.itemView.setOnLongClickListener(v -> {
             if (longPressListener != null) {
                 longPressListener.onLongPress();

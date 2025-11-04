@@ -29,7 +29,11 @@
         android:layout_marginStart="0dp"
         android:layout_marginEnd="0dp"
         android:layout_marginTop="0dp"
+<<<<<<< HEAD
         android:layout_marginBottom="-16dp"
+=======
+        android:layout_marginBottom="-10dp"
+>>>>>>> origin/main
         android:background="@drawable/rounded_panel">
 
         <ScrollView
@@ -70,6 +74,10 @@
                     android:layout_height="wrap_content"
                     android:clipToPadding="false"
                     android:paddingBottom="16dp" />
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
             </LinearLayout>
         </ScrollView>
     </FrameLayout>

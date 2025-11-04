@@ -33,6 +33,7 @@
 
     <ImageButton
         android:id="@+id/notification_button"
+<<<<<<< HEAD
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_alignParentEnd="true"
@@ -46,4 +47,14 @@
         android:focusable="true"
         android:contentDescription="@string/notifications" />
 
+=======
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentEnd="true"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_notifications"
+        android:scaleType="centerInside"
+        android:contentDescription="Notifications"
+        app:tint="#E8CF7D" />
+>>>>>>> origin/main
 </RelativeLayout>

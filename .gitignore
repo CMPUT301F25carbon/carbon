@@ -13,6 +13,7 @@
 .externalNativeBuild
 .cxx
 local.properties
+<<<<<<< HEAD
 /.idea/
 /build/
 /app/build/
@@ -24,3 +25,5 @@ local.properties
 # Gradle daemon
 /daemon/
 
+=======
+>>>>>>> origin/main
