@@ -1,12 +1,15 @@
 package com.example.carbon;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,18 +65,38 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.VH> {
         h.tvLocation.setText(e.getEventLocation() + ", " + e.getEventCity());
         h.tvSpots.setText(e.getTotalSpots() + " spots");
 
+        // delete button only in edit mode
         h.btnDelete.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
-
         if (isEditMode) {
             h.btnDelete.setOnClickListener(v -> {
                 if (deleteListener != null) {
                     deleteListener.onDelete(e, h.getAdapterPosition());
                 }
             });
+            // disable open-details click when editing
+            h.itemView.setOnClickListener(null);
         } else {
             h.btnDelete.setOnClickListener(null);
+
+            // ✅ Open Event Details page on tap (UML: Home → Event Details)
+            h.itemView.setOnClickListener(v -> {
+                Intent intent = new Intent(v.getContext(), EventDetailsActivity.class);
+
+                // Pass what we safely have; EventDetailsActivity handles missing fields gracefully
+                intent.putExtra(EventDetailsActivity.EXTRA_EVENT_TITLE, e.getTitle());
+                intent.putExtra(EventDetailsActivity.EXTRA_EVENT_DATE, dateFormat.format(e.getEventDate()));
+                intent.putExtra(
+                        EventDetailsActivity.EXTRA_EVENT_COUNTS,
+                        e.getTotalSpots() + " spots"
+                );
+                // If your Event has an ID method later, you can add:
+                // intent.putExtra(EventDetailsActivity.EXTRA_EVENT_ID, e.getId());
+
+                v.getContext().startActivity(intent);
+            });
         }
 
+        // Long press toggles edit mode (unchanged)
         h.itemView.setOnLongClickListener(v -> {
             if (longPressListener != null) {
                 longPressListener.onLongPress();

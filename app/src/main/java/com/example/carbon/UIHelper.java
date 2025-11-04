@@ -34,14 +34,16 @@ public class UIHelper {
 
         if (homeButton != null) {
             homeButton.setOnClickListener(v -> {
-                Intent intent = new Intent(activity, MainActivity.class);
-                activity.startActivity(intent);
+                Intent i = new Intent(activity, BrowseEventsActivity.class); // <-- your real home
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                activity.startActivity(i);
             });
+
         }
 
         if (profileButton != null) {
             profileButton.setOnClickListener(v -> {
-                Intent intent = new Intent(activity, MainActivity.class);
+                Intent intent = new Intent(activity, ProfileActivity.class);
                 activity.startActivity(intent);
             });
         }

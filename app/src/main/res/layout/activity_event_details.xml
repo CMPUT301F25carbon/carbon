@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/event_details_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#8C154F">
+
+    <include
+        android:id="@+id/include_header"
+        layout="@layout/top_header" />
+
+    <include
+        android:id="@+id/include_bottom_menu"
+        layout="@layout/bottom_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
+
+    <LinearLayout
+        android:id="@+id/event_details_panel"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/include_header"
+        android:layout_above="@id/include_bottom_menu"
+        android:padding="16dp"
+        android:background="@drawable/rounded_panel">
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tv_event_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Urban Gardening 101"
+            android:textColor="#FCD694"
+            android:textSize="28sp"
+            android:fontFamily="@font/italiana"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Meta row -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tv_event_date"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="05/12/2025"
+                android:textColor="#FCD694"
+                android:fontFamily="@font/italiana"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tv_event_counts"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:textAlignment="viewEnd"
+                android:text="11 registrations / 5 spots"
+                android:textColor="#FCD694"
+                android:fontFamily="@font/italiana"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+
+        <!-- Action row -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="8dp">
+
+            <Button
+                android:id="@+id/btn_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Edit"
+                android:backgroundTint="#F0F0F0"
+                android:textColor="#731B3F"
+                android:fontFamily="@font/italiana"
+                android:layout_marginEnd="8dp"/>
+
+            <Button
+                android:id="@+id/btn_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cancel"
+                android:backgroundTint="#F0F0F0"
+                android:textColor="#731B3F"
+                android:fontFamily="@font/italiana"
+                android:layout_marginEnd="8dp"/>
+
+            <EditText
+                android:id="@+id/et_sample_n"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:hint="N"
+                android:background="@drawable/rounded_edittext"
+                android:padding="8dp"
+                android:layout_marginEnd="8dp"/>
+
+            <Button
+                android:id="@+id/btn_sample_n"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sample"
+                android:backgroundTint="#ED9029"
+                android:textColor="#FFFFFF"
+                android:fontFamily="@font/italiana"/>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Registrants"
+            android:textColor="#FCD694"
+            android:fontFamily="@font/italiana"
+            android:textSize="18sp"
+            android:layout_marginBottom="8dp"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_registrants"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+    </LinearLayout>
+</RelativeLayout>

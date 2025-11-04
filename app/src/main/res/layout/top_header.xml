@@ -33,12 +33,17 @@
 
     <ImageButton
         android:id="@+id/notification_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_alignParentEnd="true"
-        android:background="@android:color/transparent"
-        android:src="@drawable/ic_notifications"
-        android:scaleType="centerInside"
-        android:contentDescription="Notifications"
-        app:tint="#E8CF7D" />
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:padding="8dp"
+
+        app:srcCompat="@drawable/ic_notifications"
+        app:tint="#E8CF7D"
+
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="@string/notifications" />
+
 </RelativeLayout>

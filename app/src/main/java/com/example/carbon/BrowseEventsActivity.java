@@ -31,6 +31,8 @@ public class BrowseEventsActivity extends AppCompatActivity {
         binding = ActivityBrowseEventsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        UIHelper.setupHeaderAndMenu(this);
+
         // Setup the RecyclerView
         RecyclerView rv = binding.recyclerEvents;
         rv.setLayoutManager(new LinearLayoutManager(this));
