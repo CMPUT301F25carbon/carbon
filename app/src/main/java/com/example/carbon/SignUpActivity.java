@@ -9,6 +9,7 @@ import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.UnderlineSpan;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,8 +22,10 @@ import androidx.core.content.ContextCompat;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -54,13 +57,26 @@ public class SignUpActivity extends AppCompatActivity {
             String phoneNo = phoneNoField.getText().toString().trim();
 
             if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() ||
-                    password1.isEmpty() || password2.isEmpty()) {
-                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                    password1.isEmpty() || password2.isEmpty() || phoneNo.isEmpty()) {
+                Toast.makeText(this, "Please fill in all required fields", Toast.LENGTH_SHORT).show();
                 return;
-            } else if (password1.length() < 8) {
-                Toast.makeText(this, "Password must be at least 8 characters", Toast.LENGTH_SHORT).show();
+            }
+
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
                 return;
-            } else if (!password1.equals(password2)) {
+            }
+
+            if (!phoneNo.matches("^[0-9]{8,15}$")) {
+                Toast.makeText(this, "Please enter a valid phone number", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (password1.length() < 8) {
+                Toast.makeText(this, "Password must be at least 8 characters long", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (!password1.equals(password2)) {
                 Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -68,7 +84,9 @@ public class SignUpActivity extends AppCompatActivity {
             mAuth.createUserWithEmailAndPassword(email, password1)
                     .addOnCompleteListener(this, task -> {
                         if (task.isSuccessful()) {
+                            assert mAuth.getCurrentUser() != null;
                             String userId = mAuth.getCurrentUser().getUid();
+
                             Map<String, Object> userData = new HashMap<>();
                             userData.put("firstName", firstName);
                             userData.put("lastName", lastName);
@@ -76,22 +94,20 @@ public class SignUpActivity extends AppCompatActivity {
                             userData.put("phoneNo", phoneNo);
                             userData.put("role", "entrant");
 
-
                             FirebaseFirestore db = FirebaseFirestore.getInstance();
                             db.collection("users").document(userId)
                                     .set(userData)
-                                    .addOnSuccessListener(aVoid -> {
-                                        Toast.makeText(SignUpActivity.this, "Account created & saved!", Toast.LENGTH_SHORT).show();
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Toast.makeText(SignUpActivity.this, "Saved Auth but failed Firestore: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                                    });
+                                    .addOnSuccessListener(aVoid ->
+                                            Toast.makeText(SignUpActivity.this, "Account created & saved!", Toast.LENGTH_SHORT).show())
+                                    .addOnFailureListener(e ->
+                                            Toast.makeText(SignUpActivity.this, "Saved Auth but failed Firestore: " + e.getMessage(), Toast.LENGTH_LONG).show());
                         } else {
-                            Toast.makeText(SignUpActivity.this, "Error: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(SignUpActivity.this, "Error: " + Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_LONG).show();
                         }
                     });
         });
 
+        // CLICKABLE "LOG IN" TEXT
         String text = "Already have an account? Log in here";
         SpannableString spannable = new SpannableString(text);
 
