@@ -43,6 +43,8 @@ public class CreateEventActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_event);
+        // Setup header and footer
+        UIHelper.setupHeaderAndMenu(this);
 
         UIHelper.setupHeaderAndMenu(this);
 
@@ -267,7 +269,8 @@ public class CreateEventActivity extends AppCompatActivity {
         String eventId = db.collection("events").document().getId();
 
         // --- 4. CREATE THE WAITLIST WITH THE EVENT ID ---
-        Waitlist newWaitlist = new Waitlist(eventId, openingDate, deadlineDate);
+        Waitlist newWaitlist = new Waitlist(openingDate, deadlineDate);
+        newWaitlist.joinWaitlist(ownerId); // TODO Remove this later. Just for testing.
 
         // --- 5. CREATE THE EVENT OBJECT AND INCLUDE THE WAITLIST ---
         Event newEvent = new Event(title, des, seats, eventDate, address, city, province, country, ownerId, newWaitlist);

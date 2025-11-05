@@ -44,25 +44,25 @@
                 android:orientation="vertical"
                 android:gravity="center_horizontal">
 
+                <Button
+                    android:text="Create New Event"
+                    android:id="@+id/create_event_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#FFFFFF"
+                    android:backgroundTint="#ED9029"
+                    android:fontFamily="@font/italiana"/>
+
                 <TextView
-                    android:id="@+id/upcomingEvents_title"
+                    android:id="@+id/yourEvents_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
                     android:fontFamily="@font/italiana"
                     android:gravity="center"
-                    android:text="Upcoming Events"
+                    android:text="Your Events"
                     android:textColor="#F0DAA0"
                     android:textSize="44sp" />
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/toggle_profiles"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="View Profiles"
-                    android:textColor="#F0DAA0"
-                    android:visibility="gone"
-                    android:layout_marginBottom="8dp" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler_events"
@@ -70,6 +70,7 @@
                     android:layout_height="wrap_content"
                     android:clipToPadding="false"
                     android:paddingBottom="16dp" />
+
             </LinearLayout>
         </ScrollView>
     </FrameLayout>
