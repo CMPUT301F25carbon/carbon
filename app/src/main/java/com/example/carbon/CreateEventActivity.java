@@ -46,6 +46,8 @@ public class CreateEventActivity extends AppCompatActivity {
         // Setup header and footer
         UIHelper.setupHeaderAndMenu(this);
 
+        UIHelper.setupHeaderAndMenu(this);
+
         // Initialize all views from the layout
         setupViews();
 

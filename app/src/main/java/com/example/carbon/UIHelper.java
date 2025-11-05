@@ -27,21 +27,33 @@ public class UIHelper {
 
         if (notificationsButton != null) {
             notificationsButton.setOnClickListener(v -> {
-                Intent intent = new Intent(activity, MainActivity.class);
+                Intent intent = new Intent(activity, NotificationActivity.class);
                 activity.startActivity(intent);
             });
         }
 
         if (homeButton != null) {
             homeButton.setOnClickListener(v -> {
+<<<<<<< HEAD
+                Intent i = new Intent(activity, BrowseEventsActivity.class); // <-- your real home
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                activity.startActivity(i);
+            });
+
+=======
                 Intent intent = new Intent(activity, MainActivity.class);
                 activity.startActivity(intent);
             });
+>>>>>>> origin/main
         }
 
         if (profileButton != null) {
             profileButton.setOnClickListener(v -> {
+<<<<<<< HEAD
+                Intent intent = new Intent(activity, ProfileActivity.class);
+=======
                 Intent intent = new Intent(activity, MainActivity.class);
+>>>>>>> origin/main
                 activity.startActivity(intent);
             });
         }

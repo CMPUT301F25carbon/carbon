@@ -7,9 +7,26 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+/.idea/deploymentTargetSelector.xml
 .DS_Store
 /build
 /captures
 .externalNativeBuild
 .cxx
 local.properties
+<<<<<<< HEAD
+/.idea/
+/build/
+/app/build/
+/.gradle/
+/caches/
+/wrapper/
+/captures/
+*.iml
+# Gradle daemon
+/daemon/
+
+=======
+>>>>>>> origin/main
+
+.idea/

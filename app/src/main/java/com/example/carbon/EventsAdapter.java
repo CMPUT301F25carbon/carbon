@@ -1,5 +1,6 @@
 package com.example.carbon;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,6 +75,7 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.VH> {
         h.tvLocation.setText(e.getEventLocation() + ", " + e.getEventCity());
         h.tvSpots.setText(e.getTotalSpots() + " spots");
 
+        // delete button only in edit mode
         h.btnDelete.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
 
         h.itemView.setOnClickListener(v -> {
@@ -88,8 +90,27 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.VH> {
                     deleteListener.onDelete(e, h.getAdapterPosition());
                 }
             });
+            // disable open-details click when editing
+            h.itemView.setOnClickListener(null);
         } else {
             h.btnDelete.setOnClickListener(null);
+
+            // ✅ Open Event Details page on tap (UML: Home → Event Details)
+            h.itemView.setOnClickListener(v -> {
+                Intent intent = new Intent(v.getContext(), EventDetailsActivity.class);
+
+                // Pass what we safely have; EventDetailsActivity handles missing fields gracefully
+                intent.putExtra(EventDetailsActivity.EXTRA_EVENT_TITLE, e.getTitle());
+                intent.putExtra(EventDetailsActivity.EXTRA_EVENT_DATE, dateFormat.format(e.getEventDate()));
+                intent.putExtra(
+                        EventDetailsActivity.EXTRA_EVENT_COUNTS,
+                        e.getTotalSpots() + " spots"
+                );
+                // If your Event has an ID method later, you can add:
+                // intent.putExtra(EventDetailsActivity.EXTRA_EVENT_ID, e.getId());
+
+                v.getContext().startActivity(intent);
+            });
         }
 
         h.itemView.setOnLongClickListener(v -> {
