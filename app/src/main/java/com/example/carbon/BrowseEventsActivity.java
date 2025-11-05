@@ -1,5 +1,6 @@
 package com.example.carbon;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -13,8 +14,10 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class BrowseEventsActivity extends AppCompatActivity {
 
@@ -23,6 +26,8 @@ public class BrowseEventsActivity extends AppCompatActivity {
     private UsersAdapter usersAdapter;
     private boolean isEditMode = false;
     private boolean isProfilesView = false;
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.US);
+
     private ArrayList<Event> currentEvents = new ArrayList<>();
 
     @Override
@@ -57,6 +62,20 @@ public class BrowseEventsActivity extends AppCompatActivity {
 
         // Set the delete listener for events
         eventsAdapter.setDeleteListener(this::deleteEvent);
+
+        eventsAdapter.setOnItemClickListener(event -> {
+            // ✅ Open Event Details page on tap (UML: Home → Event Details)
+            Intent intent = new Intent(BrowseEventsActivity.this, EventDetailsActivity.class);
+
+            // Pass the event data to the details activity
+            intent.putExtra("EXTRA_EVENT_TITLE", event.getTitle());
+            intent.putExtra("EXTRA_EVENT_DATE", dateFormat.format(event.getEventDate()));
+            intent.putExtra("EXTRA_EVENT_COUNTS", event.getTotalSpots() + " spots");
+            // Pass the event's unique ID so the details page can fetch more info if needed
+            intent.putExtra("EXTRA_EVENT_ID", event.getUuid());
+
+            startActivity(intent);
+        });
 
         // Load the initial events
         loadEvents();

@@ -92,25 +92,6 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.VH> {
             });
             // disable open-details click when editing
             h.itemView.setOnClickListener(null);
-        } else {
-            h.btnDelete.setOnClickListener(null);
-
-            // ✅ Open Event Details page on tap (UML: Home → Event Details)
-            h.itemView.setOnClickListener(v -> {
-                Intent intent = new Intent(v.getContext(), EventDetailsActivity.class);
-
-                // Pass what we safely have; EventDetailsActivity handles missing fields gracefully
-                intent.putExtra(EventDetailsActivity.EXTRA_EVENT_TITLE, e.getTitle());
-                intent.putExtra(EventDetailsActivity.EXTRA_EVENT_DATE, dateFormat.format(e.getEventDate()));
-                intent.putExtra(
-                        EventDetailsActivity.EXTRA_EVENT_COUNTS,
-                        e.getTotalSpots() + " spots"
-                );
-                // If your Event has an ID method later, you can add:
-                // intent.putExtra(EventDetailsActivity.EXTRA_EVENT_ID, e.getId());
-
-                v.getContext().startActivity(intent);
-            });
         }
 
         h.itemView.setOnLongClickListener(v -> {
