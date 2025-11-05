@@ -44,28 +44,19 @@
                 android:orientation="vertical"
                 android:gravity="center_horizontal">
 
-                <Button
-                    android:text="Create New Event"
-                    android:id="@+id/create_event_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#FFFFFF"
-                    android:backgroundTint="#ED9029"
-                    android:fontFamily="@font/italiana"/>
-
                 <TextView
-                    android:id="@+id/yourEvents_title"
+                    android:id="@+id/eventWaitlist_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
                     android:fontFamily="@font/italiana"
                     android:gravity="center"
-                    android:text="Your Events"
+                    android:text="Event Waitlist"
                     android:textColor="#F0DAA0"
                     android:textSize="44sp" />
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recycler_events"
+                    android:id="@+id/recycler_waitlist"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clipToPadding="false"

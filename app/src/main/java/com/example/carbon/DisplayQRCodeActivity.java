@@ -50,8 +50,8 @@ public class DisplayQRCodeActivity extends AppCompatActivity {
 
         // Set a listener for the "Done" button to close this activity
         doneButton.setOnClickListener(v -> {
-            // Navigate to BrowseEventsActivity (event list)
-            Intent newIntent = new Intent(DisplayQRCodeActivity.this, BrowseEventsActivity.class);
+            // Navigate to BrowseOrganizerEventsActivity (event list)
+            Intent newIntent = new Intent(DisplayQRCodeActivity.this, BrowseOrganizerEventsActivity.class);
             startActivity(newIntent);
             // Finishes the QR code activity and returns to whatever is next in the stack
             finish();

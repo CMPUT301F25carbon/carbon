@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 public class BrowseOrganizerEventsActivity extends AppCompatActivity {
     private EventList eventList;
-    private EventsAdapter adapter; // Assuming you have a RecyclerView and an adapter
+    private EventsAdapter adapter;
     private ArrayList<Event> displayedEvents = new ArrayList<>();
     private Button createEventButton;
 
@@ -26,8 +26,9 @@ public class BrowseOrganizerEventsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_browse_organizer_events);
-
-        // Setup your RecyclerView and adapter
+        // Setup header and footer
+        UIHelper.setupHeaderAndMenu(this);
+        // Setup RecyclerView and adapter
         RecyclerView recyclerView = findViewById(R.id.recycler_events);
         adapter = new EventsAdapter(displayedEvents); // Initialize adapter with an empty list
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -43,6 +44,18 @@ public class BrowseOrganizerEventsActivity extends AppCompatActivity {
         createEventButton = findViewById(R.id.create_event_btn);
         createEventButton.setOnClickListener(v -> {
             startActivity(new Intent(BrowseOrganizerEventsActivity.this, CreateEventActivity.class));
+        });
+
+        adapter.setOnItemClickListener(event -> {
+            // Create an Intent to start EventWaitlistActivity
+            Intent intent = new Intent(BrowseOrganizerEventsActivity.this, EventWaitlistActivity.class);
+
+            // Pass the unique ID of the clicked event to the next activity.
+            // You will need to add getUuid() or a similar method to your Event class.
+            intent.putExtra("EVENT_ID", event.getUuid());
+
+            // Start the new activity
+            startActivity(intent);
         });
     }
 
@@ -60,7 +73,7 @@ public class BrowseOrganizerEventsActivity extends AppCompatActivity {
         eventList.fetchOrganizerEvents(ownerId, new EventList.EventListCallback() {
             @Override
             public void onEventsFetched(ArrayList<Event> events) {
-                // Update your adapter's data and notify it to refresh the UI
+                // Update adapter's data and notify it to refresh the UI
                 displayedEvents.clear();
                 displayedEvents.addAll(events);
                 adapter.notifyDataSetChanged();

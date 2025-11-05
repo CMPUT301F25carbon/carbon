@@ -50,6 +50,9 @@
             android:name=".BrowseOrganizerEventsActivity"
             android:exported="true"
             android:theme="@style/Theme.Carbon" />
+        <activity android:name=".EventWaitlistActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Carbon"/>
     </application>
 
 </manifest>

@@ -19,6 +19,11 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.VH> {
     private boolean isEditMode = false;
     private OnDeleteClickListener deleteListener;
     private OnLongPressListener longPressListener;
+    private OnItemClickListener itemClickListener;
+
+    public interface OnItemClickListener {
+        void onItemClick(Event event);
+    }
 
     public EventsAdapter(ArrayList<Event> displayedEvents) {
         this.events = displayedEvents;
@@ -34,6 +39,9 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.VH> {
 
     public void setDeleteListener(OnDeleteClickListener listener) {
         this.deleteListener = listener;
+    }
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.itemClickListener = listener;
     }
 
     public void setLongPressListener(OnLongPressListener listener) {
@@ -67,6 +75,12 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.VH> {
         h.tvSpots.setText(e.getTotalSpots() + " spots");
 
         h.btnDelete.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
+
+        h.itemView.setOnClickListener(v -> {
+            if (itemClickListener != null) {
+                itemClickListener.onItemClick(e);
+            }
+        });
 
         if (isEditMode) {
             h.btnDelete.setOnClickListener(v -> {
