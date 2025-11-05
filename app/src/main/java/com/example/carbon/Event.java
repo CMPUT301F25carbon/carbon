@@ -64,13 +64,4 @@ public class Event {
         return active;
     }
 
-   
-    public int getWaitlistCount() {
-         // Returns how many entrants are currently on this event's waitlist
-        if (waitlist == null) {
-            return 0;
-        }
-        return waitlist.getEntrants().size();
-    }
-
 }
