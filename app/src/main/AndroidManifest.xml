@@ -85,6 +85,11 @@
             android:exported="true"
             android:theme="@style/Theme.Carbon" />
 
+        <activity
+            android:name=".AllUsersActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Carbon" />
+
     </application>
 
 </manifest>
