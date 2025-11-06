@@ -164,25 +164,40 @@
                 android:focusable="false"
                 />
 
-                <EditText
-                    android:hint="Registration Deadline (optional)"
-                    android:id="@+id/create_event_registration_deadline_input"
-                    android:backgroundTint="#FCD694"
-                    android:layout_marginVertical="8dp"
-                    android:padding="12dp"
-                    android:textColor="#731B3F"
-                    android:textColorHint="#A67852"
-                    android:background="@drawable/rounded_edittext"
-                    android:layout_width="325dp"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/italiana"
-                    android:inputType="datetime"
-                    android:focusable="false"
-                    />
+            <EditText
+                android:hint="Registration Deadline (optional)"
+                android:id="@+id/create_event_registration_deadline_input"
+                android:backgroundTint="#FCD694"
+                android:layout_marginVertical="8dp"
+                android:padding="12dp"
+                android:textColor="#731B3F"
+                android:textColorHint="#A67852"
+                android:background="@drawable/rounded_edittext"
+                android:layout_width="325dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/italiana"
+                android:inputType="datetime"
+                android:focusable="false"
+                />
 
             <EditText
                 android:hint="Number of Seats *"
                 android:id="@+id/create_event_seats_input"
+                android:backgroundTint="#FCD694"
+                android:layout_marginVertical="8dp"
+                android:padding="12dp"
+                android:textColor="#731B3F"
+                android:textColorHint="#A67852"
+                android:background="@drawable/rounded_edittext"
+                android:layout_width="325dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/italiana"
+                android:inputType="number"
+                />
+
+            <EditText
+                android:hint="Waitlist Capacity (optional)"
+                android:id="@+id/create_event_max_waitlist_input"
                 android:backgroundTint="#FCD694"
                 android:layout_marginVertical="8dp"
                 android:padding="12dp"
