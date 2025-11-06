@@ -1,5 +1,6 @@
 package com.example.carbon;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,15 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.VH> {
     private boolean isEditMode = false;
     private OnDeleteClickListener deleteListener;
     private OnLongPressListener longPressListener;
+    private OnItemClickListener itemClickListener;
+
+    public interface OnItemClickListener {
+        void onItemClick(Event event);
+    }
+
+    public EventsAdapter(ArrayList<Event> displayedEvents) {
+        this.events = displayedEvents;
+    }
 
     public interface OnDeleteClickListener {
         void onDelete(Event event, int position);
@@ -30,6 +40,9 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.VH> {
 
     public void setDeleteListener(OnDeleteClickListener listener) {
         this.deleteListener = listener;
+    }
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.itemClickListener = listener;
     }
 
     public void setLongPressListener(OnLongPressListener listener) {
@@ -62,7 +75,14 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.VH> {
         h.tvLocation.setText(e.getEventLocation() + ", " + e.getEventCity());
         h.tvSpots.setText(e.getTotalSpots() + " spots");
 
+        // delete button only in edit mode
         h.btnDelete.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
+
+        h.itemView.setOnClickListener(v -> {
+            if (itemClickListener != null) {
+                itemClickListener.onItemClick(e);
+            }
+        });
 
         if (isEditMode) {
             h.btnDelete.setOnClickListener(v -> {
@@ -70,8 +90,8 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.VH> {
                     deleteListener.onDelete(e, h.getAdapterPosition());
                 }
             });
-        } else {
-            h.btnDelete.setOnClickListener(null);
+            // disable open-details click when editing
+            h.itemView.setOnClickListener(null);
         }
 
         h.itemView.setOnLongClickListener(v -> {

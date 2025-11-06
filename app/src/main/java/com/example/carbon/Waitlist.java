@@ -6,22 +6,27 @@ import java.util.List;
 
 public class Waitlist {
 
-    private String eventId;             // ID of the event this waitlist belongs to
-    private List<String> userIds;       // Firebase stores user IDs (not the objects entirely)
+    private List<WaitlistEntrant> waitlistEntrants;       // Firebase stores user IDs (not the objects entirely)
     private Date opening;               // When waitlist opens
     private Date deadline;              // When waitlist closes
-    //private int maxLimit;               // Max number of entrants allowed: if we need it!!!
+    private int maxLimit;               // Max number of entrants allowed
 
     // --- Firestore requires a no-argument constructor ---
     public Waitlist() {}
 
     // --- Constructor ---
-    public Waitlist(String eventId, Date opening, Date deadline){ //, int maxLimit) {
-        this.eventId = eventId;
-        this.userIds = new ArrayList<>();
+    public Waitlist(Date opening, Date deadline, int maxLimit) {
+        this.waitlistEntrants = new ArrayList<WaitlistEntrant>();
         this.opening = opening;
         this.deadline = deadline;
-        //this.maxLimit = maxLimit; Do we need a limit for the waitlist? ---Ask TA
+        this.maxLimit = maxLimit;
+    }
+
+    public Waitlist(Date opening, Date deadline) {
+        this.waitlistEntrants = new ArrayList<WaitlistEntrant>();
+        this.opening = opening;
+        this.deadline = deadline;
+        this.maxLimit = Integer.MAX_VALUE;
     }
 
     // --- Join waitlist ---
@@ -33,54 +38,52 @@ public class Waitlist {
             return false;
         }
 
-    //       if (userIds.size() >= maxLimit) {
-    //        System.out.println("Waitlist is full for event: " + eventId);
-      //      return false;
-        //}
-
-
-        if (userIds.contains(userId)) {
-            System.out.println("User already on waitlist.");
+           if (waitlistEntrants.size() >= maxLimit) {
+            System.out.println("Waitlist is full for event");
             return false;
         }
 
-        userIds.add(userId);
+        WaitlistEntrant newWaitlistEntrant = new WaitlistEntrant(userId, new Date());
+           // look for userId already within the waitlist
+        for (WaitlistEntrant waitlistEntrant : waitlistEntrants) {
+            if (waitlistEntrant.getUserId().equals(userId)) {
+                System.out.println("User already on waitlist.");
+                return false;
+            }
+        }
+
+        waitlistEntrants.add(newWaitlistEntrant);
         System.out.println("User " + userId + " joined the waitlist.");
         return true;
     }
 
     // --- Leave waitlist ---
     public boolean leaveWaitlist(String userId) {
-        if (userIds.remove(userId)) {
-            System.out.println("User " + userId + " left the waitlist.");
-            return true;
-        } else {
-            System.out.println("User not found on waitlist.");
-            return false;
+        for (WaitlistEntrant waitlistEntrant : waitlistEntrants) {
+            if (waitlistEntrant.getUserId().equals(userId)) {
+                waitlistEntrants.remove(waitlistEntrant);
+                System.out.println("User " + userId + " left the waitlist.");
+                return true;
+            }
         }
+        System.out.println("User not found on waitlist.");
+        return false;
     }
 
     // --- Get total count ---
     public int getWaitlistCount() {
-        return userIds.size();
+        return waitlistEntrants.size();
     }
 
     // --- Check if a user is on waitlist ---
     public boolean isUserOnWaitlist(String userId) {
-        return userIds.contains(userId);
+        return waitlistEntrants.contains(userId);
     }
 
     // --- Getters for Firebase serialization ---
-    public String getEventId() { return eventId; }
-    public List<String> getUserIds() { return userIds; }
+    public List<WaitlistEntrant> getWaitlistEntrants() { return waitlistEntrants; }
     public Date getOpening() { return opening; }
     public Date getDeadline() { return deadline; }
     //public int getMaxLimit() { return maxLimit; }
 
-    // --- Optional: Setter if needed by Firestore ---
-    public void setEventId(String eventId) { this.eventId = eventId; }
-    public void setUserIds(List<String> userIds) { this.userIds = userIds; }
-    public void setOpening(Date opening) { this.opening = opening; }
-    public void setDeadline(Date deadline) { this.deadline = deadline; }
-    //public void setMaxLimit(int maxLimit) { this.maxLimit = maxLimit; }
 }
