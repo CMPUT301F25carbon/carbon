@@ -34,9 +34,9 @@ public class UIHelper {
 
         if (homeButton != null) {
             homeButton.setOnClickListener(v -> {
-                Intent i = new Intent(activity, BrowseEventsActivity.class); // <-- your real home
-                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                activity.startActivity(i);
+                Intent intent = new Intent(activity, SelectedListActivity.class);
+                intent.putExtra("EVENT_ID", "5687b254-c268-4a16-9705-9b51573324ba"); // <-- jouw event ID
+                activity.startActivity(intent);
             });
         }
         if (profileButton != null) {

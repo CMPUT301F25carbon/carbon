@@ -81,6 +81,11 @@
             android:exported="true"
             android:theme="@style/Theme.Carbon" />
 
+        <activity
+            android:name=".SelectedListActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Carbon" />
+
     </application>
 
 </manifest>
