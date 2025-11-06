@@ -13,29 +13,36 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The QRCodeGenerator generates a QR code... Duh.
+ * It has methods to create a bitmap image, but the object is not stored in the DB,
+ * as storing the QR code's image is more costly than just creating it again when needed
+ *
+ * @author Cooper Goddard
+ */
 public class QRCodeGenerator {
 
-    // Define your app's custom scheme/prefix for the deep link
-    private static final String APP_SCHEME = "carbondate://events/";
+    // Define custom link within app
+    private static final String APP_SCHEME = "carbondate://events/"; //TODO fix this with proper link
     private static final int QR_SIZE = 500; // 500x500 pixels
 
     /**
      * Generates a Bitmap image of a QR code that encodes the event's deep link.
      * @param eventUuid The unique UUID of the event.
      * @return A Bitmap representing the QR code, or null on failure.
+     *
+     * @author Cooper Goddard
      */
     public static Bitmap generateQRCode(UUID eventUuid) {
-        // 1. Construct the complete deep link URL
         String content = APP_SCHEME + eventUuid.toString();
 
-        // 2. Setup Zxing hints
         Map<EncodeHintType, Object> hints = new HashMap<>();
         // Set error correction level to HIGH for better scannability
         hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
         hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
 
         try {
-            // 3. Encode the content into a BitMatrix
+            // Encode the content into a BitMatrix
             QRCodeWriter writer = new QRCodeWriter();
             BitMatrix bitMatrix = writer.encode(
                     content,
@@ -45,7 +52,7 @@ public class QRCodeGenerator {
                     hints
             );
 
-            // 4. Convert the BitMatrix to a Bitmap
+            // Convert the BitMatrix to a Bitmap
             int width = bitMatrix.getWidth();
             int height = bitMatrix.getHeight();
             Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
@@ -60,7 +67,7 @@ public class QRCodeGenerator {
 
         } catch (WriterException e) {
             e.printStackTrace();
-            return null; // Handle this error in your UI
+            return null;
         }
     }
 }
