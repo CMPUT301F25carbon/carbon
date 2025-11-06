@@ -15,6 +15,13 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 
+/**
+ * The BrowseOrganizerEventsActivity holds the logic for the activity_browse_organizer_events.xml page.
+ * For a given user that is logged in an viewing this page, a list of the events that they own will be
+ * fetched from the DB and displayed.
+ *
+ * @author Cooper Goddard
+ */
 public class BrowseOrganizerEventsActivity extends AppCompatActivity {
     private EventList eventList;
     private EventsAdapter adapter;
@@ -34,7 +41,7 @@ public class BrowseOrganizerEventsActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
-        // Initialize your EventList
+        // Initialize EventList
         eventList = new EventList();
 
         // Start fetching the data
@@ -51,7 +58,6 @@ public class BrowseOrganizerEventsActivity extends AppCompatActivity {
             Intent intent = new Intent(BrowseOrganizerEventsActivity.this, EventWaitlistActivity.class);
 
             // Pass the unique ID of the clicked event to the next activity.
-            // You will need to add getUuid() or a similar method to your Event class.
             intent.putExtra("EVENT_ID", event.getUuid());
 
             // Start the new activity
@@ -59,6 +65,11 @@ public class BrowseOrganizerEventsActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Gathers current user data and loads the events that belong to them, adds them to the array adapter for visualization
+     *
+     * @author Cooper Goddard
+     */
     private void loadEventsFromDatabase() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {

@@ -18,6 +18,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * The EventWaitlistActivity holds the logic of the activity_event_waitlist.xml page.
+ * Allows an organizer to view the waitlist of the event that they own.
+ * It is expected that the activity is passed an EVENT_ID through the activity intent
+ *
+ * @author Cooper Goddard
+ */
 public class EventWaitlistActivity extends AppCompatActivity {
     private Waitlist waitlist;
     private WaitlistAdapter adapter;
@@ -52,6 +59,12 @@ public class EventWaitlistActivity extends AppCompatActivity {
         loadWaitlistFromDatabase(eventId);
     }
 
+    /**
+     * Loads the waitlist of the event based on the passed ID, loads all waitlist entrants into adapter for visualization
+     * @param eventId The ID of the event to view the waitlist of
+     *
+     * @author Cooper Goddard
+     */
     private void loadWaitlistFromDatabase(String eventId) {
         Log.d("Waitlist DB", eventId);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -61,21 +74,21 @@ public class EventWaitlistActivity extends AppCompatActivity {
 
         query.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                // 2. Check if the query returned any results
+                // Check if the query returned any results
                 if (!task.getResult().isEmpty()) {
-                    // 3. Get the first (and only) document from the query result
+                    // Get the first (and only, otherwise something is very wrong lol) document from the query result
                     DocumentSnapshot document = task.getResult().getDocuments().get(0);
 
-                    // 4. Convert the document into an Event object
+                    // Convert the document into an Event object
                     Event event = document.toObject(Event.class);
 
                     if (event != null && event.getWaitlist() != null) {
-                        // 5. Get the nested Waitlist object from the Event
+                        // Get the nested Waitlist object from the Event
                         this.waitlist = event.getWaitlist();
                         List<WaitlistEntrant> entrants = this.waitlist.getWaitlistEntrants();
 
                         if (entrants != null) {
-                            // 6. Update the adapter with the list of entrants
+                            // Update the adapter with the list of entrants
                             displayedEntrants.clear();
                             displayedEntrants.addAll(entrants);
                             adapter.notifyDataSetChanged();
@@ -87,9 +100,11 @@ public class EventWaitlistActivity extends AppCompatActivity {
                             }
                         } else {
                             Toast.makeText(EventWaitlistActivity.this, "Event not found.", Toast.LENGTH_SHORT).show();
+                            finish();
                         }
                     } else {
                         Toast.makeText(EventWaitlistActivity.this, "Failed to load event data.", Toast.LENGTH_SHORT).show();
+                        finish();
                     }
                 });
     }

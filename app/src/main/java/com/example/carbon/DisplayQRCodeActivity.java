@@ -10,6 +10,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.UUID;
 
+/**
+ * The DisplayQRCodeActivity displays a QR code through the activity_display_qrcode.xml page.
+ * It is expected that a EVENT_UUID is passed through the activity intent in order to generate the QR code.
+ *
+ * @author Cooper Goddard
+ */
 public class DisplayQRCodeActivity extends AppCompatActivity {
 
     private ImageView qrCodeImageView;
@@ -46,6 +52,7 @@ public class DisplayQRCodeActivity extends AppCompatActivity {
         } else {
             // Handle the case where the UUID was not passed
             Toast.makeText(this, "Error: Event ID not found.", Toast.LENGTH_LONG).show();
+            finish();
         }
 
         // Set a listener for the "Done" button to close this activity
