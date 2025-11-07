@@ -60,6 +60,11 @@ public class WaitlistEntrant {
         return selected;
     }
 
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+
     /**
      * Interface for creating a callback when fetching the users of the waitlistEntrant,
      * useful for anything that must be done asynchronously (like DB calls)
