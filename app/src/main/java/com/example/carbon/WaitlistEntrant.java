@@ -16,7 +16,11 @@ import java.util.Date;
 public class WaitlistEntrant {
     private String userId;
     private Date registrationDate;
-    private boolean selected;
+    /**
+     * The status flow as such:
+     * "Not Selected" --> "Pending" --> "Accepted" || "Denied" || "Expired"
+     */
+    private String status;
 
     // --- Firestore requires a no-argument constructor ---
     public WaitlistEntrant() {
@@ -26,7 +30,7 @@ public class WaitlistEntrant {
     public WaitlistEntrant(String userId, Date registrationDate) {
         this.userId = userId;
         this.registrationDate = registrationDate;
-        this.selected = false;
+        this.status = "Not Selected";
     }
 
     /**
@@ -52,12 +56,12 @@ public class WaitlistEntrant {
 
     /**
      * Returns the status of the waitlistEntrant
-     * @return true if the waitlistEntrant has been selected, false otherwise
+     * @return the string object of the status
      *
      * @author Cooper Goddard
      */
-    public boolean isSelected() {
-        return selected;
+    public String getStatus() {
+        return status;
     }
 
     /**

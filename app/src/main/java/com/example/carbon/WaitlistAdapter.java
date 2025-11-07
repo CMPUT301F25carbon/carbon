@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * An adapter to display a list of WaitlistEntrant objects in a RecyclerView.
@@ -81,11 +82,11 @@ public class WaitlistAdapter extends RecyclerView.Adapter<WaitlistAdapter.ViewHo
         }
 
         // Add status
-        if (entrant.isSelected()) {
-            holder.statusTextView.setText("Selected");
+        if (!Objects.equals(entrant.getStatus(), "Not Selected")) { // If is any status other than selected
+            holder.statusTextView.setText(entrant.getStatus());
             holder.selectEntrantButton.setVisibility(View.GONE);
         } else {
-            holder.statusTextView.setText("Not Selected");
+            holder.statusTextView.setText(entrant.getStatus());
         }
     }
 

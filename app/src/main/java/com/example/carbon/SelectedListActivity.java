@@ -17,6 +17,7 @@ import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class SelectedListActivity extends AppCompatActivity {
     private Waitlist waitlist;
@@ -69,7 +70,7 @@ public class SelectedListActivity extends AppCompatActivity {
                             selectedEntrants.clear();
 
                             for (WaitlistEntrant entrant : entrants) {
-                                if (entrant != null && entrant.isSelected()) {
+                                if (entrant != null && !Objects.equals(entrant.getStatus(), "Not Selected")) {
                                     selectedEntrants.add(entrant);
                                 }
                             }
