@@ -1,5 +1,6 @@
 package com.example.carbon;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.List;
 
+/**
+ * Activity that displays all notifications for a user.
+ * Each notification shows information about events and allows
+ * the user to interact depending on the type of notification
+ */
 public class NotificationActivity extends AppCompatActivity {
     private LinearLayout notificationContainer;
     private NotificationService notificationService;
@@ -24,6 +30,7 @@ public class NotificationActivity extends AppCompatActivity {
 
         notificationContainer = findViewById(R.id.notifications_list_container);
 
+        // Choose between mock and firebase service
         if (USE_MOCK_SERVICE) {
             notificationService = new MockNotificationService();
         } else {
@@ -36,12 +43,24 @@ public class NotificationActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Fetches Notifications for a specific user and displays them.
+     * @param userId the ID of the user whose notifications are being loaded
+     */
     private void loadNotifications(String userId) {
         notificationService.fetchNotifications(userId, notifications -> {
             runOnUiThread(() -> displayNotifications(notifications));
         });
     }
 
+    /**
+     * Displays a list of notifications in the layout.
+     * Each notification item reacts differently based on its type:
+     * - "invitation": Opens an invitation dialog
+     * - "chosen": Opens event details
+     * - Other: Marks notification as seen
+     * @param notifications the list of notifications to display
+     */
     private void displayNotifications(List<Notification> notifications) {
         LayoutInflater inflater = LayoutInflater.from(this);
         notificationContainer.removeAllViews();
@@ -56,11 +75,21 @@ public class NotificationActivity extends AppCompatActivity {
             messageView.setText(notification.getMessage());
 
             itemView.setOnClickListener(v -> {
-                if ("invitation".equalsIgnoreCase(notification.getType())) {
+                if ("invitation".equalsIgnoreCase(notification.getType())) {    // This will open the accept/decline dialog for invitation notifications
                     InvitationDialog dialog = new InvitationDialog(
                             this, notification, notificationService, itemView
                     );
                     dialog.show();
+                } else if ("chosen".equalsIgnoreCase(notification.getType())) {
+                    notificationService.markAsSeen(notification);
+                    messageView.setTextColor(getColor(android.R.color.darker_gray));
+                    Intent intent = new Intent(this, EventDetailsActivity.class);
+                    intent.putExtra(EventDetailsActivity.EXTRA_EVENT_ID, notification.getEventId());
+                    intent.putExtra(EventDetailsActivity.EXTRA_EVENT_TITLE, notification.getEventName());
+                    intent.putExtra(EventDetailsActivity.EXTRA_EVENT_DATE, "Unknown"); // For now as placeholder, will change implementation of notification system
+                    intent.putExtra(EventDetailsActivity.EXTRA_EVENT_COUNTS, "");
+                    startActivity(intent);
+
                 } else {
                     notificationService.markAsSeen(notification);
                     messageView.setTextColor(getColor(android.R.color.darker_gray));

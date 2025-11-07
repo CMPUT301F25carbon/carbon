@@ -11,7 +11,7 @@ public class MockNotificationService implements NotificationService{
     public MockNotificationService() {
         mockNotifications.add(new Notification(
                 "1", "mockUser", "EVT123", "Marathon 2025",
-                "You’ve been selected for the event!", NotificationStatus.UNREAD, new Date()
+                "You’ve been selected for the event!", NotificationStatus.UNREAD, new Date(), "chosen"
         ));
         mockNotifications.add(new Notification(
                 "2", "mockUser", "EVT456", "City Run",

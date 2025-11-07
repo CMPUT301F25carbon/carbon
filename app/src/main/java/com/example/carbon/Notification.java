@@ -11,7 +11,7 @@ public class Notification {
     private String message;
     private NotificationStatus status;
     private Date created_at;
-    private String type; // type of notification regular or invitation
+    private String type; // type of notification regular, invitation, chosen(for those chosen from the lottery pick)
 
 
     public Notification() {
