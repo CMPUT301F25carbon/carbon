@@ -47,37 +47,25 @@
 
             <TextView
                 android:id="@+id/tv_event_date"
-                android:layout_width="77dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:fontFamily="@font/italiana"
                 android:text="05/12/2025"
                 android:textColor="#FCD694"
+                android:fontFamily="@font/italiana"
                 android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/tv_event_counts"
-                android:layout_width="120dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:fontFamily="@font/italiana"
                 android:gravity="end"
+                android:textAlignment="viewEnd"
                 android:text="11 registrations / 5 spots"
-                android:textAlignment="viewEnd"
                 android:textColor="#FCD694"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/tv_waitlist_count"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:fontFamily="@font/italiana"
-                android:text="Waitlist: 0 entrants"
-                android:textAlignment="viewEnd"
-                android:textColor="#FCD694"
                 android:textSize="14sp" />
-
         </LinearLayout>
 
 
