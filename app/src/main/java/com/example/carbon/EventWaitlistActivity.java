@@ -4,158 +4,108 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.FieldValue;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * The EventWaitlistActivity holds the logic of the activity_event_waitlist.xml page.
+ * Allows an organizer to view the waitlist of the event that they own.
+ * It is expected that the activity is passed an EVENT_ID through the activity intent
+ *
+ * @author Cooper Goddard
+ */
 public class EventWaitlistActivity extends AppCompatActivity {
     private Waitlist waitlist;
     private WaitlistAdapter adapter;
     private ArrayList<WaitlistEntrant> displayedEntrants = new ArrayList<>();
-    private Button btnJoinWaitlist, btnLeaveWaitlist;
-    private String eventId;
-
-    private TextView tvWaitlistCount;
-    private FirebaseFirestore db;
+    private Button createEventButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_waitlist);
-
+        // Setup header and footer
         UIHelper.setupHeaderAndMenu(this);
-        db = FirebaseFirestore.getInstance();
-
-        // Get event ID
+        // Validate Login
         Intent intent = getIntent();
-        eventId = intent.getStringExtra("EVENT_ID");
+        String eventId = intent.getStringExtra("EVENT_ID");
+
         if (eventId == null || eventId.isEmpty()) {
             Toast.makeText(this, "Error: Event ID not found.", Toast.LENGTH_LONG).show();
-            finish();
+            finish(); // Close the activity if there's no ID
             return;
         }
-
-        // Recycler setup
+        // Setup your RecyclerView and adapter
         RecyclerView recyclerView = findViewById(R.id.recycler_waitlist);
-        adapter = new WaitlistAdapter(displayedEntrants);
+        adapter = new WaitlistAdapter(displayedEntrants); // Initialize adapter with an empty list
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
-        // Buttons
-        btnJoinWaitlist = findViewById(R.id.btn_join_waitlist);
-        btnLeaveWaitlist = findViewById(R.id.btn_leave_waitlist);
-        tvWaitlistCount = findViewById(R.id.tv_waitlist_count);
+        // Initialize your Waitlist
+        waitlist = new Waitlist();
 
-
-        // Button actions
-        btnJoinWaitlist.setOnClickListener(v -> joinWaitlist());
-        btnLeaveWaitlist.setOnClickListener(v -> leaveWaitlist());
-
-        // Initial load
+        // Start fetching the data
         loadWaitlistFromDatabase(eventId);
     }
 
+    /**
+     * Loads the waitlist of the event based on the passed ID, loads all waitlist entrants into adapter for visualization
+     * @param eventId The ID of the event to view the waitlist of
+     *
+     * @author Cooper Goddard
+     */
     private void loadWaitlistFromDatabase(String eventId) {
+        Log.d("Waitlist DB", eventId);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Reference the correct document in the 'events' collection using the eventId
         Query query = db.collection("events").whereEqualTo("uuid", eventId).limit(1);
+
         query.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                DocumentSnapshot document = task.getResult().getDocuments().get(0);
-                Event event = document.toObject(Event.class);
+            if (task.isSuccessful()) {
+                // Check if the query returned any results
+                if (!task.getResult().isEmpty()) {
+                    // Get the first (and only, otherwise something is very wrong lol) document from the query result
+                    DocumentSnapshot document = task.getResult().getDocuments().get(0);
 
-                if (event != null && event.getWaitlist() != null) {
-                    this.waitlist = event.getWaitlist();
-                    List<WaitlistEntrant> entrants = this.waitlist.getWaitlistEntrants();
+                    // Convert the document into an Event object
+                    Event event = document.toObject(Event.class);
 
-                    displayedEntrants.clear();
-                    if (entrants != null) displayedEntrants.addAll(entrants);
-                    adapter.notifyDataSetChanged();
-                    if (tvWaitlistCount != null) {
-                        tvWaitlistCount.setText("Waitlist: " + displayedEntrants.size() + " entrant" + (displayedEntrants.size() == 1 ? "" : "s"));
-                    }
+                    if (event != null && event.getWaitlist() != null) {
+                        // Get the nested Waitlist object from the Event
+                        this.waitlist = event.getWaitlist();
+                        List<WaitlistEntrant> entrants = this.waitlist.getWaitlistEntrants();
 
-
-                    Log.d("Waitlist DB", "Loaded " + displayedEntrants.size() + " entrants.");
-                } else {
-                    Toast.makeText(this, "Waitlist data missing.", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(this, "Failed to load event data.", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    // --- Add current user to waitlist ---
-    private void joinWaitlist() {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        db.collection("events").whereEqualTo("uuid", eventId).limit(1).get()
-                .addOnSuccessListener(snapshot -> {
-                    if (!snapshot.isEmpty()) {
-                        DocumentSnapshot doc = snapshot.getDocuments().get(0);
-                        String docId = doc.getId();
-                        Event event = doc.toObject(Event.class);
-                        if (event == null || event.getWaitlist() == null) return;
-
-                        Waitlist waitlist = event.getWaitlist();
-                        if (waitlist.getWaitlistEntrants() == null)
-                            waitlist.setWaitlistEntrants(new ArrayList<>()); // ensure non-null
-
-                        if (!waitlist.joinWaitlist(userId)) {
-                            Toast.makeText(this, "You’re already on the waitlist or it’s closed/full.", Toast.LENGTH_SHORT).show();
-                            return;
+                        if (entrants != null) {
+                            // Update the adapter with the list of entrants
+                            displayedEntrants.clear();
+                            displayedEntrants.addAll(entrants);
+                            adapter.notifyDataSetChanged();
+                            Log.d("Waitlist DB", "Successfully loaded " + entrants.size() + " entrants.");
                         }
 
-                        db.collection("events").document(docId)
-                                .update("waitlist.waitlistEntrants", waitlist.getWaitlistEntrants())
-                                .addOnSuccessListener(aVoid -> {
-                                    Toast.makeText(this, "Joined waitlist!", Toast.LENGTH_SHORT).show();
-                                    loadWaitlistFromDatabase(eventId);
-                                });
-                    }
-                });
-    }
-
-
-
-    private void leaveWaitlist() {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        db.collection("events").whereEqualTo("uuid", eventId).limit(1).get()
-                .addOnSuccessListener(snapshot -> {
-                    if (!snapshot.isEmpty()) {
-                        DocumentSnapshot doc = snapshot.getDocuments().get(0);
-                        String docId = doc.getId();
-                        Event event = doc.toObject(Event.class);
-                        if (event == null || event.getWaitlist() == null) return;
-
-                        Waitlist waitlist = event.getWaitlist();
-
-                        if (!waitlist.leaveWaitlist(userId)) {
-                            Toast.makeText(this, "You’re not on the waitlist.", Toast.LENGTH_SHORT).show();
-                            return;
+                            } else {
+                                Toast.makeText(EventWaitlistActivity.this, "Waitlist data is missing in this event.", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(EventWaitlistActivity.this, "Event not found.", Toast.LENGTH_SHORT).show();
+                            finish();
                         }
-
-                        db.collection("events").document(docId)
-                                .update("waitlist.waitlistEntrants", waitlist.getWaitlistEntrants())
-                                .addOnSuccessListener(aVoid -> {
-                                    Toast.makeText(this, "Left waitlist.", Toast.LENGTH_SHORT).show();
-                                    // ✅ ADD THIS LINE BELOW
-                                    loadWaitlistFromDatabase(eventId); // 🔄 refresh waitlist after leaving
-                                });
+                    } else {
+                        Toast.makeText(EventWaitlistActivity.this, "Failed to load event data.", Toast.LENGTH_SHORT).show();
+                        finish();
                     }
                 });
     }
 }
-
