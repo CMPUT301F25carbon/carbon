@@ -1,6 +1,8 @@
 package com.example.carbon;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 public class Event {
@@ -16,6 +18,7 @@ public class Event {
     private String ownerId;
     private Waitlist waitlist;
     private String uuid;
+    private List<String> attendeeList = new ArrayList<>();  // to hold the attendees that are going to be attending the event
 
 
     // Required empty public constructor for Firestore
@@ -35,6 +38,7 @@ public class Event {
         this.ownerId = ownerId;
         this.waitlist = waitlist;
         this.uuid = UUID.randomUUID().toString();
+        this.attendeeList = new ArrayList<>();
     }
 
 
@@ -51,6 +55,14 @@ public class Event {
     public Waitlist getWaitlist() { return waitlist; }
     public String getUuid() { return uuid; }
 
+    public List<String> getAttendeeList() {
+        return attendeeList;
+    }
+
+    public void setAttendeeList(List<String> attendeeList) {
+        this.attendeeList = attendeeList;
+    }
+
 
 
     public void setTitle(String title) { this.title = title; }
@@ -61,6 +73,34 @@ public class Event {
         Date currentDate = new Date();
         setActive(!currentDate.after(waitlist.getDeadline()) && !currentDate.before(waitlist.getOpening()));
         return active;
+    }
+
+    /**
+     * Adds a user ID to the attendee list if not already present
+     */
+    public void addAttendee(String userId) {
+        if (attendeeList == null) {
+            attendeeList = new ArrayList<>();
+        }
+        if (!attendeeList.contains(userId)) {
+            attendeeList.add(userId);
+        }
+    }
+
+    /**
+     * Removes a user ID from the attendee list
+     */
+    public void removeAttendee(String userId) {
+        if (attendeeList != null)  {
+            attendeeList.remove(userId);
+        }
+    }
+
+    /**
+     * Checks if a given user is already in the attendee list
+     */
+    public boolean isAttendee(String userId) {
+        return attendeeList != null && attendeeList.contains(userId);
     }
 
 }
