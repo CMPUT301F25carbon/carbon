@@ -37,11 +37,10 @@ public class Event {
         this.uuid = UUID.randomUUID().toString();
     }
 
-    // --- GETTERS & SETTERS ---
 
     public String getTitle() { return title; }
     public String getDescription() { return description; }
-    public boolean isActive() { return active; } // Firestore prefers "is" for booleans
+    public boolean isActive() { return active; }
     public Integer getTotalSpots() { return totalSpots; }
     public Date getEventDate() { return eventDate; }
     public String getEventLocation() { return eventLocation; }
