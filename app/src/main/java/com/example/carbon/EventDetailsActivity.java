@@ -11,6 +11,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class EventDetailsActivity extends AppCompatActivity {
 
     public static final String EXTRA_EVENT_ID = "EXTRA_EVENT_ID";
@@ -27,6 +34,12 @@ public class EventDetailsActivity extends AppCompatActivity {
     private RecyclerView rvRegistrants;
 
     private String eventId;
+
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private Waitlist waitlist;
+    private List<WaitlistEntrant> displayedEntrants = new ArrayList<>();
+    private WaitlistAdapter adapter; // You'll create this below
+
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +72,11 @@ public class EventDetailsActivity extends AppCompatActivity {
         // Simple list placeholder; wire real adapter later
         rvRegistrants.setLayoutManager(new LinearLayoutManager(this));
         rvRegistrants.setAdapter(new UsersAdapter()); // you already have UsersAdapter; empty list is okay
+
+
+        adapter = new WaitlistAdapter(displayedEntrants);
+        rvRegistrants.setAdapter(adapter);
+        loadWaitlistFromDatabase(eventId);
 
         bindActions();
     }
@@ -107,5 +125,34 @@ public class EventDetailsActivity extends AppCompatActivity {
                 .setNegativeButton("Close", null)
                 .show();
     }
+
+    private void loadWaitlistFromDatabase(String eventId) {
+        Query query = db.collection("events").whereEqualTo("uuid", eventId).limit(1);
+        query.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                DocumentSnapshot document = task.getResult().getDocuments().get(0);
+                Event event = document.toObject(Event.class);
+
+                if (event != null && event.getWaitlist() != null) {
+                    this.waitlist = event.getWaitlist();
+                    List<WaitlistEntrant> entrants = this.waitlist.getWaitlistEntrants();
+
+                    displayedEntrants.clear();
+                    if (entrants != null) displayedEntrants.addAll(entrants);
+                    adapter.notifyDataSetChanged();
+
+                    // Update TextView count dynamically
+                    tvWaitlistCount.setText("Waitlist: " + displayedEntrants.size() + " entrant" + (displayedEntrants.size() == 1 ? "" : "s"));
+
+                } else {
+                    Toast.makeText(this, "Waitlist data missing.", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "Failed to load event data.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
 }
 

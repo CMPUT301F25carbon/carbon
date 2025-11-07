@@ -24,13 +24,19 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-
+/**
+ * The CreateEventActivity holds the logic for the activity_create_event.xml page.
+ * Given that an organizer is logged in and viewing this page, they are able to create an event
+ * under their ownership with a variety of params.
+ *
+ * @author Cooper Goddard
+ */
 public class CreateEventActivity extends AppCompatActivity {
 
     // Declare all view variables
     private EditText eventTitleInput, eventDesInput, eventDateInput, eventAddressInput,
             eventCityInput, eventProvinceInput, eventCountryInput, eventRegistrationOpeningInput,
-            eventRegistrationDeadlineInput, eventSeatInput;
+            eventRegistrationDeadlineInput, eventSeatInput, eventWaitlistCapacity;
     private Button createEventButton;
 
     // Calendar instance for the date pickers
@@ -87,6 +93,7 @@ public class CreateEventActivity extends AppCompatActivity {
         eventRegistrationDeadlineInput = findViewById(R.id.create_event_registration_deadline_input);
         eventSeatInput = findViewById(R.id.create_event_seats_input);
         createEventButton = findViewById(R.id.create_event_btn);
+        eventWaitlistCapacity = findViewById(R.id.create_event_max_waitlist_input);
     }
 
     /**
@@ -134,7 +141,7 @@ public class CreateEventActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(eventDateInput.getText().toString().trim())) {
             eventDateInput.setError("Event Date is required");
             eventDateInput.requestFocus();
-            eventDateInput.performClick(); // Prompt user by opening the date picker
+            eventDateInput.performClick();
             return false;
         }
 
@@ -198,7 +205,6 @@ public class CreateEventActivity extends AppCompatActivity {
                 }
             }
         } catch (ParseException e) {
-            // This case should not be reached due to the date picker, but it's a good safeguard
             eventDateInput.setError("Invalid date format");
             eventDateInput.requestFocus();
             return false;
@@ -208,10 +214,10 @@ public class CreateEventActivity extends AppCompatActivity {
     }
 
     /**
-     * Gathers data, converts types, creates an Event object, and provides user feedback.
+     * Gathers data, converts types, creates an Event object, and provides user feedback, sends to QR code page if complete.
      */
     private void createEvent() {
-        // --- 0. GET THE CURRENT LOGGED-IN USER ---
+        // GET THE CURRENT LOGGED-IN USER
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
             // No user is logged in, do not proceed.
@@ -222,15 +228,16 @@ public class CreateEventActivity extends AppCompatActivity {
         }
         String ownerId = currentUser.getUid(); // Get the user's unique ID
 
-        // --- 1. GATHER STRING DATA ---
+        // GATHER STRING DATA
         String title = eventTitleInput.getText().toString().trim();
         String des = eventDesInput.getText().toString().trim();
         String address = eventAddressInput.getText().toString().trim();
         String city = eventCityInput.getText().toString().trim();
         String province = eventProvinceInput.getText().toString().trim();
         String country = eventCountryInput.getText().toString().trim();
+        String waitlistCapacity = eventWaitlistCapacity.getText().toString().trim();
 
-        // --- 2. CONVERT TO CORRECT DATA TYPES ---
+        // CONVERT TO CORRECT DATA TYPES
         int seats = Integer.parseInt(eventSeatInput.getText().toString().trim());
         Date eventDate = null;
         Date deadlineDate = null;
@@ -263,19 +270,24 @@ public class CreateEventActivity extends AppCompatActivity {
             openingDate = new Date(); // If no opening is provided, set it to now
         }
 
-        // --- 3. CREATE FIRESTORE INSTANCE AND GENERATE EVENT ID FIRST ---
+        // CREATE FIRESTORE INSTANCE AND GENERATE EVENT ID FIRST
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         // Create a new document reference so we can get its ID before saving
         String eventId = db.collection("events").document().getId();
 
-        // --- 4. CREATE THE WAITLIST WITH THE EVENT ID ---
-        Waitlist newWaitlist = new Waitlist(openingDate, deadlineDate);
-        newWaitlist.joinWaitlist(ownerId); // TODO Remove this later. Just for testing.
+        // CREATE THE WAITLIST
+        Waitlist newWaitlist;
+        newWaitlist = new Waitlist(openingDate, deadlineDate);
 
-        // --- 5. CREATE THE EVENT OBJECT AND INCLUDE THE WAITLIST ---
+
+        newWaitlist.joinWaitlist("1qfLOhloVxPiT80wmC0sMpVt7ko2"); // TODO Remove this later. Just for testing.
+        newWaitlist.joinWaitlist("WNF9G3G0yDdhb3H3FUmCHS17lvE2");
+        newWaitlist.joinWaitlist("oklRgkrFGJXHKIjLNX3AZmnAr4K3");
+
+        // CREATE THE EVENT OBJECT AND INCLUDE THE WAITLIST
         Event newEvent = new Event(title, des, seats, eventDate, address, city, province, country, ownerId, newWaitlist);
 
-        // --- 6. PROVIDE FEEDBACK AND PROCEED ---
+        // PROVIDE FEEDBACK AND PROCEED
         db.collection("events")
                 .add(newEvent)
                 .addOnSuccessListener(documentReference -> {

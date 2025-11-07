@@ -6,6 +6,7 @@ public class User {
     private String email;
     private String phoneNo;
     private String role;
+    private boolean banned;
 
     public User() {}
 
@@ -14,4 +15,8 @@ public class User {
     public String getEmail() { return email; }
     public String getPhoneNo() { return phoneNo; }
     public String getRole() { return role; }
+
+    public boolean isBanned() {
+        return banned;
+    }
 }

@@ -6,6 +6,13 @@ import com.google.firebase.firestore.Query;
 
 import java.util.Date;
 
+/**
+ * The waitlistEntrant is the object that is stored within the DB to cut down on the memory used in
+ * firebase. Rather than store all the user data again, waitlistEntrant stores the userId, the
+ * date of registration, and the status of the user in the waitlist without storing the user name, role, etc.
+ *
+ * @author Cooper Goddard
+ */
 public class WaitlistEntrant {
     private String userId;
     private Date registrationDate;
@@ -22,24 +29,55 @@ public class WaitlistEntrant {
         this.selected = false;
     }
 
+    /**
+     * Returns the registration date of the waitlistEntrant
+     * @return the registration date of the waitlistEntrant
+     *
+     * @author Cooper Goddard
+     */
     public Date getRegistrationDate() {
         return registrationDate;
     }
 
 
+    /**
+     * Returns the userId of the waitlistEntrant
+     * @return the userId of the waitlistEntrant
+     *
+     * @author Cooper Goddard
+     */
     public String getUserId() {
         return userId;
     }
 
+    /**
+     * Returns the status of the waitlistEntrant
+     * @return true if the waitlistEntrant has been selected, false otherwise
+     *
+     * @author Cooper Goddard
+     */
     public boolean isSelected() {
         return selected;
     }
 
+    /**
+     * Interface for creating a callback when fetching the users of the waitlistEntrant,
+     * useful for anything that must be done asynchronously (like DB calls)
+     *
+     * @author Cooper Goddard
+     */
     public interface UserCallback {
         void onUserFetched(User user);
         void onError(Exception e);
     }
 
+    /**
+     * Based on the userId's within the waitlistEntrant, it fetches the complete user data for those users
+     * and returns it through a callback
+     * @param callback the callback object through which the user data is passed back
+     *
+     * @author Cooper Goddard
+     */
     public void fetchUserFromDB(UserCallback callback) {
         if (userId == null || userId.isEmpty()) {
             callback.onError(new Exception("User ID is null or empty."));

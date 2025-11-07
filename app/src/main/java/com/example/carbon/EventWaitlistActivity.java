@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +27,8 @@ public class EventWaitlistActivity extends AppCompatActivity {
     private ArrayList<WaitlistEntrant> displayedEntrants = new ArrayList<>();
     private Button btnJoinWaitlist, btnLeaveWaitlist;
     private String eventId;
+
+    private TextView tvWaitlistCount;
     private FirebaseFirestore db;
 
     @Override
@@ -54,6 +57,8 @@ public class EventWaitlistActivity extends AppCompatActivity {
         // Buttons
         btnJoinWaitlist = findViewById(R.id.btn_join_waitlist);
         btnLeaveWaitlist = findViewById(R.id.btn_leave_waitlist);
+        tvWaitlistCount = findViewById(R.id.tv_waitlist_count);
+
 
         // Button actions
         btnJoinWaitlist.setOnClickListener(v -> joinWaitlist());
@@ -77,6 +82,10 @@ public class EventWaitlistActivity extends AppCompatActivity {
                     displayedEntrants.clear();
                     if (entrants != null) displayedEntrants.addAll(entrants);
                     adapter.notifyDataSetChanged();
+                    if (tvWaitlistCount != null) {
+                        tvWaitlistCount.setText("Waitlist: " + displayedEntrants.size() + " entrant" + (displayedEntrants.size() == 1 ? "" : "s"));
+                    }
+
 
                     Log.d("Waitlist DB", "Loaded " + displayedEntrants.size() + " entrants.");
                 } else {

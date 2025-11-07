@@ -37,8 +37,7 @@
 
         app:srcCompat="@drawable/ic_notifications"
 
-        android:clickable="true"
-        android:focusable="true"
+
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_alignParentEnd="true"

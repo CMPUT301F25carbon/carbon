@@ -5,10 +5,12 @@
     android:layout_height="match_parent"
     android:background="#8C154F">
 
+    <!-- Header -->
     <include
         android:id="@+id/include_header"
         layout="@layout/top_header" />
 
+    <!-- Bottom Menu -->
     <include
         android:id="@+id/include_bottom_menu"
         layout="@layout/bottom_menu"
@@ -16,27 +18,26 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true" />
 
-    <FrameLayout
-        android:id="@+id/event_card"
+    <!-- Main Scrollable Area -->
+    <LinearLayout
+        android:id="@+id/waitlist_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/include_header"
         android:layout_above="@id/include_bottom_menu"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="20dp"
-        android:paddingBottom="32dp"
-        android:layout_marginStart="0dp"
-        android:layout_marginEnd="0dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginBottom="-10dp"
-        android:background="@drawable/rounded_panel">
+        android:orientation="vertical"
+        android:background="@drawable/rounded_panel"
+        android:padding="16dp">
 
+        <!-- Scrollable Content -->
         <ScrollView
             android:id="@+id/eventsList_scroll"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingBottom="16dp">
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fillViewport="true"
+            android:overScrollMode="always"
+            android:scrollbars="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -55,45 +56,58 @@
                     android:textColor="#F0DAA0"
                     android:textSize="44sp" />
 
+                <TextView
+                    android:id="@+id/tv_waitlist_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/italiana"
+                    android:text="Waitlist: 0 entrants"
+                    android:textColor="#FCD694"
+                    android:padding="8dp"
+                    android:textSize="16sp"
+                    />
+
+                <!-- RecyclerView fills remaining scroll space -->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler_waitlist"
                     android:layout_width="match_parent"
-                    android:layout_height="367dp"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
                     android:clipToPadding="false"
                     android:paddingBottom="16dp" />
-
-                <LinearLayout
-                    android:id="@+id/waitlist_buttons"
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:layout_marginTop="12dp"
-                    android:layout_below="@id/recycler_waitlist">
-
-                    <Button
-                        android:id="@+id/btn_join_waitlist"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Join Waitlist"
-                        android:backgroundTint="#ED9029"
-                        android:textColor="#FFFFFF"
-                        android:fontFamily="@font/italiana"
-                        android:layout_marginEnd="8dp"/>
-
-                    <Button
-                        android:id="@+id/btn_leave_waitlist"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Leave Waitlist"
-                        android:backgroundTint="#F0F0F0"
-                        android:textColor="#731B3F"
-                        android:fontFamily="@font/italiana"/>
-                </LinearLayout>
-
-
-
             </LinearLayout>
         </ScrollView>
-    </FrameLayout>
+
+        <!-- Fixed Join/Leave Buttons -->
+        <LinearLayout
+            android:id="@+id/waitlist_buttons"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="8dp">
+
+            <Button
+                android:id="@+id/btn_join_waitlist"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Join Waitlist"
+                android:backgroundTint="#ED9029"
+                android:textColor="#FFFFFF"
+                android:fontFamily="@font/italiana"
+                android:layout_marginEnd="8dp"/>
+
+            <Button
+                android:id="@+id/btn_leave_waitlist"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Leave Waitlist"
+                android:backgroundTint="#F0F0F0"
+                android:textColor="#731B3F"
+                android:fontFamily="@font/italiana"/>
+        </LinearLayout>
+    </LinearLayout>
+
 </RelativeLayout>
