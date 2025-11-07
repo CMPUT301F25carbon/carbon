@@ -23,10 +23,16 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * User registration with Firebase Authentication and Firestore.
+ * Includes field validation and a link to the login page.
+ */
 public class SignUpActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
@@ -39,6 +45,7 @@ public class SignUpActivity extends AppCompatActivity {
         FirebaseApp.initializeApp(this);
         mAuth = FirebaseAuth.getInstance();
 
+        // Input fields
         EditText firstNameField = findViewById(R.id.first_name);
         EditText lastNameField = findViewById(R.id.last_name);
         EditText emailField = findViewById(R.id.email);
@@ -48,6 +55,7 @@ public class SignUpActivity extends AppCompatActivity {
         Button signUpButton = findViewById(R.id.sign_up_btn);
         TextView logInText = findViewById(R.id.log_in_text);
 
+        // Sign up button logic
         signUpButton.setOnClickListener(v -> {
             String firstName = firstNameField.getText().toString().trim();
             String lastName = lastNameField.getText().toString().trim();
@@ -56,31 +64,28 @@ public class SignUpActivity extends AppCompatActivity {
             String password2 = password2Field.getText().toString().trim();
             String phoneNo = phoneNoField.getText().toString().trim();
 
-            if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() ||
-                    password1.isEmpty() || password2.isEmpty() || phoneNo.isEmpty()) {
+            // Field validation checks
+            if (!validateNotEmpty(Arrays.asList(firstName, lastName, email, password1, password2, phoneNo))) {
                 Toast.makeText(this, "Please fill in all required fields", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            if (!validateEmail(email)) {
                 Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            if (!phoneNo.matches("^[0-9]{8,15}$")) {
+            if (!validatePhone(phoneNo)) {
                 Toast.makeText(this, "Please enter a valid phone number", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            if (password1.length() < 8) {
-                Toast.makeText(this, "Password must be at least 8 characters long", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (!password1.equals(password2)) {
-                Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
+            if (!validatePasswords(password1, password2)) {
+                Toast.makeText(this, "Passwords must match and be at least 8 characters", Toast.LENGTH_SHORT).show();
                 return;
             }
 
+            // New firebase user
             mAuth.createUserWithEmailAndPassword(email, password1)
                     .addOnCompleteListener(this, task -> {
                         if (task.isSuccessful()) {
@@ -107,7 +112,7 @@ public class SignUpActivity extends AppCompatActivity {
                     });
         });
 
-        // CLICKABLE "LOG IN" TEXT
+        // Login page link
         String text = "Already have an account? Log in here";
         SpannableString spannable = new SpannableString(text);
 
@@ -134,5 +139,32 @@ public class SignUpActivity extends AppCompatActivity {
         logInText.setText(spannable);
         logInText.setMovementMethod(LinkMovementMethod.getInstance());
         logInText.setHighlightColor(Color.TRANSPARENT);
+    }
+    //Validation helper methods
+
+    /** Checks that none of the given strings are empty or null. */
+    public boolean validateNotEmpty(List<String> fields) {
+        for (String field : fields) {
+            if (field == null || field.trim().isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    /** Validates an email address using Android’s built-in pattern. */
+    public boolean validateEmail(String email) {
+        return Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
+    /** Validates that a phone number contains 8–15 digits only. */
+    public boolean validatePhone(String phone) {
+        return phone.matches("^[0-9]{8,15}$");
+    }
+
+    /** Ensures passwords match and are at least 8 characters long. */
+    public boolean validatePasswords(String p1, String p2) {
+        return p1.length() >= 8 && p1.equals(p2);
     }
 }

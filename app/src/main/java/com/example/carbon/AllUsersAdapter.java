@@ -15,14 +15,16 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
+/**
+ * RecyclerView adapter for displaying all users in the database.
+ * Shows basic info (name, email, role) and allows banning of users.
+ */
 public class AllUsersAdapter extends RecyclerView.Adapter<AllUsersAdapter.ViewHolder> {
-    private List<WaitlistEntrant> entrants;
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private Runnable reloadCallback; // om refresh mogelijk te maken
+    private final List<WaitlistEntrant> entrants;
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     public AllUsersAdapter(List<WaitlistEntrant> entrants) {
         this.entrants = entrants;
-        this.reloadCallback = reloadCallback;
     }
 
     @NonNull
@@ -37,6 +39,7 @@ public class AllUsersAdapter extends RecyclerView.Adapter<AllUsersAdapter.ViewHo
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         WaitlistEntrant entrant = entrants.get(position);
 
+        // Fetch the user data
         entrant.fetchUserFromDB(new WaitlistEntrant.UserCallback() {
             @Override
             public void onUserFetched(User user) {
@@ -44,6 +47,7 @@ public class AllUsersAdapter extends RecyclerView.Adapter<AllUsersAdapter.ViewHo
                 holder.email.setText(user.getEmail());
                 holder.role.setText("Role: " + user.getRole());
 
+                // If user is already banned, show "BANNED" label instead of the button
                 if (user.isBanned()) {
                     holder.bannedLabel.setVisibility(View.VISIBLE);
                     holder.banButton.setVisibility(View.GONE);
@@ -56,9 +60,10 @@ public class AllUsersAdapter extends RecyclerView.Adapter<AllUsersAdapter.ViewHo
                                 .update("banned", true)
                                 .addOnSuccessListener(aVoid -> {
                                     Toast.makeText(v.getContext(), "User banned", Toast.LENGTH_SHORT).show();
-                                    if (reloadCallback != null) {
-                                        reloadCallback.run(); // herlaad lijst
-                                    }
+
+                                    // Update UI so user immediately sees the change
+                                    holder.bannedLabel.setVisibility(View.VISIBLE);
+                                    holder.banButton.setVisibility(View.GONE);
                                 })
                                 .addOnFailureListener(e ->
                                         Toast.makeText(v.getContext(), "Error banning user", Toast.LENGTH_SHORT).show());
@@ -78,6 +83,9 @@ public class AllUsersAdapter extends RecyclerView.Adapter<AllUsersAdapter.ViewHo
         return entrants.size();
     }
 
+    /**
+     * Holds references to the views within each user card item.
+     */
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView name, email, role, bannedLabel;
         Button banButton;

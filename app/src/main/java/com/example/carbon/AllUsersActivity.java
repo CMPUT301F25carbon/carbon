@@ -13,6 +13,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
+/**
+ * Activity that displays a list of all users that are in the Firestore database.
+ * Each user can be banned by pressing a button. If a user is banned,
+ * a label saying "BANNED" will be shown instead of the button.
+ */
 public class AllUsersActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
@@ -24,6 +29,7 @@ public class AllUsersActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_users);
 
+        // Set up shared UI elements (header & bottom menu)
         UIHelper.setupHeaderAndMenu(this);
 
         RecyclerView recyclerView = findViewById(R.id.recycler_all_users);
@@ -36,6 +42,9 @@ public class AllUsersActivity extends AppCompatActivity {
         loadAllUsers();
     }
 
+    /**
+     * Fetches all the users from the database and updates the RecyclerView.
+     */
     private void loadAllUsers() {
         db.collection("users")
                 .get()
@@ -44,6 +53,7 @@ public class AllUsersActivity extends AppCompatActivity {
                         userList.clear();
                         for (DocumentSnapshot doc : task.getResult()) {
                             WaitlistEntrant entrant = new WaitlistEntrant();
+                            // Fetch user data
                             entrant.fetchUserFromDB(new WaitlistEntrant.UserCallback() {
                                 @Override
                                 public void onUserFetched(User user) {
@@ -55,6 +65,7 @@ public class AllUsersActivity extends AppCompatActivity {
                                     Log.e("AllUsers", "Error fetching user: " + e.getMessage());
                                 }
                             });
+                            // Assign userId manually (reflection because it's a private field)
                             try {
                                 java.lang.reflect.Field field = entrant.getClass().getDeclaredField("userId");
                                 field.setAccessible(true);
