@@ -18,7 +18,10 @@ public class EventDetailsActivity extends AppCompatActivity {
     public static final String EXTRA_EVENT_DATE = "EXTRA_EVENT_DATE";     // e.g., "05/12/2025"
     public static final String EXTRA_EVENT_COUNTS = "EXTRA_EVENT_COUNTS"; // e.g., "11 registrations / 5 spots"
 
-    private TextView tvTitle, tvDate, tvCounts;
+    public static final String EXTRA_WAITLIST_COUNT = "EXTRA_WAITLIST_COUNT";
+
+
+    private TextView tvTitle, tvDate, tvCounts, tvWaitlistCount;
     private EditText etSampleN;
     private Button btnEdit, btnCancel, btnSampleN;
     private RecyclerView rvRegistrants;
@@ -34,6 +37,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         tvTitle  = findViewById(R.id.tv_event_title);
         tvDate   = findViewById(R.id.tv_event_date);
         tvCounts = findViewById(R.id.tv_event_counts);
+        tvWaitlistCount = findViewById(R.id.tv_waitlist_count);
         etSampleN = findViewById(R.id.et_sample_n);
         btnEdit = findViewById(R.id.btn_edit);
         btnCancel = findViewById(R.id.btn_cancel);
@@ -45,10 +49,12 @@ public class EventDetailsActivity extends AppCompatActivity {
         String title  = getIntent().getStringExtra(EXTRA_EVENT_TITLE);
         String date   = getIntent().getStringExtra(EXTRA_EVENT_DATE);
         String counts = getIntent().getStringExtra(EXTRA_EVENT_COUNTS);
+        int waitlistCount = getIntent().getIntExtra(EXTRA_WAITLIST_COUNT, 0);
 
         tvTitle.setText(title != null ? title : "Event");
         tvDate.setText(date != null ? date : "");
         tvCounts.setText(counts != null ? counts : "");
+        tvWaitlistCount.setText("Waitlist: " + waitlistCount + " entrant" + (waitlistCount == 1 ? "" : "s"));
 
         // Simple list placeholder; wire real adapter later
         rvRegistrants.setLayoutManager(new LinearLayoutManager(this));

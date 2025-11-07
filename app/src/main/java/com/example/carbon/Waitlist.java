@@ -6,84 +6,86 @@ import java.util.List;
 
 public class Waitlist {
 
-    private List<WaitlistEntrant> waitlistEntrants;       // Firebase stores user IDs (not the objects entirely)
-    private Date opening;               // When waitlist opens
-    private Date deadline;              // When waitlist closes
-    private int maxLimit;               // Max number of entrants allowed
+    private List<WaitlistEntrant> waitlistEntrants;
+    private Date opening;
+    private Date deadline;
 
-    // --- Firestore requires a no-argument constructor ---
-    public Waitlist() {}
-
-    // --- Constructor ---
-    public Waitlist(Date opening, Date deadline, int maxLimit) {
-        this.waitlistEntrants = new ArrayList<WaitlistEntrant>();
-        this.opening = opening;
-        this.deadline = deadline;
-        this.maxLimit = maxLimit;
+    public Waitlist() {
+        this.waitlistEntrants = new ArrayList<>();
     }
 
     public Waitlist(Date opening, Date deadline) {
-        this.waitlistEntrants = new ArrayList<WaitlistEntrant>();
+        this.waitlistEntrants = new ArrayList<>();
         this.opening = opening;
         this.deadline = deadline;
-        this.maxLimit = Integer.MAX_VALUE;
     }
 
     // --- Join waitlist ---
     public boolean joinWaitlist(String userId) {
+        if (waitlistEntrants == null)
+            waitlistEntrants = new ArrayList<>();
+
         Date now = new Date();
+        if (opening != null && now.before(opening)) return false;
+        if (deadline != null && now.after(deadline)) return false;
 
-        if (now.before(opening) || now.after(deadline)) {
-            System.out.println("Waitlist not open for registration.");
-            return false;
-        }
-
-           if (waitlistEntrants.size() >= maxLimit) {
-            System.out.println("Waitlist is full for event");
-            return false;
-        }
-
-        WaitlistEntrant newWaitlistEntrant = new WaitlistEntrant(userId, new Date());
-           // look for userId already within the waitlist
-        for (WaitlistEntrant waitlistEntrant : waitlistEntrants) {
-            if (waitlistEntrant.getUserId().equals(userId)) {
-                System.out.println("User already on waitlist.");
+        // Prevent duplicates
+        for (WaitlistEntrant entrant : waitlistEntrants) {
+            if (entrant.getUserId().equals(userId)) {
                 return false;
             }
         }
 
-        waitlistEntrants.add(newWaitlistEntrant);
-        System.out.println("User " + userId + " joined the waitlist.");
+        waitlistEntrants.add(new WaitlistEntrant(userId, new Date()));
         return true;
     }
 
     // --- Leave waitlist ---
     public boolean leaveWaitlist(String userId) {
-        for (WaitlistEntrant waitlistEntrant : waitlistEntrants) {
-            if (waitlistEntrant.getUserId().equals(userId)) {
-                waitlistEntrants.remove(waitlistEntrant);
-                System.out.println("User " + userId + " left the waitlist.");
+        if (waitlistEntrants == null || waitlistEntrants.isEmpty()) return false;
+
+        for (int i = 0; i < waitlistEntrants.size(); i++) {
+            if (waitlistEntrants.get(i).getUserId().equals(userId)) {
+                waitlistEntrants.remove(i);
                 return true;
             }
         }
-        System.out.println("User not found on waitlist.");
         return false;
     }
 
-    // --- Get total count ---
-    public int getWaitlistCount() {
-        return waitlistEntrants.size();
-    }
-
-    // --- Check if a user is on waitlist ---
+    // --- Check if user is already on waitlist ---
     public boolean isUserOnWaitlist(String userId) {
-        return waitlistEntrants.contains(userId);
+        if (waitlistEntrants == null) return false;
+        for (WaitlistEntrant entrant : waitlistEntrants) {
+            if (entrant.getUserId().equals(userId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    // --- Getters for Firebase serialization ---
-    public List<WaitlistEntrant> getWaitlistEntrants() { return waitlistEntrants; }
-    public Date getOpening() { return opening; }
-    public Date getDeadline() { return deadline; }
-    //public int getMaxLimit() { return maxLimit; }
+    // --- Getters & Setters ---
+    public List<WaitlistEntrant> getWaitlistEntrants() {
+        return waitlistEntrants;
+    }
 
+    public void setWaitlistEntrants(List<WaitlistEntrant> waitlistEntrants) {
+        this.waitlistEntrants = waitlistEntrants;
+    }
+
+    public Date getOpening() {
+        return opening;
+    }
+
+    public void setOpening(Date opening) {
+        this.opening = opening;
+    }
+
+    public Date getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(Date deadline) {
+        this.deadline = deadline;
+    }
 }

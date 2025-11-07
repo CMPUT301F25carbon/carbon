@@ -58,9 +58,40 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler_waitlist"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="367dp"
                     android:clipToPadding="false"
                     android:paddingBottom="16dp" />
+
+                <LinearLayout
+                    android:id="@+id/waitlist_buttons"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:layout_marginTop="12dp"
+                    android:layout_below="@id/recycler_waitlist">
+
+                    <Button
+                        android:id="@+id/btn_join_waitlist"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Join Waitlist"
+                        android:backgroundTint="#ED9029"
+                        android:textColor="#FFFFFF"
+                        android:fontFamily="@font/italiana"
+                        android:layout_marginEnd="8dp"/>
+
+                    <Button
+                        android:id="@+id/btn_leave_waitlist"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Leave Waitlist"
+                        android:backgroundTint="#F0F0F0"
+                        android:textColor="#731B3F"
+                        android:fontFamily="@font/italiana"/>
+                </LinearLayout>
+
+
 
             </LinearLayout>
         </ScrollView>
