@@ -11,6 +11,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class EventDetailsActivity extends AppCompatActivity {
 
     public static final String EXTRA_EVENT_ID = "EXTRA_EVENT_ID";
@@ -18,12 +25,21 @@ public class EventDetailsActivity extends AppCompatActivity {
     public static final String EXTRA_EVENT_DATE = "EXTRA_EVENT_DATE";     // e.g., "05/12/2025"
     public static final String EXTRA_EVENT_COUNTS = "EXTRA_EVENT_COUNTS"; // e.g., "11 registrations / 5 spots"
 
-    private TextView tvTitle, tvDate, tvCounts;
+    public static final String EXTRA_WAITLIST_COUNT = "EXTRA_WAITLIST_COUNT";
+
+
+    private TextView tvTitle, tvDate, tvCounts, tvWaitlistCount;
     private EditText etSampleN;
     private Button btnEdit, btnCancel, btnSampleN;
     private RecyclerView rvRegistrants;
 
     private String eventId;
+
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private Waitlist waitlist;
+    private List<WaitlistEntrant> displayedEntrants = new ArrayList<>();
+    private WaitlistAdapter adapter; // You'll create this below
+
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,6 +50,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         tvTitle  = findViewById(R.id.tv_event_title);
         tvDate   = findViewById(R.id.tv_event_date);
         tvCounts = findViewById(R.id.tv_event_counts);
+        tvWaitlistCount = findViewById(R.id.tv_waitlist_count);
         etSampleN = findViewById(R.id.et_sample_n);
         btnEdit = findViewById(R.id.btn_edit);
         btnCancel = findViewById(R.id.btn_cancel);
@@ -45,14 +62,21 @@ public class EventDetailsActivity extends AppCompatActivity {
         String title  = getIntent().getStringExtra(EXTRA_EVENT_TITLE);
         String date   = getIntent().getStringExtra(EXTRA_EVENT_DATE);
         String counts = getIntent().getStringExtra(EXTRA_EVENT_COUNTS);
+        int waitlistCount = getIntent().getIntExtra(EXTRA_WAITLIST_COUNT, 0);
 
         tvTitle.setText(title != null ? title : "Event");
         tvDate.setText(date != null ? date : "");
         tvCounts.setText(counts != null ? counts : "");
+        tvWaitlistCount.setText("Waitlist: " + waitlistCount + " entrant" + (waitlistCount == 1 ? "" : "s"));
 
         // Simple list placeholder; wire real adapter later
         rvRegistrants.setLayoutManager(new LinearLayoutManager(this));
         rvRegistrants.setAdapter(new UsersAdapter()); // you already have UsersAdapter; empty list is okay
+
+
+        adapter = new WaitlistAdapter(displayedEntrants);
+        rvRegistrants.setAdapter(adapter);
+        loadWaitlistFromDatabase(eventId);
 
         bindActions();
     }
@@ -101,5 +125,34 @@ public class EventDetailsActivity extends AppCompatActivity {
                 .setNegativeButton("Close", null)
                 .show();
     }
+
+    private void loadWaitlistFromDatabase(String eventId) {
+        Query query = db.collection("events").whereEqualTo("uuid", eventId).limit(1);
+        query.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                DocumentSnapshot document = task.getResult().getDocuments().get(0);
+                Event event = document.toObject(Event.class);
+
+                if (event != null && event.getWaitlist() != null) {
+                    this.waitlist = event.getWaitlist();
+                    List<WaitlistEntrant> entrants = this.waitlist.getWaitlistEntrants();
+
+                    displayedEntrants.clear();
+                    if (entrants != null) displayedEntrants.addAll(entrants);
+                    adapter.notifyDataSetChanged();
+
+                    // Update TextView count dynamically
+                    tvWaitlistCount.setText("Waitlist: " + displayedEntrants.size() + " entrant" + (displayedEntrants.size() == 1 ? "" : "s"));
+
+                } else {
+                    Toast.makeText(this, "Waitlist data missing.", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "Failed to load event data.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
 }
 

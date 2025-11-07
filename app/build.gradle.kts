@@ -57,4 +57,8 @@ dependencies {
     implementation("com.google.zxing:core:3.5.3")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("com.google.firebase:firebase-firestore:24.10.0")
+
+    // For unit testing (JUnit 5 Jupiter)
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
 }

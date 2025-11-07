@@ -277,11 +277,8 @@ public class CreateEventActivity extends AppCompatActivity {
 
         // CREATE THE WAITLIST
         Waitlist newWaitlist;
-        if (waitlistCapacity.isEmpty()){
-            newWaitlist = new Waitlist(openingDate, deadlineDate);
-        } else {
-            newWaitlist = new Waitlist(openingDate, deadlineDate, Integer.parseInt(waitlistCapacity));
-        }
+        newWaitlist = new Waitlist(openingDate, deadlineDate);
+
 
         newWaitlist.joinWaitlist("1qfLOhloVxPiT80wmC0sMpVt7ko2"); // TODO Remove this later. Just for testing.
         newWaitlist.joinWaitlist("WNF9G3G0yDdhb3H3FUmCHS17lvE2");

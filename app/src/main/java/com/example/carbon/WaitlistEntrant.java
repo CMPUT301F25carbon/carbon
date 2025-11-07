@@ -105,4 +105,17 @@ public class WaitlistEntrant {
                     }
                 });
     }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof WaitlistEntrant)) return false;
+        WaitlistEntrant other = (WaitlistEntrant) obj;
+        return userId != null && userId.equals(other.userId);
+    }
+
+    @Override
+    public int hashCode() {
+        return userId != null ? userId.hashCode() : 0;
+    }
+
 }
