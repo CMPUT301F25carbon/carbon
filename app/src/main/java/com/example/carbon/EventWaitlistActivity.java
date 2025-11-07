@@ -29,7 +29,7 @@ public class EventWaitlistActivity extends AppCompatActivity {
     private Waitlist waitlist;
     private WaitlistAdapter adapter;
     private ArrayList<WaitlistEntrant> displayedEntrants = new ArrayList<>();
-    private Button createEventButton;
+    private Button viewInvitedButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +57,19 @@ public class EventWaitlistActivity extends AppCompatActivity {
 
         // Start fetching the data
         loadWaitlistFromDatabase(eventId);
+
+        // Set up "View Invited" button listener
+        viewInvitedButton = findViewById(R.id.view_invited_btn);
+        viewInvitedButton.setOnClickListener(v -> {
+            // Create an Intent to start SelectedListAcvitvity
+            Intent newIntent = new Intent(EventWaitlistActivity.this, SelectedListActivity.class);
+
+            // Pass the unique ID of the clicked event to the next activity.
+            newIntent.putExtra("EVENT_ID", eventId);
+
+            // Start the new activity
+            startActivity(newIntent);
+        });
     }
 
     /**
