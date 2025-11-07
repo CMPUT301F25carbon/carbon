@@ -54,6 +54,14 @@
                     android:text="Event Waitlist"
                     android:textColor="#F0DAA0"
                     android:textSize="44sp" />
+                <Button
+                    android:text="View Invited"
+                    android:id="@+id/view_invited_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#FFFFFF"
+                    android:backgroundTint="#ED9029"
+                    android:fontFamily="@font/italiana"/>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler_waitlist"
