@@ -64,6 +64,22 @@ public class BrowseEventsActivity extends AppCompatActivity {
         // Load the initial events
         loadEvents();
     }
+
+    private void deleteUser(User user, int position) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users")
+                .whereEqualTo("email", user.getEmail())
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        String docId = querySnapshot.getDocuments().get(0).getId();
+                        db.collection("users").document(docId).delete()
+                                .addOnSuccessListener(aVoid -> Snackbar.make(binding.getRoot(), "Profile deleted", Snackbar.LENGTH_SHORT).show())
+                                .addOnFailureListener(e -> Snackbar.make(binding.getRoot(), "Delete failed", Snackbar.LENGTH_SHORT).show());
+                    }
+                });
+    }
+
     private void toggleEditMode() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         if (!isEditMode) {
@@ -128,6 +144,7 @@ public class BrowseEventsActivity extends AppCompatActivity {
                     }
                     usersAdapter.updateList(userList);
                     binding.recyclerEvents.setAdapter(usersAdapter);
+                    usersAdapter.setDeleteListener(this::deleteUser);
                 });
     }
     private void deleteEvent(Event event, int position) {
@@ -148,4 +165,6 @@ public class BrowseEventsActivity extends AppCompatActivity {
                     }
                 });
     }
+
+
 }
