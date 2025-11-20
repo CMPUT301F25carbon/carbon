@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/guidelines_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#8C154F">
 
-    <include
-        android:id="@+id/include_header"
-        layout="@layout/top_header" />
+    <include android:id="@+id/include_header" layout="@layout/top_header" />
 
     <include
         android:id="@+id/include_bottom_menu"
@@ -26,9 +25,6 @@
         android:paddingEnd="16dp"
         android:paddingTop="20dp"
         android:paddingBottom="32dp"
-        android:layout_marginStart="0dp"
-        android:layout_marginEnd="0dp"
-        android:layout_marginTop="0dp"
         android:layout_marginBottom="-10dp"
         android:background="@drawable/rounded_panel">
 
@@ -55,21 +51,71 @@
                     android:textColor="#F0DAA0"
                     android:textSize="44sp" />
 
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/toggle_profiles"
-                    android:layout_width="wrap_content"
+                <!-- Admin Tabs -->
+                <LinearLayout
+                    android:id="@+id/admin_tab_layout"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="View Profiles"
-                    android:textColor="#F0DAA0"
+                    android:orientation="horizontal"
+                    android:gravity="center"
                     android:visibility="gone"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginBottom="12dp"
+                    android:background="#80000000"
+                    android:padding="8dp"
+                    android:layout_marginStart="32dp"
+                    android:layout_marginEnd="32dp"
+                    app:cornerRadius="20dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_tab_events"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Events"
+                        android:textColor="#F0DAA0"
+                        android:textAllCaps="false"
+                        app:strokeColor="#F0DAA0"
+                        app:strokeWidth="1.5dp"
+                        app:cornerRadius="16dp"
+                        android:layout_margin="4dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_tab_profiles"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Profiles"
+                        android:textColor="#F0DAA0"
+                        android:textAllCaps="false"
+                        app:strokeColor="#F0DAA0"
+                        app:strokeWidth="1.5dp"
+                        app:cornerRadius="16dp"
+                        android:layout_margin="4dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_tab_notifications"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Notifs"
+                        android:textColor="#F0DAA0"
+                        android:textAllCaps="false"
+                        app:strokeColor="#F0DAA0"
+                        app:strokeWidth="1.5dp"
+                        app:cornerRadius="16dp"
+                        android:layout_margin="4dp" />
+                </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recycler_events"
+                    android:id="@+id/recyclerEvents"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clipToPadding="false"
                     android:paddingBottom="16dp" />
+
             </LinearLayout>
         </ScrollView>
     </FrameLayout>
