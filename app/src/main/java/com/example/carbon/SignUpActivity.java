@@ -98,6 +98,7 @@ public class SignUpActivity extends AppCompatActivity {
                             userData.put("email", email);
                             userData.put("phoneNo", phoneNo);
                             userData.put("role", "entrant");
+                            userData.put("notificationsEnabled", true);
 
                             FirebaseFirestore db = FirebaseFirestore.getInstance();
                             db.collection("users").document(userId)
