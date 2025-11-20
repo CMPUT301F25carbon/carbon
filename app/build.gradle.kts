@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.legacy.support.v4)
     implementation(libs.ext.junit)
     testImplementation(libs.junit)
+    testImplementation(libs.junit.jupiter)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
