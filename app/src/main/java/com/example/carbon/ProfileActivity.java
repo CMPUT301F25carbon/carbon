@@ -1,13 +1,16 @@
 package com.example.carbon;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -19,6 +22,41 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
 
         UIHelper.setupHeaderAndMenu(this);
+
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        SwitchCompat notificationSwitch = findViewById(R.id.notifications_switch);
+
+        String userId = getSharedPreferences("user_prefs", MODE_PRIVATE).getString("userId", null);
+
+        if (userId != null) {
+            db.collection("users").document(userId)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            Boolean enabled = documentSnapshot.getBoolean("notificationsEnabled");
+                            if (enabled != null) {
+                                notificationSwitch.setChecked(enabled);
+                            }
+                        }
+                    });
+        }
+
+        notificationSwitch.setOnCheckedChangeListener(((buttonView, isChecked) -> {
+            if (userId != null) {
+                db.collection("users").document(userId)
+                        .update("notificationsEnabled", isChecked)
+                        .addOnSuccessListener(v -> {
+                            String msg  = isChecked ?
+                                    "Notifications Enabled":
+                                    "Notifications Disabled";
+                            Toast.makeText(ProfileActivity.this, msg, Toast.LENGTH_SHORT).show();
+                        })
+                        .addOnFailureListener(e ->
+                                Toast.makeText(ProfileActivity.this, "Failed to update notifcation preference", Toast.LENGTH_LONG).show());
+            }
+        }));
 
         findViewById(R.id.btn_edit_profile).setOnClickListener(v ->
                 android.widget.Toast.makeText(this, "Edit profile (todo)", android.widget.Toast.LENGTH_SHORT).show()
