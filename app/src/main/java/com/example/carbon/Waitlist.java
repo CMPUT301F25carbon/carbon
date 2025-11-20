@@ -84,6 +84,6 @@ public class Waitlist {
     public List<WaitlistEntrant> getWaitlistEntrants() { return waitlistEntrants; }
     public Date getOpening() { return opening; }
     public Date getDeadline() { return deadline; }
-    //public int getMaxLimit() { return maxLimit; }
+    public int getMaxLimit() { return maxLimit; }
 
 }

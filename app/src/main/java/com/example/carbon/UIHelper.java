@@ -34,7 +34,7 @@ public class UIHelper {
 
         if (homeButton != null) {
             homeButton.setOnClickListener(v -> {
-                Intent intent = new Intent(activity, AllUsersActivity.class);
+                Intent intent = new Intent(activity, BrowseEventsActivity.class);
                 intent.putExtra("EVENT_ID", "5687b254-c268-4a16-9705-9b51573324ba"); // <-- jouw event ID
                 activity.startActivity(intent);
             });
