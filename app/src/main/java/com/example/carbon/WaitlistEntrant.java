@@ -65,6 +65,14 @@ public class WaitlistEntrant {
     }
 
     /**
+     * Sets the status of the waitlistEntrant
+     * @param status the new status to set
+     */
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    /**
      * Interface for creating a callback when fetching the users of the waitlistEntrant,
      * useful for anything that must be done asynchronously (like DB calls)
      *
