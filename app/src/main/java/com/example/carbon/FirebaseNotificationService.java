@@ -367,7 +367,7 @@ public class FirebaseNotificationService implements NotificationService{
                 notification.getCreated_at(),
                 notification.getType()
         );
-        
+
         db.collection("notification_logs")
                 .add(log)
                 .addOnSuccessListener(documentReference -> {
@@ -376,58 +376,4 @@ public class FirebaseNotificationService implements NotificationService{
                 .addOnFailureListener(e -> {
                     Log.e("FirebaseNotificationService", "Failed to log notification", e);
                 });
-    }
-
-    /**
-     * Updates the waitlist entrant status for a user in an event
-     * @param eventId the event UUID
-     * @param userId the user ID
-     * @param newStatus the new status ("Accepted" or "Denied")
-     */
-    private void updateWaitlistEntrantStatus(String eventId, String userId, String newStatus) {
-        // Find the event by UUID
-        db.collection("events")
-                .whereEqualTo("uuid", eventId)
-                .limit(1)
-                .get()
-                .addOnSuccessListener(querySnapshot -> {
-                    if (!querySnapshot.isEmpty()) {
-                        String eventDocId = querySnapshot.getDocuments().get(0).getId();
-                        // Get the event to access waitlist
-                        querySnapshot.getDocuments().get(0).getReference()
-                                .get()
-                                .addOnSuccessListener(documentSnapshot -> {
-                                    Event event = documentSnapshot.toObject(Event.class);
-                                    if (event != null && event.getWaitlist() != null) {
-                                        List<WaitlistEntrant> entrants = event.getWaitlist().getWaitlistEntrants();
-                                        if (entrants != null) {
-                                            // Find and update the entrant
-                                            for (WaitlistEntrant entrant : entrants) {
-                                                if (entrant != null && entrant.getUserId().equals(userId)) {
-                                                    entrant.setStatus(newStatus);
-                                                    break;
-                                                }
-                                            }
-                                            // Update the event in Firestore
-                                            db.collection("events").document(eventDocId)
-                                                    .update("waitlist.waitlistEntrants", entrants)
-                                                    .addOnSuccessListener(aVoid -> {
-                                                        Log.d("FirebaseNotificationService", 
-                                                                "Waitlist entrant status updated to " + newStatus + " for user " + userId);
-                                                    })
-                                                    .addOnFailureListener(e -> {
-                                                        Log.e("FirebaseNotificationService", "Failed to update waitlist entrant status", e);
-                                                    });
-                                        }
-                                    }
-                                })
-                                .addOnFailureListener(e -> {
-                                    Log.e("FirebaseNotificationService", "Failed to get event document", e);
-                                });
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("FirebaseNotificationService", "Failed to find event", e);
-                });
-    }
-}
+    }}
