@@ -56,6 +56,9 @@ public class FirebaseNotificationService implements NotificationService{
         db.collection("notifications").document(notification.getId())
                 .update("status", NotificationStatus.ACCEPTED.name())
                 .addOnSuccessListener(Void -> {
+                    // Update notification log
+                    updateNotificationLog(notification.getId(), NotificationStatus.ACCEPTED);
+                    
                     // Update waitlist entrant status to "Accepted"
                     updateWaitlistEntrantStatus(notification.getEventId(), notification.getUserId(), "Accepted");
                     
@@ -89,25 +92,6 @@ public class FirebaseNotificationService implements NotificationService{
                                 Log.e("FirebaseNotificationService", "Failed to find event", e);
                                 onError.accept(e);
                             });
-                    // Update notification log
-                    updateNotificationLog(notification.getId(), NotificationStatus.ACCEPTED);
-                    
-                    // Update waitlist entrant status to "Accepted"
-                    updateWaitlistEntrantStatus(notification.getEventId(), notification.getUserId(), "Accepted");
-                    
-                    FirebaseEventService eventService = new FirebaseEventService();
-                    eventService.addAttendee(
-                            notification.getEventId(),
-                            notification.getUserId(),
-                            () -> {
-                                Log.d("FirebaseNotificationService", "Attendee added for event "+ notification.getEventId());
-                                onSuccess.run();
-                            },
-                            e -> {
-                                Log.e("FirebaseNotificationService", "Failed to add attendee", e);
-                                onError.accept(e);
-                            }
-                    );
                 })
                 .addOnFailureListener(onError::accept);
 
@@ -124,17 +108,12 @@ public class FirebaseNotificationService implements NotificationService{
         db.collection("notifications").document(notification.getId())
                 .update("status", NotificationStatus.DECLINED.name())
                 .addOnSuccessListener(Void -> {
-                    // Update waitlist entrant status to "Denied"
-                    updateWaitlistEntrantStatus(notification.getEventId(), notification.getUserId(), "Denied");
-                    // Automatically select a replacement
-                    selectReplacementEntrant(notification.getEventId(), notification.getEventName(), onSuccess, onError);
-                })
-                .addOnSuccessListener(Void -> {
                     // Update notification log
                     updateNotificationLog(notification.getId(), NotificationStatus.DECLINED);
                     // Update waitlist entrant status to "Denied"
                     updateWaitlistEntrantStatus(notification.getEventId(), notification.getUserId(), "Denied");
-                    onSuccess.run();
+                    // Automatically select a replacement
+                    selectReplacementEntrant(notification.getEventId(), notification.getEventName(), onSuccess, onError);
                 })
                 .addOnFailureListener(onError::accept);
     }
@@ -376,4 +355,91 @@ public class FirebaseNotificationService implements NotificationService{
                 .addOnFailureListener(e -> {
                     Log.e("FirebaseNotificationService", "Failed to log notification", e);
                 });
-    }}
+    }
+
+    /**
+     * Broadcasts a notification to all waitlist entrants for an event
+     * @param eventUuid the event UUID
+     * @param message the message to send
+     * @param onSuccess callback when broadcast completes
+     * @param onError callback for errors
+     */
+    public void broadcastNotificationToWaitlist(String eventUuid, String message, Runnable onSuccess, Consumer<Exception> onError) {
+        // Find the event by UUID
+        db.collection("events")
+                .whereEqualTo("uuid", eventUuid)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        DocumentSnapshot document = querySnapshot.getDocuments().get(0);
+                        Event event = document.toObject(Event.class);
+
+                        if (event != null && event.getWaitlist() != null) {
+                            List<WaitlistEntrant> allEntrants = event.getWaitlist().getWaitlistEntrants();
+                            
+                            if (allEntrants == null || allEntrants.isEmpty()) {
+                                Log.d("FirebaseNotificationService", "No entrants in waitlist to broadcast to");
+                                onSuccess.run();
+                                return;
+                            }
+
+                            // Send notification to all waitlist entrants
+                            int[] successCount = {0};
+                            int[] failCount = {0};
+                            int totalEntrants = allEntrants.size();
+                            
+                            for (WaitlistEntrant entrant : allEntrants) {
+                                if (entrant != null && entrant.getUserId() != null) {
+                                    Notification broadcastNotification = new Notification(
+                                            null, // id will be set by Firebase
+                                            entrant.getUserId(),
+                                            eventUuid,
+                                            event.getTitle(),
+                                            message,
+                                            NotificationStatus.UNREAD,
+                                            new Date(),
+                                            "broadcast" // type for broadcast notifications
+                                    );
+
+                                    sendNotification(broadcastNotification,
+                                            () -> {
+                                                successCount[0]++;
+                                                if (successCount[0] + failCount[0] == totalEntrants) {
+                                                    Log.d("FirebaseNotificationService", 
+                                                            "Broadcast complete: " + successCount[0] + " sent, " + failCount[0] + " failed");
+                                                    onSuccess.run();
+                                                }
+                                            },
+                                            e -> {
+                                                failCount[0]++;
+                                                Log.e("FirebaseNotificationService", "Failed to send broadcast to " + entrant.getUserId(), e);
+                                                if (successCount[0] + failCount[0] == totalEntrants) {
+                                                    Log.d("FirebaseNotificationService", 
+                                                            "Broadcast complete: " + successCount[0] + " sent, " + failCount[0] + " failed");
+                                                    onSuccess.run();
+                                                }
+                                            }
+                                    );
+                                } else {
+                                    failCount[0]++;
+                                    if (successCount[0] + failCount[0] == totalEntrants) {
+                                        onSuccess.run();
+                                    }
+                                }
+                            }
+                        } else {
+                            Log.d("FirebaseNotificationService", "Event or waitlist not found");
+                            onError.accept(new Exception("Event or waitlist not found"));
+                        }
+                    } else {
+                        Log.e("FirebaseNotificationService", "Event not found with UUID: " + eventUuid);
+                        onError.accept(new Exception("Event not found"));
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FirebaseNotificationService", "Failed to find event for broadcast", e);
+                    onError.accept(e);
+                });
+    }
+}
