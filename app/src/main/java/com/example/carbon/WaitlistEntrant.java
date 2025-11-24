@@ -64,7 +64,7 @@ public class WaitlistEntrant {
         return status;
     }
 
-    /**
+     /**
      * Sets the status of the waitlistEntrant
      * @param status the new status to set
      */
