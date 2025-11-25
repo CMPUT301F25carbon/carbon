@@ -1,5 +1,7 @@
 package com.example.carbon;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -51,8 +53,30 @@ public class EventDetailsActivity extends AppCompatActivity {
         btnSampleN = findViewById(R.id.btn_sample_n);
         rvRegistrants = findViewById(R.id.rv_registrants);
 
-        // Get data from intent (safe defaults)
-        eventId = getIntent().getStringExtra(EXTRA_EVENT_ID);
+        Intent intent = getIntent();
+        String eventUuid = null;
+
+        // ✅ Check if the activity was launched by a deep link
+        if (Intent.ACTION_VIEW.equals(intent.getAction())) {
+            Uri uri = intent.getData();
+            if (uri != null) {
+                // The UUID is the last part of the path in "carbondate://events/UUID"
+                eventUuid = uri.getLastPathSegment();
+            }
+        } else {
+            // ✅ Fallback to the old way (launched from another activity)
+            eventUuid = intent.getStringExtra("EXTRA_EVENT_ID");
+        }
+
+        // Now, use the eventUuid to load your data
+        if (eventUuid != null && !eventUuid.isEmpty()) {
+            // Your existing logic to load event details from Firestore using the UUID
+            loadEventDataFromFirestore(eventUuid);
+        } else {
+            // Handle the error: no ID was found
+            Toast.makeText(this, "Event ID not found.", Toast.LENGTH_LONG).show();
+            finish(); // Close the activity if there's no data to show
+        }
         String title  = getIntent().getStringExtra(EXTRA_EVENT_TITLE);
         String date   = getIntent().getStringExtra(EXTRA_EVENT_DATE);
         String counts = getIntent().getStringExtra(EXTRA_EVENT_COUNTS);
@@ -107,6 +131,42 @@ public class EventDetailsActivity extends AppCompatActivity {
 
         // Perform the draw and send notifications
         performDrawAndNotify(n);
+    }
+
+    /**
+     * Loads the event based on the passed ID and updates the titles and strings for user visualization
+     * @param eventId The ID of the event to view the waitlist of
+     *
+     * @author Cooper Goddard
+     */
+    private void loadEventDataFromFirestore(String eventId) {
+        Log.d("Event DB", eventId);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Reference the correct document in the 'events' collection using the eventId
+        Query query = db.collection("events").whereEqualTo("uuid", eventId).limit(1);
+
+        query.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                // Check if the query returned any results
+                if (!task.getResult().isEmpty()) {
+                    // Get the first (and only, otherwise something is very wrong lol) document from the query result
+                    DocumentSnapshot document = task.getResult().getDocuments().get(0);
+
+                    // Convert the document into an Event object
+                    Event event = document.toObject(Event.class);
+                    tvTitle.setText(event.getTitle());
+                    tvDate.setText(event.getEventDate().toString());
+
+                } else {
+                    Toast.makeText(EventDetailsActivity.this, "Event not found.", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            } else {
+                Toast.makeText(EventDetailsActivity.this, "Failed to load event data.", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        });
     }
 
     /**
