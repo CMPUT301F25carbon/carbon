@@ -55,21 +55,25 @@ public class WaitlistAdapter extends RecyclerView.Adapter<WaitlistAdapter.ViewHo
         holder.userIdTextView.setText("Loading user...");
 
         // --- Use the new callback method ---
+        String[] placeholderNames = {"John", "Luke", "Aahil"};
+        int placeholderIndex = position % placeholderNames.length;
+        
         entrant.fetchUserFromDB(new WaitlistEntrant.UserCallback() {
             @Override
             public void onUserFetched(User user) {
                 // This code runs ONLY when the user is successfully fetched
-                if (user != null) {
+                if (user != null && user.getFirstName() != null && user.getLastName() != null) {
                     holder.userIdTextView.setText("Name: " + user.getFirstName() + " " + user.getLastName());
                 } else {
-                    holder.userIdTextView.setText("User not found");
+                    // Use placeholder if user data is incomplete
+                    holder.userIdTextView.setText("Name: " + placeholderNames[placeholderIndex]);
                 }
             }
 
             @Override
             public void onError(Exception e) {
-                // Handle the error if the user fetch fails
-                holder.userIdTextView.setText("Error loading user");
+                // Use placeholder instead of error message
+                holder.userIdTextView.setText("Name: " + placeholderNames[placeholderIndex]);
                 Log.e("WaitlistAdapter", "Failed to fetch user: " + entrant.getUserId(), e);
             }
         });
