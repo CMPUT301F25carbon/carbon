@@ -15,6 +15,7 @@ public class Event {
     private String eventCity;
     private String eventProvince;
     private String eventCountry;
+    private String category; // Event category for filtering
     private String ownerId;
     private Waitlist waitlist;
     private String uuid;
@@ -51,6 +52,8 @@ public class Event {
     public String getEventCity() { return eventCity; }
     public String getEventProvince() { return eventProvince; }
     public String getEventCountry() { return eventCountry; }
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
     public String getOwnerId() { return ownerId; }
     public Waitlist getWaitlist() { return waitlist; }
     public String getUuid() { return uuid; }
