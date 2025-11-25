@@ -104,7 +104,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                     // Convert the document into an Event object
                     Event event = document.toObject(Event.class);
                     currentEvent = event;
-                    eventId = event.getUuid();
+                    EventDetailsActivity.this.eventId = event.getUuid();
                     
                     tvTitle.setText(event.getTitle());
                     if (event.getEventDate() != null) {
