@@ -19,8 +19,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * The EventWaitlistActivity holds the logic of the activity_event_waitlist.xml page.
@@ -55,6 +57,7 @@ public class EventWaitlistActivity extends AppCompatActivity {
         // Setup your RecyclerView and adapter
         RecyclerView recyclerView = findViewById(R.id.recycler_waitlist);
         adapter = new WaitlistAdapter(displayedEntrants); // Initialize adapter with an empty list
+        adapter.setOnSelectClickListener(this::handleSelectEntrant);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
@@ -177,5 +180,109 @@ public class EventWaitlistActivity extends AppCompatActivity {
                         finish();
                     }
                 });
+    }
+
+    /**
+     * Handles when organizer clicks "Select" button on an entrant
+     * Shows prompt to remove or replace with random selection
+     */
+    private void handleSelectEntrant(WaitlistEntrant entrant, int position) {
+        new AlertDialog.Builder(this)
+                .setTitle("Select Entrant")
+                .setMessage("What would you like to do with this entrant?")
+                .setPositiveButton("Remove", (dialog, which) -> {
+                    removeEntrant(entrant);
+                })
+                .setNeutralButton("Replace (Random)", (dialog, which) -> {
+                    replaceEntrantWithRandom(entrant);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    /**
+     * Removes the entrant from the waitlist
+     */
+    private void removeEntrant(WaitlistEntrant entrant) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Query query = db.collection("events").whereEqualTo("uuid", eventId).limit(1);
+
+        query.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                String eventDocId = task.getResult().getDocuments().get(0).getId();
+                DocumentSnapshot document = task.getResult().getDocuments().get(0);
+                Event event = document.toObject(Event.class);
+
+                if (event != null && event.getWaitlist() != null) {
+                    List<WaitlistEntrant> entrants = event.getWaitlist().getWaitlistEntrants();
+                    if (entrants != null) {
+                        entrants.remove(entrant);
+                        db.collection("events").document(eventDocId)
+                                .update("waitlist.waitlistEntrants", entrants)
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(this, "Entrant removed", Toast.LENGTH_SHORT).show();
+                                    loadWaitlistFromDatabase(eventId);
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(this, "Failed to remove entrant", Toast.LENGTH_SHORT).show();
+                                    Log.e("EventWaitlistActivity", "Failed to remove entrant", e);
+                                });
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Replaces the entrant with a random selection from available entrants
+     */
+    private void replaceEntrantWithRandom(WaitlistEntrant entrantToReplace) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Query query = db.collection("events").whereEqualTo("uuid", eventId).limit(1);
+
+        query.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                String eventDocId = task.getResult().getDocuments().get(0).getId();
+                DocumentSnapshot document = task.getResult().getDocuments().get(0);
+                Event event = document.toObject(Event.class);
+
+                if (event != null && event.getWaitlist() != null) {
+                    List<WaitlistEntrant> allEntrants = event.getWaitlist().getWaitlistEntrants();
+                    
+                    // Find available entrants (status = "Not Selected" and not the one being replaced)
+                    List<WaitlistEntrant> availableEntrants = new ArrayList<>();
+                    for (WaitlistEntrant e : allEntrants) {
+                        if (e != null && Objects.equals(e.getStatus(), "Not Selected") && 
+                            !e.getUserId().equals(entrantToReplace.getUserId())) {
+                            availableEntrants.add(e);
+                        }
+                    }
+
+                    if (availableEntrants.isEmpty()) {
+                        Toast.makeText(this, "No available entrants to replace with", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Randomly select one
+                    java.util.Collections.shuffle(availableEntrants);
+                    WaitlistEntrant replacement = availableEntrants.get(0);
+                    
+                    // Update: remove old, set replacement to "Pending"
+                    allEntrants.remove(entrantToReplace);
+                    replacement.setStatus("Pending");
+
+                    db.collection("events").document(eventDocId)
+                            .update("waitlist.waitlistEntrants", allEntrants)
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(this, "Entrant replaced with random selection", Toast.LENGTH_SHORT).show();
+                                loadWaitlistFromDatabase(eventId);
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(this, "Failed to replace entrant", Toast.LENGTH_SHORT).show();
+                                Log.e("EventWaitlistActivity", "Failed to replace entrant", e);
+                            });
+                }
+            }
+        });
     }
 }

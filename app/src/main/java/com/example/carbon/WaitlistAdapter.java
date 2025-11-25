@@ -23,6 +23,15 @@ public class WaitlistAdapter extends RecyclerView.Adapter<WaitlistAdapter.ViewHo
 
     private List<WaitlistEntrant> entrantList;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy 'at' hh:mm a", Locale.US);
+    private OnSelectClickListener selectClickListener;
+
+    public interface OnSelectClickListener {
+        void onSelectClick(WaitlistEntrant entrant, int position);
+    }
+
+    public void setOnSelectClickListener(OnSelectClickListener listener) {
+        this.selectClickListener = listener;
+    }
 
     /**
      * Constructor for the adapter.
@@ -91,6 +100,12 @@ public class WaitlistAdapter extends RecyclerView.Adapter<WaitlistAdapter.ViewHo
             holder.selectEntrantButton.setVisibility(View.GONE);
         } else {
             holder.statusTextView.setText(entrant.getStatus());
+            holder.selectEntrantButton.setVisibility(View.VISIBLE);
+            holder.selectEntrantButton.setOnClickListener(v -> {
+                if (selectClickListener != null) {
+                    selectClickListener.onSelectClick(entrant, position);
+                }
+            });
         }
     }
 
