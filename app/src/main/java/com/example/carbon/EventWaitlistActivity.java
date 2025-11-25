@@ -3,9 +3,13 @@ package com.example.carbon;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,6 +34,8 @@ public class EventWaitlistActivity extends AppCompatActivity {
     private WaitlistAdapter adapter;
     private ArrayList<WaitlistEntrant> displayedEntrants = new ArrayList<>();
     private Button viewInvitedButton;
+    private Button notifyAllButton;
+    private String eventId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +45,7 @@ public class EventWaitlistActivity extends AppCompatActivity {
         UIHelper.setupHeaderAndMenu(this);
         // Validate Login
         Intent intent = getIntent();
-        String eventId = intent.getStringExtra("EVENT_ID");
+        eventId = intent.getStringExtra("EVENT_ID");
 
         if (eventId == null || eventId.isEmpty()) {
             Toast.makeText(this, "Error: Event ID not found.", Toast.LENGTH_LONG).show();
@@ -70,6 +76,57 @@ public class EventWaitlistActivity extends AppCompatActivity {
             // Start the new activity
             startActivity(newIntent);
         });
+
+        // Set up "Notify All Waitlist" button listener
+        notifyAllButton = findViewById(R.id.notify_all_btn);
+        notifyAllButton.setOnClickListener(v -> showBroadcastDialog());
+    }
+
+    /**
+     * Shows a dialog for the organizer to enter a message to broadcast to all waitlist entrants
+     */
+    private void showBroadcastDialog() {
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View dialogView = inflater.inflate(R.layout.dialog_broadcast_message, null);
+        EditText messageEditText = dialogView.findViewById(R.id.et_broadcast_message);
+
+        new AlertDialog.Builder(this)
+                .setTitle("Notify All Waitlist")
+                .setView(dialogView)
+                .setPositiveButton("Send", (dialog, which) -> {
+                    String message = messageEditText.getText().toString().trim();
+                    if (message.isEmpty()) {
+                        Toast.makeText(this, "Please enter a message", Toast.LENGTH_SHORT).show();
+                    } else {
+                        sendBroadcastNotification(message);
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    /**
+     * Sends a broadcast notification to all waitlist entrants
+     * @param message the message to send
+     */
+    private void sendBroadcastNotification(String message) {
+        FirebaseNotificationService notificationService = new FirebaseNotificationService();
+        
+        notificationService.broadcastNotificationToWaitlist(
+                eventId,
+                message,
+                () -> {
+                    runOnUiThread(() -> {
+                        Toast.makeText(this, "Notification sent to all waitlist entrants", Toast.LENGTH_SHORT).show();
+                    });
+                },
+                e -> {
+                    runOnUiThread(() -> {
+                        Toast.makeText(this, "Failed to send notifications: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        Log.e("EventWaitlistActivity", "Failed to broadcast notification", e);
+                    });
+                }
+        );
     }
 
     /**

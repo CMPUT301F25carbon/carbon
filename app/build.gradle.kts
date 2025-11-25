@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.legacy.support.v4)
     implementation(libs.ext.junit)
     testImplementation(libs.junit)
+    testImplementation(libs.junit.jupiter)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
@@ -57,4 +58,6 @@ dependencies {
     implementation("com.google.zxing:core:3.5.3")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("com.google.firebase:firebase-firestore:24.10.0")
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.mockito:mockito-core:5.11.0")
 }

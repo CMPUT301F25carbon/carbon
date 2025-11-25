@@ -284,8 +284,7 @@ public class CreateEventActivity extends AppCompatActivity {
         }
 
         newWaitlist.joinWaitlist("1qfLOhloVxPiT80wmC0sMpVt7ko2"); // TODO Remove this later. Just for testing.
-        newWaitlist.joinWaitlist("WNF9G3G0yDdhb3H3FUmCHS17lvE2");
-        newWaitlist.joinWaitlist("oklRgkrFGJXHKIjLNX3AZmnAr4K3");
+        newWaitlist.joinWaitlist("AgpSxi4xl1hgiZLRaYvuLRnPew03");
 
         // CREATE THE EVENT OBJECT AND INCLUDE THE WAITLIST
         Event newEvent = new Event(title, des, seats, eventDate, address, city, province, country, ownerId, newWaitlist);

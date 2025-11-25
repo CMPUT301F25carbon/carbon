@@ -50,6 +50,16 @@
                     android:text="Selected Users"
                     android:textColor="#F0DAA0"
                     android:textSize="44sp" />
+                
+                <Button
+                    android:text="Notify Selected Entrants"
+                    android:id="@+id/notify_selected_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#FFFFFF"
+                    android:backgroundTint="#ED9029"
+                    android:fontFamily="@font/italiana"
+                    android:layout_marginBottom="16dp"/>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler_selected"

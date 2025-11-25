@@ -9,6 +9,11 @@ import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
 
+/**
+ * a custom dialog that allows the user to accept or decline an event invitation.
+ * Displays basic event information and handles user responses through
+ * the provided {@link NotificationService}
+ */
 public class InvitationDialog {
     private final Dialog dialog;
 
