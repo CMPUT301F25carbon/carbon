@@ -69,54 +69,18 @@
         </LinearLayout>
 
 
-        <!-- Action row -->
-        <LinearLayout
-            android:orientation="horizontal"
+        <!-- Description -->
+        <TextView
+            android:id="@+id/tv_event_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="start"
+            android:text="Event description will appear here"
+            android:textColor="#FCD694"
+            android:fontFamily="@font/italiana"
+            android:textSize="16sp"
             android:layout_marginTop="12dp"
-            android:layout_marginBottom="8dp">
-
-            <Button
-                android:id="@+id/btn_edit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Edit"
-                android:backgroundTint="#F0F0F0"
-                android:textColor="#731B3F"
-                android:fontFamily="@font/italiana"
-                android:layout_marginEnd="8dp"/>
-
-            <Button
-                android:id="@+id/btn_cancel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cancel"
-                android:backgroundTint="#F0F0F0"
-                android:textColor="#731B3F"
-                android:fontFamily="@font/italiana"
-                android:layout_marginEnd="8dp"/>
-
-            <EditText
-                android:id="@+id/et_sample_n"
-                android:layout_width="80dp"
-                android:layout_height="wrap_content"
-                android:inputType="number"
-                android:hint="N"
-                android:background="@drawable/rounded_edittext"
-                android:padding="8dp"
-                android:layout_marginEnd="8dp"/>
-
-            <Button
-                android:id="@+id/btn_sample_n"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Sample"
-                android:backgroundTint="#ED9029"
-                android:textColor="#FFFFFF"
-                android:fontFamily="@font/italiana"/>
-        </LinearLayout>
+            android:layout_marginBottom="16dp"
+            android:padding="8dp"/>
 
         <TextView
             android:layout_width="wrap_content"
