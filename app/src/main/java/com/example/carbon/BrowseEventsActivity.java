@@ -1,7 +1,13 @@
 package com.example.carbon;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -16,8 +22,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * BrowseEventsActivity is the main admin dashboard for viewing and managing:
@@ -51,6 +61,14 @@ public class BrowseEventsActivity extends AppCompatActivity {
     private enum ViewType { EVENTS, PROFILES, NOTIFICATIONS }
     private ViewType currentView = ViewType.EVENTS;
 
+    // Filter state
+    private Spinner spinnerCategory, spinnerLocation;
+    private Button btnFilterDate, btnClearFilters;
+    private String selectedCategory = null;
+    private String selectedLocation = null;
+    private Date selectedDate = null;
+    private List<Event> allEvents = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,6 +78,7 @@ public class BrowseEventsActivity extends AppCompatActivity {
         UIHelper.setupHeaderAndMenu(this);
         setupRecyclerView();
         setupAdminTabButtons();
+        setupFilters();
         loadEvents(); // Default view on launch
     }
 
@@ -202,6 +221,115 @@ public class BrowseEventsActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * Sets up filter UI components
+     */
+    private void setupFilters() {
+        spinnerCategory = findViewById(R.id.spinner_category);
+        spinnerLocation = findViewById(R.id.spinner_location);
+        btnFilterDate = findViewById(R.id.btn_filter_date);
+        btnClearFilters = findViewById(R.id.btn_clear_filters);
+
+        // Setup category spinner
+        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item,
+                new String[]{"All Categories", "Sports", "Entertainment", "Food", "Education", "Social", "Other"});
+        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerCategory.setAdapter(categoryAdapter);
+
+        // Location spinner will be populated dynamically
+        ArrayAdapter<String> locationAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item,
+                new String[]{"All Locations"});
+        locationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerLocation.setAdapter(locationAdapter);
+
+        // Date filter button
+        btnFilterDate.setOnClickListener(v -> showDatePicker());
+
+        // Clear filters button
+        btnClearFilters.setOnClickListener(v -> clearFilters());
+    }
+
+    /**
+     * Shows date picker dialog for filtering by date
+     */
+    private void showDatePicker() {
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+                (view, year, month, dayOfMonth) -> {
+                    Calendar selectedCalendar = Calendar.getInstance();
+                    selectedCalendar.set(year, month, dayOfMonth);
+                    selectedDate = selectedCalendar.getTime();
+                    btnFilterDate.setText(new SimpleDateFormat("MMM dd, yyyy", Locale.US).format(selectedDate));
+                    applyFilters();
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH));
+        datePickerDialog.show();
+    }
+
+    /**
+     * Clears all filters and refreshes the event list
+     */
+    private void clearFilters() {
+        selectedCategory = null;
+        selectedLocation = null;
+        selectedDate = null;
+        spinnerCategory.setSelection(0);
+        spinnerLocation.setSelection(0);
+        btnFilterDate.setText("Date");
+        applyFilters();
+    }
+
+    /**
+     * Applies current filters to the event list
+     */
+    private void applyFilters() {
+        List<Event> filteredList = new ArrayList<>();
+
+        for (Event event : allEvents) {
+            boolean matches = true;
+
+            // Category filter
+            if (selectedCategory != null && !selectedCategory.equals("All Categories")) {
+                if (event.getCategory() == null || !event.getCategory().equals(selectedCategory)) {
+                    matches = false;
+                }
+            }
+
+            // Location filter
+            if (selectedLocation != null && !selectedLocation.equals("All Locations")) {
+                String eventLocation = event.getEventCity() != null ? event.getEventCity() : 
+                                      (event.getEventLocation() != null ? event.getEventLocation() : "");
+                if (!eventLocation.equals(selectedLocation)) {
+                    matches = false;
+                }
+            }
+
+            // Date filter
+            if (selectedDate != null && event.getEventDate() != null) {
+                Calendar eventCal = Calendar.getInstance();
+                eventCal.setTime(event.getEventDate());
+                Calendar filterCal = Calendar.getInstance();
+                filterCal.setTime(selectedDate);
+                
+                if (eventCal.get(Calendar.YEAR) != filterCal.get(Calendar.YEAR) ||
+                    eventCal.get(Calendar.MONTH) != filterCal.get(Calendar.MONTH) ||
+                    eventCal.get(Calendar.DAY_OF_MONTH) != filterCal.get(Calendar.DAY_OF_MONTH)) {
+                    matches = false;
+                }
+            }
+
+            if (matches) {
+                filteredList.add(event);
+            }
+        }
+
+        eventsAdapter.updateList(filteredList);
+    }
+
     /** Loads and displays all events from Firestore in real-time */
     private void loadEvents() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -209,13 +337,67 @@ public class BrowseEventsActivity extends AppCompatActivity {
                 .addSnapshotListener((snapshots, error) -> {
                     if (error != null) return;
 
-                    List<Event> eventList = new ArrayList<>();
+                    allEvents.clear();
+                    Set<String> locations = new HashSet<>();
+                    locations.add("All Locations");
+
                     for (DocumentSnapshot doc : snapshots.getDocuments()) {
                         Event event = doc.toObject(Event.class);
-                        if (event != null) eventList.add(event);
+                        if (event != null) {
+                            allEvents.add(event);
+                            if (event.getEventCity() != null && !event.getEventCity().isEmpty()) {
+                                locations.add(event.getEventCity());
+                            } else if (event.getEventLocation() != null && !event.getEventLocation().isEmpty()) {
+                                locations.add(event.getEventLocation());
+                            }
+                        }
                     }
-                    eventsAdapter.updateList(eventList);
-                    binding.recyclerEvents.setAdapter(eventsAdapter);
+
+                    // Update location spinner
+                    ArrayAdapter<String> locationAdapter = new ArrayAdapter<>(this,
+                            android.R.layout.simple_spinner_item,
+                            new ArrayList<>(locations));
+                    locationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    spinnerLocation.setAdapter(locationAdapter);
+
+                    // Setup filter listeners
+                    spinnerCategory.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                            if (position == 0) {
+                                selectedCategory = null;
+                            } else {
+                                selectedCategory = (String) parent.getItemAtPosition(position);
+                            }
+                            applyFilters();
+                        }
+
+                        @Override
+                        public void onNothingSelected(android.widget.AdapterView<?> parent) {
+                            selectedCategory = null;
+                            applyFilters();
+                        }
+                    });
+
+                    spinnerLocation.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                            if (position == 0) {
+                                selectedLocation = null;
+                            } else {
+                                selectedLocation = (String) parent.getItemAtPosition(position);
+                            }
+                            applyFilters();
+                        }
+
+                        @Override
+                        public void onNothingSelected(android.widget.AdapterView<?> parent) {
+                            selectedLocation = null;
+                            applyFilters();
+                        }
+                    });
+
+                    applyFilters();
                 });
     }
 

@@ -51,6 +51,76 @@
                     android:textColor="#F0DAA0"
                     android:textSize="44sp" />
 
+                <!-- Filter Section -->
+                <LinearLayout
+                    android:id="@+id/filter_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="#F0DAA0"
+                    android:padding="12dp"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Filter Events"
+                        android:textColor="#731B3F"
+                        android:fontFamily="@font/italiana"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <androidx.appcompat.widget.AppCompatSpinner
+                            android:id="@+id/spinner_category"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="4dp"
+                            android:background="@drawable/rounded_edittext"
+                            android:padding="8dp"/>
+
+                        <androidx.appcompat.widget.AppCompatSpinner
+                            android:id="@+id/spinner_location"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="4dp"
+                            android:layout_marginEnd="4dp"
+                            android:background="@drawable/rounded_edittext"
+                            android:padding="8dp"/>
+
+                        <Button
+                            android:id="@+id/btn_filter_date"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Date"
+                            android:textColor="#FFFFFF"
+                            android:backgroundTint="#ED9029"
+                            android:fontFamily="@font/italiana"
+                            android:textSize="12sp"
+                            android:layout_marginStart="4dp"/>
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn_clear_filters"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Clear Filters"
+                        android:textColor="#731B3F"
+                        android:backgroundTint="#F0DAA0"
+                        android:fontFamily="@font/italiana"
+                        android:textSize="14sp"
+                        android:layout_gravity="end"/>
+                </LinearLayout>
+
                 <!-- Admin Tabs -->
                 <LinearLayout
                     android:id="@+id/admin_tab_layout"
