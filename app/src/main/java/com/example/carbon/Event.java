@@ -20,13 +20,14 @@ public class Event {
     private Waitlist waitlist;
     private String uuid;
     private List<String> attendeeList = new ArrayList<>();  // to hold the attendees that are going to be attending the event
+    private String imageURL;
 
 
     // Required empty public constructor for Firestore
     public Event(){}
 
     // Constructor for a new event with a registration deadline and opening (forces both)
-    public Event(String title, String des, Integer totalSpots, Date newEventDate, String eventLocation, String eventCity, String eventProvince, String eventCountry, String ownerId, Waitlist waitlist) {
+    public Event(String title, String des, Integer totalSpots, Date newEventDate, String eventLocation, String eventCity, String eventProvince, String eventCountry, String ownerId, Waitlist waitlist, String imageURL) {
         this.title = title;
         this.description = des;
         this.active = true;
@@ -40,6 +41,7 @@ public class Event {
         this.waitlist = waitlist;
         this.uuid = UUID.randomUUID().toString();
         this.attendeeList = new ArrayList<>();
+        this.imageURL = imageURL;
     }
 
 
@@ -57,6 +59,7 @@ public class Event {
     public String getOwnerId() { return ownerId; }
     public Waitlist getWaitlist() { return waitlist; }
     public String getUuid() { return uuid; }
+    public String getImageURL() {return imageURL;}
 
     public List<String> getAttendeeList() {
         return attendeeList;

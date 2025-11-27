@@ -49,10 +49,12 @@ dependencies {
     implementation(libs.recyclerview)
     implementation(libs.legacy.support.v4)
     implementation(libs.ext.junit)
+    implementation(libs.firebase.storage)
     testImplementation(libs.junit)
     testImplementation(libs.junit.jupiter)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
     // Zxing Core for QR Code Generation
     implementation("com.google.zxing:core:3.5.3")
