@@ -7,7 +7,7 @@
     android:background="#8C154F"
     android:fitsSystemWindows="true"
     android:paddingTop="@dimen/status_bar_padding"
-    android:paddingVertical="12dp"
+    android:paddingBottom="12dp"
     android:paddingHorizontal="16dp"
     android:layout_marginTop="8dp">
 

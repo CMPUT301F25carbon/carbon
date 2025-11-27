@@ -2,5 +2,5 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="text_margin">16dp</dimen>
     <!-- Extra top padding so the header clears the system status bar/notch -->
-    <dimen name="status_bar_padding">24dp</dimen>
+    <dimen name="status_bar_padding">32dp</dimen>
 </resources>
