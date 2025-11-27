@@ -3,6 +3,7 @@ package com.example.carbon;
 import android.app.Activity;
 import android.content.Intent;
 import android.widget.ImageButton;
+import android.content.SharedPreferences;
 
 public class UIHelper {
 
@@ -33,11 +34,7 @@ public class UIHelper {
         }
 
         if (homeButton != null) {
-            homeButton.setOnClickListener(v -> {
-                Intent intent = new Intent(activity, BrowseEventsActivity.class);
-                intent.putExtra("EVENT_ID", "5687b254-c268-4a16-9705-9b51573324ba"); // <-- jouw event ID
-                activity.startActivity(intent);
-            });
+            homeButton.setOnClickListener(v -> navigateHome(activity));
         }
         if (profileButton != null) {
             profileButton.setOnClickListener(v -> {
@@ -46,5 +43,23 @@ public class UIHelper {
             });
         }
 
+    }
+
+    /**
+     * Navigates to the appropriate home screen based on cached user role.
+     * Defaults to entrant/upcoming-events view if no role cached.
+     */
+    public static void navigateHome(Activity activity) {
+        Intent intent = new Intent(activity, getHomeActivity(activity));
+        activity.startActivity(intent);
+    }
+
+    private static Class<?> getHomeActivity(Activity activity) {
+        SharedPreferences prefs = activity.getSharedPreferences("user_prefs", Activity.MODE_PRIVATE);
+        String role = prefs.getString("role", "");
+        if ("organizer".equalsIgnoreCase(role)) {
+            return BrowseOrganizerEventsActivity.class;
+        }
+        return BrowseEventsActivity.class;
     }
 }

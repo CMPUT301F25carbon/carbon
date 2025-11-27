@@ -77,9 +77,7 @@ public class CreateEventActivity extends AppCompatActivity {
         // Set home button in bottom menu
         ImageButton homeButton = findViewById(R.id.home_button);
         if (homeButton != null) {
-            homeButton.setOnClickListener(v -> {
-                startActivity(new Intent(CreateEventActivity.this, BrowseEventsActivity.class));
-            });
+            homeButton.setOnClickListener(v -> UIHelper.navigateHome(this));
         }
 
         // Set up listener and launcher for image upload box click
