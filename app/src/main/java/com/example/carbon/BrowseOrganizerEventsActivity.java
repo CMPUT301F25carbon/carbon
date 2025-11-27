@@ -80,10 +80,10 @@ public class BrowseOrganizerEventsActivity extends AppCompatActivity {
         }
         String ownerId = currentUser.getUid(); // Get the user's unique ID
 
-        eventList.fetchOrganizerEvents(ownerId, new EventList.EventListCallback() {
+        // Show all events so organizers can see every listing (including their own)
+        eventList.fetchAllEvents(new EventList.EventListCallback() {
             @Override
             public void onEventsFetched(ArrayList<Event> events) {
-                // Update adapter's data and notify it to refresh the UI
                 displayedEvents.clear();
                 displayedEvents.addAll(events);
                 adapter.notifyDataSetChanged();
@@ -91,7 +91,6 @@ public class BrowseOrganizerEventsActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
-                // Handle the error (e.g., show a toast message)
                 Toast.makeText(BrowseOrganizerEventsActivity.this, "Failed to load events.", Toast.LENGTH_SHORT).show();
             }
         });
