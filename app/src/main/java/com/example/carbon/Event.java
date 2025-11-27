@@ -15,17 +15,19 @@ public class Event {
     private String eventCity;
     private String eventProvince;
     private String eventCountry;
+    private String category; // Event category for filtering
     private String ownerId;
     private Waitlist waitlist;
     private String uuid;
     private List<String> attendeeList = new ArrayList<>();  // to hold the attendees that are going to be attending the event
+    private String imageURL;
 
 
     // Required empty public constructor for Firestore
     public Event(){}
 
     // Constructor for a new event with a registration deadline and opening (forces both)
-    public Event(String title, String des, Integer totalSpots, Date newEventDate, String eventLocation, String eventCity, String eventProvince, String eventCountry, String ownerId, Waitlist waitlist) {
+    public Event(String title, String des, Integer totalSpots, Date newEventDate, String eventLocation, String eventCity, String eventProvince, String eventCountry, String ownerId, Waitlist waitlist, String imageURL) {
         this.title = title;
         this.description = des;
         this.active = true;
@@ -39,6 +41,7 @@ public class Event {
         this.waitlist = waitlist;
         this.uuid = UUID.randomUUID().toString();
         this.attendeeList = new ArrayList<>();
+        this.imageURL = imageURL;
     }
 
 
@@ -51,9 +54,12 @@ public class Event {
     public String getEventCity() { return eventCity; }
     public String getEventProvince() { return eventProvince; }
     public String getEventCountry() { return eventCountry; }
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
     public String getOwnerId() { return ownerId; }
     public Waitlist getWaitlist() { return waitlist; }
     public String getUuid() { return uuid; }
+    public String getImageURL() {return imageURL;}
 
     public List<String> getAttendeeList() {
         return attendeeList;

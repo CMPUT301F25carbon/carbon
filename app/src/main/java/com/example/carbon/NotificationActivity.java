@@ -19,7 +19,7 @@ import java.util.List;
 public class NotificationActivity extends AppCompatActivity {
     private LinearLayout notificationContainer;
     private NotificationService notificationService;
-    private static final boolean USE_MOCK_SERVICE = true; //set to false for firebase
+    private static final boolean USE_MOCK_SERVICE = false; //set to false for firebase
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,21 +75,12 @@ public class NotificationActivity extends AppCompatActivity {
             messageView.setText(notification.getMessage());
 
             itemView.setOnClickListener(v -> {
-                if ("invitation".equalsIgnoreCase(notification.getType())) {    // This will open the accept/decline dialog for invitation notifications
+                if ("invitation".equalsIgnoreCase(notification.getType()) || "chosen".equalsIgnoreCase(notification.getType())) {
+                    // Show Accept/Decline dialog for both invitation and chosen notifications
                     InvitationDialog dialog = new InvitationDialog(
                             this, notification, notificationService, itemView
                     );
                     dialog.show();
-                } else if ("chosen".equalsIgnoreCase(notification.getType())) {
-                    notificationService.markAsSeen(notification);
-                    messageView.setTextColor(getColor(android.R.color.darker_gray));
-                    Intent intent = new Intent(this, EventDetailsActivity.class);
-                    intent.putExtra(EventDetailsActivity.EXTRA_EVENT_ID, notification.getEventId());
-                    intent.putExtra(EventDetailsActivity.EXTRA_EVENT_TITLE, notification.getEventName());
-                    intent.putExtra(EventDetailsActivity.EXTRA_EVENT_DATE, "Unknown"); // For now as placeholder, will change implementation of notification system
-                    intent.putExtra(EventDetailsActivity.EXTRA_EVENT_COUNTS, "");
-                    startActivity(intent);
-
                 } else {
                     notificationService.markAsSeen(notification);
                     messageView.setTextColor(getColor(android.R.color.darker_gray));

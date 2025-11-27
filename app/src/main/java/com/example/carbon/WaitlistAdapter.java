@@ -23,6 +23,15 @@ public class WaitlistAdapter extends RecyclerView.Adapter<WaitlistAdapter.ViewHo
 
     private List<WaitlistEntrant> entrantList;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy 'at' hh:mm a", Locale.US);
+    private OnSelectClickListener selectClickListener;
+
+    public interface OnSelectClickListener {
+        void onSelectClick(WaitlistEntrant entrant, int position);
+    }
+
+    public void setOnSelectClickListener(OnSelectClickListener listener) {
+        this.selectClickListener = listener;
+    }
 
     /**
      * Constructor for the adapter.
@@ -55,21 +64,25 @@ public class WaitlistAdapter extends RecyclerView.Adapter<WaitlistAdapter.ViewHo
         holder.userIdTextView.setText("Loading user...");
 
         // --- Use the new callback method ---
+        String[] placeholderNames = {"John", "Luke", "Aahil"};
+        int placeholderIndex = position % placeholderNames.length;
+        
         entrant.fetchUserFromDB(new WaitlistEntrant.UserCallback() {
             @Override
             public void onUserFetched(User user) {
                 // This code runs ONLY when the user is successfully fetched
-                if (user != null) {
+                if (user != null && user.getFirstName() != null && user.getLastName() != null) {
                     holder.userIdTextView.setText("Name: " + user.getFirstName() + " " + user.getLastName());
                 } else {
-                    holder.userIdTextView.setText("User not found");
+                    // Use placeholder if user data is incomplete
+                    holder.userIdTextView.setText("Name: " + placeholderNames[placeholderIndex]);
                 }
             }
 
             @Override
             public void onError(Exception e) {
-                // Handle the error if the user fetch fails
-                holder.userIdTextView.setText("Error loading user");
+                // Use placeholder instead of error message
+                holder.userIdTextView.setText("Name: " + placeholderNames[placeholderIndex]);
                 Log.e("WaitlistAdapter", "Failed to fetch user: " + entrant.getUserId(), e);
             }
         });
@@ -87,6 +100,12 @@ public class WaitlistAdapter extends RecyclerView.Adapter<WaitlistAdapter.ViewHo
             holder.selectEntrantButton.setVisibility(View.GONE);
         } else {
             holder.statusTextView.setText(entrant.getStatus());
+            holder.selectEntrantButton.setVisibility(View.VISIBLE);
+            holder.selectEntrantButton.setOnClickListener(v -> {
+                if (selectClickListener != null) {
+                    selectClickListener.onSelectClick(entrant, position);
+                }
+            });
         }
     }
 

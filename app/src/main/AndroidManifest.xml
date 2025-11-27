@@ -56,7 +56,22 @@
         <activity
             android:name=".EventDetailsActivity"
             android:exported="true"
-            android:theme="@style/Theme.Carbon" />
+            android:theme="@style/Theme.Carbon" >
+            <!-- ✅ ADD THIS INTENT FILTER BLOCK -->
+            <intent-filter>
+                <!-- This action means the activity can be started by a URL -->
+                <action android:name="android.intent.action.VIEW" />
+                <!-- This makes it the default app for this type of link -->
+                <category android:name="android.intent.category.DEFAULT" />
+                <!-- This allows the link to be opened from a web browser or other apps -->
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <!-- Define the link structure we can handle -->
+                <data
+                    android:host="events"
+                    android:scheme="carbondate" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name=".DisplayQRCodeActivity"
@@ -89,6 +104,9 @@
             android:name=".AllUsersActivity"
             android:exported="true"
             android:theme="@style/Theme.Carbon" />
+        <activity android:name=".OrganizerEventDetailsActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Carbon"/>
 
     </application>
 

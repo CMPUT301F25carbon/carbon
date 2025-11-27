@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/guidelines_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#8C154F">
 
-    <include
-        android:id="@+id/include_header"
-        layout="@layout/top_header" />
+    <include android:id="@+id/include_header" layout="@layout/top_header" />
 
     <include
         android:id="@+id/include_bottom_menu"
@@ -26,9 +25,6 @@
         android:paddingEnd="16dp"
         android:paddingTop="20dp"
         android:paddingBottom="32dp"
-        android:layout_marginStart="0dp"
-        android:layout_marginEnd="0dp"
-        android:layout_marginTop="0dp"
         android:layout_marginBottom="-10dp"
         android:background="@drawable/rounded_panel">
 
@@ -55,21 +51,159 @@
                     android:textColor="#F0DAA0"
                     android:textSize="44sp" />
 
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/toggle_profiles"
-                    android:layout_width="wrap_content"
+                <!-- Filter Section -->
+                <LinearLayout
+                    android:id="@+id/filter_container"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="View Profiles"
-                    android:textColor="#F0DAA0"
+                    android:orientation="vertical"
+                    android:background="#F0DAA0"
+                    android:padding="12dp"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Filter Events"
+                        android:textColor="#731B3F"
+                        android:fontFamily="@font/italiana"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <androidx.appcompat.widget.AppCompatSpinner
+                            android:id="@+id/spinner_category"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="4dp"
+                            android:background="@drawable/rounded_edittext"
+                            android:padding="8dp"/>
+
+                        <androidx.appcompat.widget.AppCompatSpinner
+                            android:id="@+id/spinner_location"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="4dp"
+                            android:layout_marginEnd="4dp"
+                            android:background="@drawable/rounded_edittext"
+                            android:padding="8dp"/>
+
+                        <Button
+                            android:id="@+id/btn_filter_date"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Date"
+                            android:textColor="#FFFFFF"
+                            android:backgroundTint="#ED9029"
+                            android:fontFamily="@font/italiana"
+                            android:textSize="12sp"
+                            android:layout_marginStart="4dp"/>
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn_clear_filters"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Clear Filters"
+                        android:textColor="#731B3F"
+                        android:backgroundTint="#F0DAA0"
+                        android:fontFamily="@font/italiana"
+                        android:textSize="14sp"
+                        android:layout_gravity="end"/>
+                </LinearLayout>
+
+                <!-- Admin Tabs -->
+                <LinearLayout
+                    android:id="@+id/admin_tab_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
                     android:visibility="gone"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginBottom="12dp"
+                    android:background="#80000000"
+                    android:padding="8dp"
+                    android:layout_marginStart="32dp"
+                    android:layout_marginEnd="32dp"
+                    app:cornerRadius="20dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_tab_events"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Events"
+                        android:textSize="10sp"
+                        android:textColor="#F0DAA0"
+                        android:textAllCaps="false"
+                        app:strokeColor="#F0DAA0"
+                        app:strokeWidth="1.5dp"
+                        app:cornerRadius="16dp"
+                        android:layout_margin="4dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_tab_profiles"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Profiles"
+                        android:textSize="8sp"
+                        android:textColor="#F0DAA0"
+                        android:textAllCaps="false"
+                        app:strokeColor="#F0DAA0"
+                        app:strokeWidth="1.5dp"
+                        app:cornerRadius="16dp"
+                        android:layout_margin="4dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_tab_notifications"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Notifs"
+                        android:textSize="10sp"
+                        android:textColor="#F0DAA0"
+                        android:textAllCaps="false"
+                        app:strokeColor="#F0DAA0"
+                        app:strokeWidth="1.5dp"
+                        app:cornerRadius="16dp"
+                        android:layout_margin="4dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_tab_posters"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Posters"
+                        android:textSize="8.5sp"
+                        android:textColor="#F0DAA0"
+                        android:textAllCaps="false"
+                        app:strokeColor="#F0DAA0"
+                        app:strokeWidth="1.5dp"
+                        app:cornerRadius="16dp"
+                        android:layout_margin="4dp" />
+                </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recycler_events"
+                    android:id="@+id/recyclerEvents"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clipToPadding="false"
                     android:paddingBottom="16dp" />
+
             </LinearLayout>
         </ScrollView>
     </FrameLayout>

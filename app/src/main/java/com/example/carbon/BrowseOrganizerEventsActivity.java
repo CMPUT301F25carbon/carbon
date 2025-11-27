@@ -54,8 +54,7 @@ public class BrowseOrganizerEventsActivity extends AppCompatActivity {
         });
 
         adapter.setOnItemClickListener(event -> {
-            // Create an Intent to start EventWaitlistActivity
-            Intent intent = new Intent(BrowseOrganizerEventsActivity.this, EventWaitlistActivity.class);
+            Intent intent = new Intent(BrowseOrganizerEventsActivity.this, OrganizerEventDetailsActivity.class);
 
             // Pass the unique ID of the clicked event to the next activity.
             intent.putExtra("EVENT_ID", event.getUuid());

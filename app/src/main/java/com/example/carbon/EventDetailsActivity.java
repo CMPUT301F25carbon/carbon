@@ -1,15 +1,28 @@
 package com.example.carbon;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class EventDetailsActivity extends AppCompatActivity {
 
@@ -18,12 +31,14 @@ public class EventDetailsActivity extends AppCompatActivity {
     public static final String EXTRA_EVENT_DATE = "EXTRA_EVENT_DATE";     // e.g., "05/12/2025"
     public static final String EXTRA_EVENT_COUNTS = "EXTRA_EVENT_COUNTS"; // e.g., "11 registrations / 5 spots"
 
-    private TextView tvTitle, tvDate, tvCounts;
-    private EditText etSampleN;
-    private Button btnEdit, btnCancel, btnSampleN;
+    private TextView tvTitle, tvDate, tvCounts, tvDescription, tvCountdown;
     private RecyclerView rvRegistrants;
+    private AttendeesAdapter attendeesAdapter;
 
     private String eventId;
+    private Event currentEvent;
+    private Handler countdownHandler;
+    private Runnable countdownRunnable;
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,14 +49,36 @@ public class EventDetailsActivity extends AppCompatActivity {
         tvTitle  = findViewById(R.id.tv_event_title);
         tvDate   = findViewById(R.id.tv_event_date);
         tvCounts = findViewById(R.id.tv_event_counts);
-        etSampleN = findViewById(R.id.et_sample_n);
-        btnEdit = findViewById(R.id.btn_edit);
-        btnCancel = findViewById(R.id.btn_cancel);
-        btnSampleN = findViewById(R.id.btn_sample_n);
+        tvDescription = findViewById(R.id.tv_event_description);
+        tvCountdown = findViewById(R.id.tv_countdown);
         rvRegistrants = findViewById(R.id.rv_registrants);
+        
+        countdownHandler = new Handler(Looper.getMainLooper());
 
-        // Get data from intent (safe defaults)
-        eventId = getIntent().getStringExtra(EXTRA_EVENT_ID);
+        Intent intent = getIntent();
+        String eventUuid = null;
+
+        // Check if the activity was launched by a deep link
+        if (Intent.ACTION_VIEW.equals(intent.getAction())) {
+            Uri uri = intent.getData();
+            if (uri != null) {
+                // The UUID is the last part of the path in "carbondate://events/UUID"
+                eventUuid = uri.getLastPathSegment();
+            }
+        } else {
+            // Fallback to the old way (launched from another activity)
+            eventUuid = intent.getStringExtra("EXTRA_EVENT_ID");
+        }
+
+        // Now, use the eventUuid to load your data
+        if (eventUuid != null && !eventUuid.isEmpty()) {
+            // Your existing logic to load event details from Firestore using the UUID
+            loadEventDataFromFirestore(eventUuid);
+        } else {
+            // Handle the error: no ID was found
+            Toast.makeText(this, "Event ID not found.", Toast.LENGTH_LONG).show();
+            finish(); // Close the activity if there's no data to show
+        }
         String title  = getIntent().getStringExtra(EXTRA_EVENT_TITLE);
         String date   = getIntent().getStringExtra(EXTRA_EVENT_DATE);
         String counts = getIntent().getStringExtra(EXTRA_EVENT_COUNTS);
@@ -50,56 +87,182 @@ public class EventDetailsActivity extends AppCompatActivity {
         tvDate.setText(date != null ? date : "");
         tvCounts.setText(counts != null ? counts : "");
 
-        // Simple list placeholder; wire real adapter later
+        // Setup attendees RecyclerView
         rvRegistrants.setLayoutManager(new LinearLayoutManager(this));
-        rvRegistrants.setAdapter(new UsersAdapter()); // you already have UsersAdapter; empty list is okay
-
-        bindActions();
+        attendeesAdapter = new AttendeesAdapter();
+        rvRegistrants.setAdapter(attendeesAdapter);
     }
 
-    private void bindActions() {
-        btnEdit.setOnClickListener(v -> {
-            // TODO: navigate to your edit screen with eventId when that flow is ready
-            Toast.makeText(this, "Edit not implemented yet", Toast.LENGTH_SHORT).show();
+    /**
+     * Loads the event based on the passed ID and updates the titles and strings for user visualization
+     * @param eventId The ID of the event to view the waitlist of
+     *
+     * @author Cooper Goddard
+     */
+    private void loadEventDataFromFirestore(String eventId) {
+        Log.d("Event DB", eventId);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Reference the correct document in the 'events' collection using the eventId
+        Query query = db.collection("events").whereEqualTo("uuid", eventId).limit(1);
+
+        query.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                // Check if the query returned any results
+                if (!task.getResult().isEmpty()) {
+                    // Get the first (and only, otherwise something is very wrong lol) document from the query result
+                    DocumentSnapshot document = task.getResult().getDocuments().get(0);
+
+                    // Convert the document into an Event object
+                    Event event = document.toObject(Event.class);
+                    currentEvent = event;
+                    EventDetailsActivity.this.eventId = event.getUuid();
+                    
+                    tvTitle.setText(event.getTitle());
+                    if (event.getEventDate() != null) {
+                        // Format date and time
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.US);
+                        SimpleDateFormat timeFormat = new SimpleDateFormat("h a", Locale.US); // e.g., "9 AM", "2 PM"
+                        String dateStr = dateFormat.format(event.getEventDate());
+                        String timeStr = timeFormat.format(event.getEventDate()).toLowerCase();
+                        tvDate.setText(dateStr + " at " + timeStr);
+                        
+                        // Start countdown timer
+                        startCountdown(event.getEventDate());
+                    }
+                    
+                    // Display description
+                    if (event.getDescription() != null && !event.getDescription().isEmpty()) {
+                        tvDescription.setText(event.getDescription());
+                    } else {
+                        tvDescription.setText("No description available.");
+                    }
+                    
+                    // Load and display attendees
+                    loadAttendees(event);
+
+                } else {
+                    Toast.makeText(EventDetailsActivity.this, "Event not found.", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            } else {
+                Toast.makeText(EventDetailsActivity.this, "Failed to load event data.", Toast.LENGTH_SHORT).show();
+                finish();
+            }
         });
-
-        btnCancel.setOnClickListener(v -> new AlertDialog.Builder(this)
-                .setTitle("Cancel Event?")
-                .setMessage("This will cancel the event for all registrants.")
-                .setPositiveButton("Confirm", (d, which) -> {
-                    // TODO: cancel in repo when ready
-                    Toast.makeText(this, "Event cancel flow pending", Toast.LENGTH_SHORT).show();
-                })
-                .setNegativeButton("Keep", null)
-                .show());
-
-        btnSampleN.setOnClickListener(this::onSampleNClicked);
     }
 
-    private void onSampleNClicked(View v) {
-        String s = etSampleN.getText().toString().trim();
-        if (s.isEmpty()) {
-            Toast.makeText(this, "Enter N to sample", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        int n;
-        try { n = Integer.parseInt(s); } catch (NumberFormatException e) { n = 0; }
-        if (n <= 0) {
-            Toast.makeText(this, "N must be ≥ 1", Toast.LENGTH_SHORT).show();
+    /**
+     * Loads attendees from the event and displays them
+     * @param event The event object containing attendee list
+     */
+    private void loadAttendees(Event event) {
+        if (event == null || event.getAttendeeList() == null || event.getAttendeeList().isEmpty()) {
+            attendeesAdapter.updateList(new ArrayList<>());
             return;
         }
 
-        // This is just the **Notify Chosen Entrants** confirmation UI.
-        // Actual sampling & invites will be wired to repo later.
-        new AlertDialog.Builder(this)
-                .setTitle("Entrants Selected")
-                .setMessage(n + " participants have been randomly selected and sent an invitation!")
-                .setPositiveButton("To Invitations", (d, w) -> {
-                    // Go to your notifications screen per UML
-                    startActivity(new android.content.Intent(this, NotificationActivity.class));
-                })
-                .setNegativeButton("Close", null)
-                .show();
+        List<String> attendeeIds = event.getAttendeeList();
+        String[] placeholderNames = {"John", "Luke", "Aahil"};
+        int[] placeholderIndex = {0};
+        
+        // Initialize list with placeholders (will be replaced if user found)
+        List<String> attendeeNames = new ArrayList<>();
+        for (int i = 0; i < attendeeIds.size(); i++) {
+            attendeeNames.add(placeholderNames[placeholderIndex[0] % placeholderNames.length]);
+            placeholderIndex[0]++;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        int[] loadedCount = {0};
+        int totalCount = attendeeIds.size();
+
+        for (int i = 0; i < attendeeIds.size(); i++) {
+            final int index = i;
+            String userId = attendeeIds.get(i);
+            
+            if (userId == null || userId.isEmpty()) {
+                // Keep placeholder for invalid userId
+                loadedCount[0]++;
+                if (loadedCount[0] == totalCount) {
+                    attendeesAdapter.updateList(attendeeNames);
+                }
+                continue;
+            }
+
+            db.collection("users")
+                    .document(userId)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
+                            User user = task.getResult().toObject(User.class);
+                            if (user != null && user.getFirstName() != null && user.getLastName() != null) {
+                                attendeeNames.set(index, user.getFirstName() + " " + user.getLastName());
+                            }
+                            // Otherwise keep placeholder
+                        }
+                        // If user not found, keep placeholder
+                        
+                        loadedCount[0]++;
+                        if (loadedCount[0] == totalCount) {
+                            attendeesAdapter.updateList(attendeeNames);
+                        }
+                    });
+        }
+    }
+
+    /**
+     * Starts the countdown timer for the event
+     * @param eventDate The date/time of the event
+     */
+    private void startCountdown(Date eventDate) {
+        if (eventDate == null) {
+            tvCountdown.setText("Event date not available");
+            return;
+        }
+
+        countdownRunnable = new Runnable() {
+            @Override
+            public void run() {
+                long now = System.currentTimeMillis();
+                long eventTime = eventDate.getTime();
+                long diff = eventTime - now;
+
+                if (diff <= 0) {
+                    tvCountdown.setText("Event has started!");
+                    return;
+                }
+
+                long days = TimeUnit.MILLISECONDS.toDays(diff);
+                long hours = TimeUnit.MILLISECONDS.toHours(diff) % 24;
+                long minutes = TimeUnit.MILLISECONDS.toMinutes(diff) % 60;
+                long seconds = TimeUnit.MILLISECONDS.toSeconds(diff) % 60;
+
+                String countdownText;
+                if (days > 0) {
+                    countdownText = String.format(Locale.US, "%d days, %d hours", days, hours);
+                } else if (hours > 0) {
+                    countdownText = String.format(Locale.US, "%d hours, %d minutes", hours, minutes);
+                } else if (minutes > 0) {
+                    countdownText = String.format(Locale.US, "%d minutes, %d seconds", minutes, seconds);
+                } else {
+                    countdownText = String.format(Locale.US, "%d seconds", seconds);
+                }
+
+                tvCountdown.setText(countdownText);
+                countdownHandler.postDelayed(this, 1000); // Update every second
+            }
+        };
+
+        countdownHandler.post(countdownRunnable);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (countdownHandler != null && countdownRunnable != null) {
+            countdownHandler.removeCallbacks(countdownRunnable);
+        }
     }
 }
 

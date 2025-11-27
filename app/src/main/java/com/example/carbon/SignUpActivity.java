@@ -13,6 +13,8 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,6 +56,7 @@ public class SignUpActivity extends AppCompatActivity {
         EditText phoneNoField = findViewById(R.id.phone_no);
         Button signUpButton = findViewById(R.id.sign_up_btn);
         TextView logInText = findViewById(R.id.log_in_text);
+        RadioGroup roleSelector = findViewById(R.id.role_selector);
 
         // Sign up button logic
         signUpButton.setOnClickListener(v -> {
@@ -85,6 +88,17 @@ public class SignUpActivity extends AppCompatActivity {
                 return;
             }
 
+            // Set role
+            int selectedId = roleSelector.getCheckedRadioButtonId();
+            RadioButton selectedRadio = findViewById(selectedId);
+            String selectionRole = selectedRadio.getText().toString();
+            String role;
+            if (selectionRole.equals("Event Organizer")) {
+                role = "organizer";
+            } else {
+                role = "entrant";
+            }
+
             // New firebase user
             mAuth.createUserWithEmailAndPassword(email, password1)
                     .addOnCompleteListener(this, task -> {
@@ -97,7 +111,7 @@ public class SignUpActivity extends AppCompatActivity {
                             userData.put("lastName", lastName);
                             userData.put("email", email);
                             userData.put("phoneNo", phoneNo);
-                            userData.put("role", "entrant");
+                            userData.put("role", role);
                             userData.put("notificationsEnabled", true);
 
                             FirebaseFirestore db = FirebaseFirestore.getInstance();

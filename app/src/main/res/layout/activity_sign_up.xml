@@ -117,6 +117,40 @@
             android:layout_width="325dp"
             android:layout_height="wrap_content"
             android:fontFamily="@font/italiana"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+
+            >
+            <RadioGroup
+                android:id="@+id/role_selector"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                >
+
+                <RadioButton
+                    android:id="@+id/option_user"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Event Joiner"
+                    android:checked="true"
+                    android:fontFamily="@font/italiana"
+                    />
+
+                <RadioButton
+                    android:id="@+id/option_organizer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Event Organizer"
+                    android:fontFamily="@font/italiana"
+                    />
+
+            </RadioGroup>
+        </LinearLayout>
+
 
         <Button
             android:text="Sign Up"
