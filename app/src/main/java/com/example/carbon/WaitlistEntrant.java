@@ -21,6 +21,7 @@ public class WaitlistEntrant {
      * "Not Selected" --> "Pending" --> "Accepted" || "Denied" || "Expired"
      */
     private String status;
+    private Date selectionDate;
 
     // --- Firestore requires a no-argument constructor ---
     public WaitlistEntrant() {
@@ -70,6 +71,22 @@ public class WaitlistEntrant {
      */
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    /**
+     * Returns the date and time the entrant was selected
+     * @return selection timestamp or null if not selected yet
+     */
+    public Date getSelectionDate() {
+        return selectionDate;
+    }
+
+    /**
+     * Sets the selection timestamp for the entrant
+     * @param selectionDate time when entrant was chosen
+     */
+    public void setSelectionDate(Date selectionDate) {
+        this.selectionDate = selectionDate;
     }
 
     /**

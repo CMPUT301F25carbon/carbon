@@ -210,6 +210,9 @@ public class FirebaseNotificationService implements NotificationService{
                                             for (WaitlistEntrant entrant : entrants) {
                                                 if (entrant != null && entrant.getUserId().equals(userId)) {
                                                     entrant.setStatus(newStatus);
+                                                    if ("Pending".equals(newStatus)) {
+                                                        entrant.setSelectionDate(new Date());
+                                                    }
                                                     break;
                                                 }
                                             }
@@ -285,6 +288,7 @@ public class FirebaseNotificationService implements NotificationService{
                             
                             // Update status to "Pending"
                             replacement.setStatus("Pending");
+                            replacement.setSelectionDate(new Date());
 
                             // Update the event in Firestore
                             db.collection("events").document(eventDocId)

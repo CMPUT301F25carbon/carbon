@@ -270,6 +270,7 @@ public class EventWaitlistActivity extends AppCompatActivity {
                     // Update: remove old, set replacement to "Pending"
                     allEntrants.remove(entrantToReplace);
                     replacement.setStatus("Pending");
+                    replacement.setSelectionDate(new Date());
 
                     db.collection("events").document(eventDocId)
                             .update("waitlist.waitlistEntrants", allEntrants)
