@@ -1,19 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center_horizontal"
-    android:padding="24dp"
     android:background="#ED9029"
-    android:fontFamily="@font/italiana">
-
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center_horizontal"
+        android:padding="24dp"
         android:fontFamily="@font/italiana">
 
         <ImageView
@@ -23,7 +20,7 @@
             android:src="@drawable/carbon_start_logo"
             android:contentDescription="@string/app_name"
             android:layout_gravity="center"
-            android:layout_marginTop="96dp"/>
+            android:layout_marginTop="48dp"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -32,8 +29,8 @@
             android:text="WELCOME"
             android:textColor="#8C154F"
             android:textSize="48sp"
-            android:layout_marginTop="64dp"
-            android:layout_marginBottom="128dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="64dp"
             android:gravity="center"/>
 
         <EditText
@@ -64,12 +61,13 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/italiana"/>
 
+        <!-- LOG IN BUTTON -->
         <Button
             android:text="Log in"
             android:id="@+id/sign_up_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:textColor="#FCD694"
             android:backgroundTint="#8C154F"
             android:fontFamily="@font/italiana"/>
@@ -85,5 +83,15 @@
             android:textAlignment="center"
             android:fontFamily="@font/italiana"/>
 
+        <Button
+            android:id="@+id/device_login_btn"
+            android:text="Continue with Device ID"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textColor="#FCD694"
+            android:backgroundTint="#8C154F"
+            android:fontFamily="@font/italiana"/>
+
     </LinearLayout>
-</LinearLayout>
+</ScrollView>
