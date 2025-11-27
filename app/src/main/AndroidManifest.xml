@@ -104,6 +104,9 @@
             android:name=".AllUsersActivity"
             android:exported="true"
             android:theme="@style/Theme.Carbon" />
+        <activity android:name=".OrganizerEventDetailsActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Carbon"/>
 
     </application>
 

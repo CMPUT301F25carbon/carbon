@@ -1,9 +1,13 @@
 package com.example.carbon;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -13,12 +17,14 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.UUID;
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -38,6 +44,12 @@ public class CreateEventActivity extends AppCompatActivity {
             eventCityInput, eventProvinceInput, eventCountryInput, eventRegistrationOpeningInput,
             eventRegistrationDeadlineInput, eventSeatInput, eventWaitlistCapacity;
     private Button createEventButton;
+
+    // Declare variables needed for the image upload
+    private ImageView eventPosterImageView;
+    private Uri imageUri; // this is the app uri
+    private String imageUrl; // this is the DB url
+    private ActivityResultLauncher<Intent> imagePickerLauncher;
 
     // Calendar instance for the date pickers
     private final Calendar myCalendar = Calendar.getInstance();
@@ -62,13 +74,6 @@ public class CreateEventActivity extends AppCompatActivity {
         setupDatePicker(eventRegistrationDeadlineInput);
         setupDatePicker(eventRegistrationOpeningInput);
 
-        // Set the click listener for the main button
-        createEventButton.setOnClickListener(v -> {
-            if (validateInput()) {
-                createEvent();
-            }
-        });
-
         // Set home button in bottom menu
         ImageButton homeButton = findViewById(R.id.home_button);
         if (homeButton != null) {
@@ -76,6 +81,61 @@ public class CreateEventActivity extends AppCompatActivity {
                 startActivity(new Intent(CreateEventActivity.this, BrowseEventsActivity.class));
             });
         }
+
+        // Set up listener and launcher for image upload box click
+        imagePickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        imageUri = result.getData().getData();
+                        eventPosterImageView.setImageURI(imageUri); // Show the uploaded image
+                        eventPosterImageView.setPadding(0,0,0,0); // Remove padding after image is set
+                    }
+                });
+        eventPosterImageView.setOnClickListener(v -> openImagePicker());
+
+        // Set up create event button listener
+        createEventButton.setOnClickListener(v -> {
+            if (validateInput()) {
+                uploadImage();
+                // Automatically moves into create event on image upload success
+            }
+        });
+
+    }
+
+    /**
+     * This function uploads the user provided image into the storage section of the DB for
+     * use in the event object later in creation.
+     */
+    private void uploadImage() {
+        // If no image is selected, return empty string
+        if (imageUri == null) {
+            return;
+        }
+
+        Snackbar.make(findViewById(R.id.create_event_root), "Uploading image...", Snackbar.LENGTH_INDEFINITE).show();
+
+        // Create a reference in Firebase Storage
+        // The path will be "event_posters/{event_uuid}.jpg"
+        String fileName = UUID.randomUUID().toString() + ".jpg";
+        com.google.firebase.storage.StorageReference storageRef = com.google.firebase.storage.FirebaseStorage.getInstance().getReference("event_posters/" + fileName);
+
+        // Upload to storage in FB
+        com.google.firebase.storage.UploadTask uploadTask = storageRef.putFile(imageUri);
+        uploadTask.addOnSuccessListener(taskSnapshot -> {
+            // Image uploaded successfully, now get the download URL
+            storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                imageUrl = uri.toString();
+                createEvent();
+            }).addOnFailureListener(e -> {
+                // Failed to get download URL
+                Snackbar.make(findViewById(R.id.create_event_root), "Failed to get image URL.", Snackbar.LENGTH_LONG).show();
+            });
+        }).addOnFailureListener(e -> {
+            // Handle unsuccessful uploads
+            Snackbar.make(findViewById(R.id.create_event_root), "Image upload failed.", Snackbar.LENGTH_LONG).show();
+        });
     }
 
     /**
@@ -94,6 +154,16 @@ public class CreateEventActivity extends AppCompatActivity {
         eventSeatInput = findViewById(R.id.create_event_seats_input);
         createEventButton = findViewById(R.id.create_event_btn);
         eventWaitlistCapacity = findViewById(R.id.create_event_max_waitlist_input);
+        eventPosterImageView = findViewById(R.id.upload_event_poster);
+    }
+
+    /**
+     * Uses the built-in android file system to allow the user to upload the image into the app
+     * without having to push for larger permissions from the device.
+     */
+    private void openImagePicker() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        imagePickerLauncher.launch(intent);
     }
 
     /**
@@ -287,7 +357,7 @@ public class CreateEventActivity extends AppCompatActivity {
         newWaitlist.joinWaitlist("AgpSxi4xl1hgiZLRaYvuLRnPew03");
 
         // CREATE THE EVENT OBJECT AND INCLUDE THE WAITLIST
-        Event newEvent = new Event(title, des, seats, eventDate, address, city, province, country, ownerId, newWaitlist);
+        Event newEvent = new Event(title, des, seats, eventDate, address, city, province, country, ownerId, newWaitlist, imageUrl);
 
         // PROVIDE FEEDBACK AND PROCEED
         db.collection("events")

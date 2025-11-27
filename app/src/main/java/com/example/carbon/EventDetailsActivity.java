@@ -58,7 +58,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String eventUuid = null;
 
-        // ✅ Check if the activity was launched by a deep link
+        // Check if the activity was launched by a deep link
         if (Intent.ACTION_VIEW.equals(intent.getAction())) {
             Uri uri = intent.getData();
             if (uri != null) {
@@ -66,7 +66,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                 eventUuid = uri.getLastPathSegment();
             }
         } else {
-            // ✅ Fallback to the old way (launched from another activity)
+            // Fallback to the old way (launched from another activity)
             eventUuid = intent.getStringExtra("EXTRA_EVENT_ID");
         }
 

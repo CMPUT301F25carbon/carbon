@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/organizer_event_details_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#8C154F">
+
+    <include
+        android:id="@+id/include_header"
+        layout="@layout/top_header" />
+
+    <include
+        android:id="@+id/include_bottom_menu"
+        layout="@layout/bottom_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
+
+    <LinearLayout
+        android:id="@+id/event_details_panel"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/include_header"
+        android:layout_above="@id/include_bottom_menu"
+        android:padding="16dp"
+        android:background="@drawable/rounded_panel">
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tv_event_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Urban Gardening 101"
+            android:textColor="#FCD694"
+            android:textSize="28sp"
+            android:fontFamily="@font/italiana"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Meta row -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tv_event_date"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="05/12/2025"
+                android:textColor="#FCD694"
+                android:fontFamily="@font/italiana"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+
+        <!-- Description -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#F0DAA0"
+            android:padding="12dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:id="@+id/tv_event_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Event description will appear here"
+                android:textColor="#E91E63"
+                android:fontFamily="@font/italiana"
+                android:textSize="16sp"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            >
+            <ImageView
+                android:id="@+id/tv_event_poster"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/rounded_edittext"
+                android:backgroundTint="#A67852"
+                android:contentDescription="Event Poster"
+                android:scaleType="centerCrop"
+                android:src="@drawable/carbon_start_logo"
+                android:gravity="center"
+                /> <!-- Placeholder icon -->
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            >
+            <Button
+                android:text="View Waitlist"
+                android:id="@+id/view_waitlist_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#ED9029"
+                android:fontFamily="@font/italiana"/>
+            <Button
+                android:text="View QR Code"
+                android:id="@+id/view_qr_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#ED9029"
+                android:fontFamily="@font/italiana"/>
+            <Button
+                android:text="Update Poster"
+                android:id="@+id/update_poster_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#ED9029"
+                android:fontFamily="@font/italiana"/>
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>
