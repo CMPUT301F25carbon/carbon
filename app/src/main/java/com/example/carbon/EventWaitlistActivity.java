@@ -162,10 +162,12 @@ public class EventWaitlistActivity extends AppCompatActivity {
                         }
                     }
 
+                    final List<WaitlistEntrant> updatedEntrants = entrants;
+                    final int waitlistSize = updatedEntrants.size();
+
                     db.collection("events").document(doc.getId())
-                            .update("waitlist.waitlistEntrants", entrants)
+                            .update("waitlist.waitlistEntrants", updatedEntrants)
                             .addOnSuccessListener(x -> {
-                                final int waitlistSize = entrants.size();
                                 Toast.makeText(this, "Random sample complete", Toast.LENGTH_SHORT).show();
                                 loadWaitlistFromDatabase(eventId);
                                 updateTitleCount(waitlistSize);
