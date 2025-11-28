@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/guidelines_root"
+    android:id="@+id/accepted_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#8C154F">
@@ -26,14 +26,10 @@
         android:paddingEnd="16dp"
         android:paddingTop="20dp"
         android:paddingBottom="32dp"
-        android:layout_marginStart="0dp"
-        android:layout_marginEnd="0dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginBottom="-10dp"
         android:background="@drawable/rounded_panel">
 
         <ScrollView
-            android:id="@+id/eventsList_scroll"
+            android:id="@+id/acceptedList_scroll"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingBottom="16dp">
@@ -45,52 +41,44 @@
                 android:gravity="center_horizontal">
 
                 <TextView
-                    android:id="@+id/eventWaitlist_title"
+                    android:id="@+id/acceptedList_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
                     android:fontFamily="@font/italiana"
                     android:gravity="center"
-                    android:text="Event Waitlist"
+                    android:text="Accepted Users"
                     android:textColor="#F0DAA0"
                     android:textSize="44sp" />
-                <Button
-                    android:text="View Invited"
-                    android:id="@+id/view_invited_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#FFFFFF"
-                    android:backgroundTint="#ED9029"
-                    android:fontFamily="@font/italiana"
-                    android:layout_marginBottom="8dp"/>
 
                 <Button
-                    android:text="View Accepted"
-                    android:id="@+id/view_accepted_btn"
+                    android:id="@+id/export_csv_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:text="Export Final List"
                     android:textColor="#FFFFFF"
                     android:backgroundTint="#ED9029"
                     android:fontFamily="@font/italiana"
-                    android:layout_marginBottom="8dp"/>
-
-                <Button
-                    android:text="Notify All Waitlist"
-                    android:id="@+id/notify_all_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#FFFFFF"
-                    android:backgroundTint="#ED9029"
-                    android:fontFamily="@font/italiana"
-                    android:layout_marginBottom="16dp"/>
+                    android:layout_marginBottom="16dp" />
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recycler_waitlist"
+                    android:id="@+id/recycler_accepted"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clipToPadding="false"
                     android:paddingBottom="16dp" />
 
+
+                <TextView
+                    android:id="@+id/empty_message_accepted"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No accepted users found"
+                    android:textColor="#FFFFFF"
+                    android:visibility="gone"
+                    android:layout_marginTop="20dp"
+                    android:textSize="18sp"
+                    android:fontFamily="@font/italiana" />
             </LinearLayout>
         </ScrollView>
     </FrameLayout>
