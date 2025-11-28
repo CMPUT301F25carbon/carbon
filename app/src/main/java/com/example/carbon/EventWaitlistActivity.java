@@ -165,9 +165,10 @@ public class EventWaitlistActivity extends AppCompatActivity {
                     db.collection("events").document(doc.getId())
                             .update("waitlist.waitlistEntrants", entrants)
                             .addOnSuccessListener(x -> {
+                                final int waitlistSize = entrants.size();
                                 Toast.makeText(this, "Random sample complete", Toast.LENGTH_SHORT).show();
                                 loadWaitlistFromDatabase(eventId);
-                                updateTitleCount(entrants.size());
+                                updateTitleCount(waitlistSize);
 
                                 // Launch invited list to view
                                 Intent newIntent = new Intent(EventWaitlistActivity.this, SelectedListActivity.class);
