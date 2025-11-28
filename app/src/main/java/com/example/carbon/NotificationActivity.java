@@ -9,6 +9,8 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.List;
 
 /**
@@ -37,8 +39,9 @@ public class NotificationActivity extends AppCompatActivity {
             notificationService = new FirebaseNotificationService();
         }
 
-        loadNotifications("mockUser"); // Todo HardCoded user id for testing later to be replaced by logged in users id
-        // loadNotifications(currentUser.getUid());
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        loadNotifications(uid);
 
 
     }
