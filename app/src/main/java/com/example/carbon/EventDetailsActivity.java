@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +39,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     private String eventId;
     private String eventDocId;
     private Event currentEvent;
+    private List<WaitlistEntrant> currentWaitlistEntrants = new ArrayList<>();
     private Handler countdownHandler;
     private Runnable countdownRunnable;
 
@@ -116,7 +118,11 @@ public class EventDetailsActivity extends AppCompatActivity {
                     currentEvent = event;
                     EventDetailsActivity.this.eventId = event.getUuid();
                     EventDetailsActivity.this.eventDocId = document.getId();
-                    
+                    currentWaitlistEntrants = event != null && event.getWaitlist() != null &&
+                            event.getWaitlist().getWaitlistEntrants() != null
+                            ? new ArrayList<>(event.getWaitlist().getWaitlistEntrants())
+                            : new ArrayList<>();
+
                     tvTitle.setText(event.getTitle());
                     if (event.getEventDate() != null) {
                         // Format date and time
@@ -136,7 +142,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                     } else {
                         tvDescription.setText("No description available.");
                     }
-                    updateCounts(event);
+                    updateCounts(event, currentWaitlistEntrants);
 
                 } else {
                     Toast.makeText(EventDetailsActivity.this, "Event not found.", Toast.LENGTH_SHORT).show();
@@ -153,7 +159,7 @@ public class EventDetailsActivity extends AppCompatActivity {
      * Updates the counts text using either the event's waitlist or an override list.
      */
     private void updateCounts(Event event) {
-        updateCounts(event, null);
+        updateCounts(event, currentWaitlistEntrants);
     }
 
     private void updateCounts(Event event, List<WaitlistEntrant> overrideEntrants) {
@@ -186,31 +192,101 @@ public class EventDetailsActivity extends AppCompatActivity {
             return;
         }
 
-        List<WaitlistEntrant> entrants;
-        if (currentEvent.getWaitlist() != null && currentEvent.getWaitlist().getWaitlistEntrants() != null) {
-            entrants = new ArrayList<>(currentEvent.getWaitlist().getWaitlistEntrants());
-        } else {
-            entrants = new ArrayList<>();
-        }
+        List<WaitlistEntrant> entrants = new ArrayList<>(currentWaitlistEntrants);
 
         for (WaitlistEntrant e : entrants) {
             if (e != null && Objects.equals(e.getUserId(), user.getUid())) {
-                Toast.makeText(this, "You are already on the waitlist", Toast.LENGTH_SHORT).show();
-                return;
+            Toast.makeText(this, "You are already on the waitlist", Toast.LENGTH_SHORT).show();
+            return;
             }
         }
 
-        WaitlistEntrant newEntrant = new WaitlistEntrant(user.getUid(), new Date());
-        entrants.add(newEntrant);
+        ensureUserProfile(user, () -> {
+            WaitlistEntrant newEntrant = new WaitlistEntrant(user.getUid(), new Date());
+            entrants.add(newEntrant);
+            currentWaitlistEntrants = entrants;
 
-        FirebaseFirestore.getInstance().collection("events")
-                .document(eventDocId)
-                .update("waitlist.waitlistEntrants", entrants)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Added to waitlist", Toast.LENGTH_SHORT).show();
-                    updateCounts(currentEvent, entrants);
+            FirebaseFirestore.getInstance().collection("events")
+                    .document(eventDocId)
+                    .update("waitlist.waitlistEntrants", entrants)
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(this, "Added to waitlist", Toast.LENGTH_SHORT).show();
+                        updateCounts(currentEvent, entrants);
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(this, "Failed to join waitlist", Toast.LENGTH_LONG).show());
+        });
+    }
+
+    /**
+     * Ensures anonymous/device users provide name and email before joining waitlist.
+     */
+    private void ensureUserProfile(FirebaseUser user, Runnable onReady) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(user.getUid()).get()
+                .addOnSuccessListener(doc -> {
+                    String first = doc.getString("firstName");
+                    String last = doc.getString("lastName");
+                    String email = doc.getString("email");
+                    boolean needsInfo = TextUtils.isEmpty(first) || TextUtils.isEmpty(last) || TextUtils.isEmpty(email);
+
+                    if (!needsInfo) {
+                        onReady.run();
+                        return;
+                    }
+                    showProfilePrompt(user, first, last, email, onReady);
                 })
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed to join waitlist", Toast.LENGTH_LONG).show());
+                .addOnFailureListener(e -> {
+                    showProfilePrompt(user, null, null, null, onReady);
+                });
+    }
+
+    private void showProfilePrompt(FirebaseUser user, String first, String last, String email, Runnable onReady) {
+        android.widget.LinearLayout layout = new android.widget.LinearLayout(this);
+        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        int pad = (int) (16 * getResources().getDisplayMetrics().density);
+        layout.setPadding(pad, pad, pad, pad);
+
+        android.widget.EditText firstInput = new android.widget.EditText(this);
+        firstInput.setHint("First Name");
+        if (!TextUtils.isEmpty(first)) firstInput.setText(first);
+        layout.addView(firstInput);
+
+        android.widget.EditText lastInput = new android.widget.EditText(this);
+        lastInput.setHint("Last Name");
+        if (!TextUtils.isEmpty(last)) lastInput.setText(last);
+        layout.addView(lastInput);
+
+        android.widget.EditText emailInput = new android.widget.EditText(this);
+        emailInput.setHint("Email");
+        emailInput.setInputType(android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        if (!TextUtils.isEmpty(email)) emailInput.setText(email);
+        layout.addView(emailInput);
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Enter your details")
+                .setView(layout)
+                .setPositiveButton("Save", (dialog, which) -> {
+                    String f = firstInput.getText().toString().trim();
+                    String l = lastInput.getText().toString().trim();
+                    String e = emailInput.getText().toString().trim();
+                    if (TextUtils.isEmpty(f) || TextUtils.isEmpty(l) || TextUtils.isEmpty(e)) {
+                        Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    FirebaseFirestore.getInstance().collection("users")
+                            .document(user.getUid())
+                            .set(new java.util.HashMap<String, Object>() {{
+                                put("firstName", f);
+                                put("lastName", l);
+                                put("email", e);
+                                put("anonymous", false);
+                                put("role", "entrant");
+                            }}, com.google.firebase.firestore.SetOptions.merge())
+                            .addOnSuccessListener(x -> onReady.run())
+                            .addOnFailureListener(err -> Toast.makeText(EventDetailsActivity.this, "Failed to save profile", Toast.LENGTH_LONG).show());
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     /**
