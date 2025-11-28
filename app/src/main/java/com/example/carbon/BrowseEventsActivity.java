@@ -249,7 +249,7 @@ public class BrowseEventsActivity extends AppCompatActivity {
         btnClearFilters = findViewById(R.id.btn_clear_filters);
 
         ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,
-                new String[]{"All Categories", "Sports", "Entertainment", "Food", "Education", "Social", "Other"});
+                getResources().getStringArray(R.array.event_categories_filter));
         categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCategory.setAdapter(categoryAdapter);
 
