@@ -8,7 +8,7 @@ import android.content.SharedPreferences;
 public class UIHelper {
 
     public static void setupHeaderAndMenu(Activity activity) {
-        ImageButton settingsButton = activity.findViewById(R.id.settings_button);
+        ImageButton guidelinesButton = activity.findViewById(R.id.guidelines_button);
         ImageButton notificationsButton = activity.findViewById(R.id.notification_button);
 
         ImageButton backButton = activity.findViewById(R.id.back_button);
@@ -19,9 +19,9 @@ public class UIHelper {
             backButton.setOnClickListener(v -> activity.finish());
         }
 
-        if (settingsButton != null) {
-            settingsButton.setOnClickListener(v -> {
-                Intent intent = new Intent(activity, MainActivity.class);
+        if (guidelinesButton != null) {
+            guidelinesButton.setOnClickListener(v -> {
+                Intent intent = new Intent(activity, GuidelinesActivity.class);
                 activity.startActivity(intent);
             });
         }

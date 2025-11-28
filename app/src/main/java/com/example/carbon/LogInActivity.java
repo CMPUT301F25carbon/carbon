@@ -48,6 +48,9 @@ public class LogInActivity extends AppCompatActivity {
         Button deviceLogin = findViewById(R.id.device_login_btn);
 
         loginButton.setOnClickListener(v -> {
+            mAuth.signOut();
+            clearUserCache();
+
             String email = emailField.getText().toString().trim();
             String password = passwordField.getText().toString().trim();
 
@@ -176,6 +179,14 @@ public class LogInActivity extends AppCompatActivity {
                 .putString("role", role)
                 .apply();
     }
+
+    private void clearUserCache() {
+        getSharedPreferences("user_prefs", MODE_PRIVATE)
+                .edit()
+                .clear()
+                .apply();
+    }
+
 
     private boolean hasShownPrivacyNotice() {
         return getSharedPreferences("prefs", MODE_PRIVATE)
