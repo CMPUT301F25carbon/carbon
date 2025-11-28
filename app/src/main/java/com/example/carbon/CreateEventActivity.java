@@ -110,8 +110,10 @@ public class CreateEventActivity extends AppCompatActivity {
      * use in the event object later in creation.
      */
     private void uploadImage() {
-        // If no image is selected, return empty string
+        // If no image is selected, proceed without uploading
         if (imageUri == null) {
+            imageUrl = null;
+            createEvent();
             return;
         }
 
@@ -175,8 +177,11 @@ public class CreateEventActivity extends AppCompatActivity {
      * without having to push for larger permissions from the device.
      */
     private void openImagePicker() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        imagePickerLauncher.launch(intent);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        Intent chooser = Intent.createChooser(intent, "Select Event Poster");
+        imagePickerLauncher.launch(chooser);
     }
 
     /**

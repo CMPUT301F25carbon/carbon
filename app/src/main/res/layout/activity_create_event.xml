@@ -230,14 +230,14 @@
                 />
                 <ImageView
                     android:id="@+id/upload_event_poster"
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
                     android:layout_marginBottom="16dp"
                     android:background="@drawable/rounded_edittext"
                     android:scaleType="centerCrop"
                     android:src="@drawable/file_upload"
                     android:contentDescription="Upload Event Poster"
-                    android:padding="32dp"
+                    android:padding="16dp"
                     android:backgroundTint="#FCD694" />
             <Button
                 android:text="Create Event"
