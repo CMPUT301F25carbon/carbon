@@ -82,6 +82,16 @@
                     android:textColor="#FFFFFF"
                     android:backgroundTint="#ED9029"
                     android:fontFamily="@font/italiana"
+                    android:layout_marginBottom="8dp"/>
+
+                <Button
+                    android:text="Redraw pending"
+                    android:id="@+id/redraw_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#FFFFFF"
+                    android:backgroundTint="#ED9029"
+                    android:fontFamily="@font/italiana"
                     android:layout_marginBottom="16dp"/>
 
                 <androidx.recyclerview.widget.RecyclerView
