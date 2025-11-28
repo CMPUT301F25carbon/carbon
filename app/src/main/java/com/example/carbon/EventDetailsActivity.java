@@ -208,6 +208,12 @@ public class EventDetailsActivity extends AppCompatActivity {
 
         List<WaitlistEntrant> entrants = new ArrayList<>(currentWaitlistEntrants);
 
+        Integer spots = currentEvent.getTotalSpots();
+        if (spots != null && spots > 0 && entrants.size() >= spots * 5) {
+            Toast.makeText(this, "Waitlist is full for this event", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         for (WaitlistEntrant e : entrants) {
             if (e != null && Objects.equals(e.getUserId(), user.getUid())) {
             Toast.makeText(this, "You are already on the waitlist", Toast.LENGTH_SHORT).show();
