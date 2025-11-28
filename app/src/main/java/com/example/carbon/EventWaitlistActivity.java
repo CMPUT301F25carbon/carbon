@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -40,6 +41,8 @@ public class EventWaitlistActivity extends AppCompatActivity {
     private Button viewInvitedButton;
     private Button redrawButton;
     private Button notifyAllButton;
+    private Button randomSampleButton;
+    private TextView titleView;
     private String eventId;
 
     @Override
@@ -63,6 +66,7 @@ public class EventWaitlistActivity extends AppCompatActivity {
         adapter.setOnSelectClickListener(this::handleSelectEntrant);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
+        titleView = findViewById(R.id.eventWaitlist_title);
 
         // Initialize your Waitlist
         waitlist = new Waitlist();
@@ -97,6 +101,96 @@ public class EventWaitlistActivity extends AppCompatActivity {
 
         redrawButton = findViewById(R.id.redraw_btn);
         redrawButton.setOnClickListener(v -> redrawPendingEntrants());
+        randomSampleButton = findViewById(R.id.random_sample_btn);
+        randomSampleButton.setOnClickListener(v -> randomlySampleUsers());
+    }
+
+    /**
+     * Randomly samples entrants based on available spots and updates waitlist/invited list.
+     */
+    private void randomlySampleUsers() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("events").whereEqualTo("uuid", eventId).limit(1)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.isEmpty()) {
+                        Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    DocumentSnapshot doc = snapshot.getDocuments().get(0);
+                    Event event = doc.toObject(Event.class);
+                    if (event == null || event.getWaitlist() == null) {
+                        Toast.makeText(this, "Waitlist missing", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    List<WaitlistEntrant> entrants = event.getWaitlist().getWaitlistEntrants();
+                    if (entrants == null) entrants = new ArrayList<>();
+
+                    // Cap total signups at 5x spots
+                    int spots = event.getTotalSpots() != null ? event.getTotalSpots() : 0;
+                    if (spots > 0 && entrants.size() > spots * 5) {
+                        Toast.makeText(this, "Waitlist limit reached for this event", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    List<WaitlistEntrant> notSelected = new ArrayList<>();
+                    for (WaitlistEntrant e : entrants) {
+                        if (e != null && Objects.equals(e.getStatus(), "Not Selected")) {
+                            notSelected.add(e);
+                        }
+                    }
+
+                    int available = spots > 0 ? Math.max(spots, 0) : notSelected.size();
+                    Collections.shuffle(notSelected);
+
+                    List<WaitlistEntrant> selected = new ArrayList<>();
+                    if (notSelected.size() <= available) {
+                        selected.addAll(notSelected);
+                    } else {
+                        selected.addAll(notSelected.subList(0, available));
+                    }
+
+                    // Mark selected as Pending
+                    for (WaitlistEntrant e : selected) {
+                        e.setStatus("Pending");
+                        e.setSelectionDate(new Date());
+                    }
+
+                    // Rebuild entrants list with updated statuses
+                    for (WaitlistEntrant e : entrants) {
+                        for (WaitlistEntrant sel : selected) {
+                            if (e != null && sel != null && Objects.equals(e.getUserId(), sel.getUserId())) {
+                                e.setStatus(sel.getStatus());
+                                e.setSelectionDate(sel.getSelectionDate());
+                            }
+                        }
+                    }
+
+                    final List<WaitlistEntrant> updatedEntrants = entrants;
+                    final int waitlistSize = updatedEntrants.size();
+
+                    db.collection("events").document(doc.getId())
+                            .update("waitlist.waitlistEntrants", updatedEntrants)
+                            .addOnSuccessListener(x -> {
+                                Toast.makeText(this, "Random sample complete", Toast.LENGTH_SHORT).show();
+                                loadWaitlistFromDatabase(eventId);
+                                updateTitleCount(waitlistSize);
+
+                                // Launch invited list to view
+                                Intent newIntent = new Intent(EventWaitlistActivity.this, SelectedListActivity.class);
+                                newIntent.putExtra("EVENT_ID", eventId);
+                                startActivity(newIntent);
+                            })
+                            .addOnFailureListener(e -> Toast.makeText(this, "Failed to update waitlist", Toast.LENGTH_LONG).show());
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to sample waitlist", Toast.LENGTH_LONG).show());
+    }
+
+    private void updateTitleCount(int count) {
+        if (titleView != null) {
+            titleView.setText("Event Waitlist (" + count + ")");
+        }
     }
 
     /**
@@ -179,18 +273,24 @@ public class EventWaitlistActivity extends AppCompatActivity {
                             displayedEntrants.clear();
                             displayedEntrants.addAll(entrants);
                             adapter.notifyDataSetChanged();
+                            updateTitleCount(displayedEntrants.size());
                             Log.d("Waitlist DB", "Successfully loaded " + entrants.size() + " entrants.");
+                        } else {
+                            updateTitleCount(0);
                         }
 
                             } else {
                                 Toast.makeText(EventWaitlistActivity.this, "Waitlist data is missing in this event.", Toast.LENGTH_SHORT).show();
+                                updateTitleCount(0);
                             }
                         } else {
                             Toast.makeText(EventWaitlistActivity.this, "Event not found.", Toast.LENGTH_SHORT).show();
+                            updateTitleCount(0);
                             finish();
                         }
                     } else {
                         Toast.makeText(EventWaitlistActivity.this, "Failed to load event data.", Toast.LENGTH_SHORT).show();
+                        updateTitleCount(0);
                         finish();
                     }
                 });
@@ -236,6 +336,7 @@ public class EventWaitlistActivity extends AppCompatActivity {
                                 .addOnSuccessListener(aVoid -> {
                                     Toast.makeText(this, "Entrant removed", Toast.LENGTH_SHORT).show();
                                     loadWaitlistFromDatabase(eventId);
+                                    updateTitleCount(entrants.size());
                                 })
                                 .addOnFailureListener(e -> {
                                     Toast.makeText(this, "Failed to remove entrant", Toast.LENGTH_SHORT).show();
@@ -291,6 +392,7 @@ public class EventWaitlistActivity extends AppCompatActivity {
                             .addOnSuccessListener(aVoid -> {
                                 Toast.makeText(this, "Entrant replaced with random selection", Toast.LENGTH_SHORT).show();
                                 loadWaitlistFromDatabase(eventId);
+                                updateTitleCount(allEntrants.size());
                             })
                             .addOnFailureListener(e -> {
                                 Toast.makeText(this, "Failed to replace entrant", Toast.LENGTH_SHORT).show();

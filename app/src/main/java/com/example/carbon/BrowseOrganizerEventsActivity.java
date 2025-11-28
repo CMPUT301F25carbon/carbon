@@ -80,8 +80,8 @@ public class BrowseOrganizerEventsActivity extends AppCompatActivity {
         }
         String ownerId = currentUser.getUid(); // Get the user's unique ID
 
-        // Show all events so organizers can see every listing (including their own)
-        eventList.fetchAllEvents(new EventList.EventListCallback() {
+        // Show all events so organizers can see only their own
+        eventList.fetchOrganizerEvents(ownerId, new EventList.EventListCallback() {
             @Override
             public void onEventsFetched(ArrayList<Event> events) {
                 displayedEvents.clear();
