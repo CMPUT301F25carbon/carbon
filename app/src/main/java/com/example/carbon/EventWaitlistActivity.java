@@ -80,6 +80,14 @@ public class EventWaitlistActivity extends AppCompatActivity {
             startActivity(newIntent);
         });
 
+        Button viewAcceptedButton = findViewById(R.id.view_accepted_btn);
+        viewAcceptedButton.setOnClickListener(v -> {
+            Intent newIntent = new Intent(EventWaitlistActivity.this, AcceptedListActivity.class);
+            newIntent.putExtra("EVENT_ID", eventId);
+            startActivity(newIntent);
+        });
+
+
         // Set up "Notify All Waitlist" button listener
         notifyAllButton = findViewById(R.id.notify_all_btn);
         notifyAllButton.setOnClickListener(v -> showBroadcastDialog());
