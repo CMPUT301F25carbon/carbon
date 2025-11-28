@@ -54,35 +54,57 @@
                     android:text="Event Waitlist"
                     android:textColor="#F0DAA0"
                     android:textSize="44sp" />
-                <Button
-                    android:text="View Invited"
-                    android:id="@+id/view_invited_btn"
-                    android:layout_width="wrap_content"
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="#FFFFFF"
-                    android:backgroundTint="#ED9029"
-                    android:fontFamily="@font/italiana"
-                    android:layout_marginBottom="8dp"/>
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:weightSum="3"
+                    android:layout_marginBottom="12dp">
+                    <Button
+                        android:text="View Invited"
+                        android:id="@+id/view_invited_btn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textColor="#FFFFFF"
+                        android:backgroundTint="#ED9029"
+                        android:fontFamily="@font/italiana"
+                        android:layout_marginEnd="6dp"/>
+
+                    <Button
+                        android:text="View Accepted"
+                        android:id="@+id/view_accepted_btn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textColor="#FFFFFF"
+                        android:backgroundTint="#ED9029"
+                        android:fontFamily="@font/italiana"
+                        android:layout_marginHorizontal="6dp"/>
+
+                    <Button
+                        android:text="Notify All Waitlist"
+                        android:id="@+id/notify_all_btn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textColor="#FFFFFF"
+                        android:backgroundTint="#ED9029"
+                        android:fontFamily="@font/italiana"
+                        android:layout_marginStart="6dp"/>
+                </LinearLayout>
 
                 <Button
-                    android:text="View Accepted"
-                    android:id="@+id/view_accepted_btn"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/random_sample_btn"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:text="Randomly Sample Users"
                     android:textColor="#FFFFFF"
                     android:backgroundTint="#ED9029"
                     android:fontFamily="@font/italiana"
-                    android:layout_marginBottom="8dp"/>
-
-                <Button
-                    android:text="Notify All Waitlist"
-                    android:id="@+id/notify_all_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#FFFFFF"
-                    android:backgroundTint="#ED9029"
-                    android:fontFamily="@font/italiana"
-                    android:layout_marginBottom="16dp"/>
+                    android:layout_marginBottom="16dp" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler_waitlist"
