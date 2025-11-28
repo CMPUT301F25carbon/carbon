@@ -62,4 +62,6 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore:24.10.0")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.mockito:mockito-core:5.11.0")
+    // Glide – Image loading library
+    implementation("com.github.bumptech.glide:glide:4.16.0")
 }

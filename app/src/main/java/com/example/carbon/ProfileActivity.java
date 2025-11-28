@@ -48,10 +48,6 @@ public class ProfileActivity extends AppCompatActivity {
                 db.collection("users").document(userId)
                         .update("notificationsEnabled", isChecked)
                         .addOnSuccessListener(v -> {
-                            String msg  = isChecked ?
-                                    "Notifications Enabled":
-                                    "Notifications Disabled";
-                            Toast.makeText(ProfileActivity.this, msg, Toast.LENGTH_SHORT).show();
                         })
                         .addOnFailureListener(e ->
                                 Toast.makeText(ProfileActivity.this, "Failed to update notifcation preference", Toast.LENGTH_LONG).show());

@@ -148,6 +148,25 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/italiana"
                 />
+            <TextView
+                android:id="@+id/create_event_category_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Category *"
+                android:textColor="#E8CF7D"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/italiana" />
+
+            <Spinner
+                android:id="@+id/create_event_category_spinner"
+                android:layout_width="325dp"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="8dp"
+                android:background="@drawable/rounded_edittext"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp"
+                android:spinnerMode="dropdown" />
             <EditText
                 android:hint="Registration Opening (optional)"
                 android:id="@+id/create_event_registration_opening_input"
@@ -211,14 +230,14 @@
                 />
                 <ImageView
                     android:id="@+id/upload_event_poster"
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
                     android:layout_marginBottom="16dp"
                     android:background="@drawable/rounded_edittext"
                     android:scaleType="centerCrop"
                     android:src="@drawable/file_upload"
                     android:contentDescription="Upload Event Poster"
-                    android:padding="32dp"
+                    android:padding="16dp"
                     android:backgroundTint="#FCD694" />
             <Button
                 android:text="Create Event"

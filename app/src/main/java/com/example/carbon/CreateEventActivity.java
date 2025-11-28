@@ -10,9 +10,11 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -24,10 +26,10 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.UUID;
 
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
@@ -43,6 +45,7 @@ public class CreateEventActivity extends AppCompatActivity {
     private EditText eventTitleInput, eventDesInput, eventDateInput, eventAddressInput,
             eventCityInput, eventProvinceInput, eventCountryInput, eventRegistrationOpeningInput,
             eventRegistrationDeadlineInput, eventSeatInput, eventWaitlistCapacity;
+    private Spinner eventCategorySpinner;
     private Button createEventButton;
 
     // Declare variables needed for the image upload
@@ -77,9 +80,7 @@ public class CreateEventActivity extends AppCompatActivity {
         // Set home button in bottom menu
         ImageButton homeButton = findViewById(R.id.home_button);
         if (homeButton != null) {
-            homeButton.setOnClickListener(v -> {
-                startActivity(new Intent(CreateEventActivity.this, BrowseEventsActivity.class));
-            });
+            homeButton.setOnClickListener(v -> UIHelper.navigateHome(this));
         }
 
         // Set up listener and launcher for image upload box click
@@ -109,8 +110,10 @@ public class CreateEventActivity extends AppCompatActivity {
      * use in the event object later in creation.
      */
     private void uploadImage() {
-        // If no image is selected, return empty string
+        // If no image is selected, proceed without uploading
         if (imageUri == null) {
+            imageUrl = null;
+            createEvent();
             return;
         }
 
@@ -155,6 +158,18 @@ public class CreateEventActivity extends AppCompatActivity {
         createEventButton = findViewById(R.id.create_event_btn);
         eventWaitlistCapacity = findViewById(R.id.create_event_max_waitlist_input);
         eventPosterImageView = findViewById(R.id.upload_event_poster);
+        eventCategorySpinner = findViewById(R.id.create_event_category_spinner);
+
+        // Populate categories with a required selection
+        ArrayList<String> categories = new ArrayList<>();
+        categories.add("Select Category");
+        categories.addAll(Arrays.asList(getResources().getStringArray(R.array.event_categories)));
+
+        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, categories);
+        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        eventCategorySpinner.setAdapter(categoryAdapter);
+        eventCategorySpinner.setSelection(0);
     }
 
     /**
@@ -162,8 +177,11 @@ public class CreateEventActivity extends AppCompatActivity {
      * without having to push for larger permissions from the device.
      */
     private void openImagePicker() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        imagePickerLauncher.launch(intent);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        Intent chooser = Intent.createChooser(intent, "Select Event Poster");
+        imagePickerLauncher.launch(chooser);
     }
 
     /**
@@ -239,6 +257,13 @@ public class CreateEventActivity extends AppCompatActivity {
             return false;
         }
 
+        String selectedCategory = (String) eventCategorySpinner.getSelectedItem();
+        if (selectedCategory == null || "Select Category".equals(selectedCategory)) {
+            Snackbar.make(findViewById(R.id.create_event_root), "Please select a category", Snackbar.LENGTH_SHORT).show();
+            eventCategorySpinner.performClick();
+            return false;
+        }
+
         // --- NUMBER FIELD VALIDATION ---
         if (TextUtils.isEmpty(eventSeatInput.getText().toString().trim())) {
             eventSeatInput.setError("Number of Seats is required");
@@ -305,6 +330,7 @@ public class CreateEventActivity extends AppCompatActivity {
         String city = eventCityInput.getText().toString().trim();
         String province = eventProvinceInput.getText().toString().trim();
         String country = eventCountryInput.getText().toString().trim();
+        String category = (String) eventCategorySpinner.getSelectedItem();
         String waitlistCapacity = eventWaitlistCapacity.getText().toString().trim();
 
         // CONVERT TO CORRECT DATA TYPES
@@ -358,6 +384,7 @@ public class CreateEventActivity extends AppCompatActivity {
 
         // CREATE THE EVENT OBJECT AND INCLUDE THE WAITLIST
         Event newEvent = new Event(title, des, seats, eventDate, address, city, province, country, ownerId, newWaitlist, imageUrl);
+        newEvent.setCategory(category);
 
         // PROVIDE FEEDBACK AND PROCEED
         db.collection("events")
