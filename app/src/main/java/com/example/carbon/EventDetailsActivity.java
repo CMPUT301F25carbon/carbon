@@ -7,11 +7,13 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.text.TextUtils;
+import android.widget.ImageView;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -34,6 +36,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     public static final String EXTRA_EVENT_COUNTS = "EXTRA_EVENT_COUNTS"; // e.g., "11 registrations / 5 spots"
 
     private TextView tvTitle, tvDate, tvCounts, tvDescription, tvCountdown;
+    private ImageView eventPoster;
     private Button signUpButton;
 
     private String eventId;
@@ -55,6 +58,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         tvDescription = findViewById(R.id.tv_event_description);
         tvCountdown = findViewById(R.id.tv_countdown);
         signUpButton = findViewById(R.id.btn_sign_up);
+        eventPoster = findViewById(R.id.img_event_poster);
         
         countdownHandler = new Handler(Looper.getMainLooper());
 
@@ -141,6 +145,16 @@ public class EventDetailsActivity extends AppCompatActivity {
                         tvDescription.setText(event.getDescription());
                     } else {
                         tvDescription.setText("No description available.");
+                    }
+                    String imageUrl = event.getImageURL();
+                    if (!TextUtils.isEmpty(imageUrl) && eventPoster != null) {
+                        Glide.with(this)
+                                .load(imageUrl)
+                                .placeholder(R.drawable.carbon_start_logo)
+                                .centerCrop()
+                                .into(eventPoster);
+                    } else if (eventPoster != null) {
+                        eventPoster.setImageResource(R.drawable.carbon_start_logo);
                     }
                     updateCounts(event, currentWaitlistEntrants);
 
