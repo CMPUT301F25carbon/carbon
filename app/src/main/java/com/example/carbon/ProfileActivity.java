@@ -1,23 +1,33 @@
 package com.example.carbon;
 
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.ContactsContract;
+import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    @Override protected void onCreate(Bundle savedInstanceState) {
+    private UpcomingEventsAdapter upcomingEventsAdapter;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
@@ -28,7 +38,8 @@ public class ProfileActivity extends AppCompatActivity {
 
         SwitchCompat notificationSwitch = findViewById(R.id.notifications_switch);
 
-        String userId = getSharedPreferences("user_prefs", MODE_PRIVATE).getString("userId", null);
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        String userId = currentUser != null ? currentUser.getUid() : null;
 
         if (userId != null) {
             db.collection("users").document(userId)
@@ -36,53 +47,104 @@ public class ProfileActivity extends AppCompatActivity {
                     .addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
                             Boolean enabled = documentSnapshot.getBoolean("notificationsEnabled");
-                            if (enabled != null) {
-                                notificationSwitch.setChecked(enabled);
-                            }
+                            if (enabled != null) notificationSwitch.setChecked(enabled);
                         }
                     });
         }
 
-        notificationSwitch.setOnCheckedChangeListener(((buttonView, isChecked) -> {
+        notificationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (userId != null) {
                 db.collection("users").document(userId)
                         .update("notificationsEnabled", isChecked)
-                        .addOnSuccessListener(v -> {
-                        })
                         .addOnFailureListener(e ->
-                                Toast.makeText(ProfileActivity.this, "Failed to update notifcation preference", Toast.LENGTH_LONG).show());
+                                Toast.makeText(ProfileActivity.this,
+                                        "Failed to update notification preference",
+                                        Toast.LENGTH_LONG).show());
             }
-        }));
+        });
 
-        findViewById(R.id.btn_edit_profile).setOnClickListener(v ->
-                android.widget.Toast.makeText(this, "Edit profile (todo)", android.widget.Toast.LENGTH_SHORT).show()
-        );
-
-        findViewById(R.id.btn_registrations).setOnClickListener(v ->
-                        startActivity(new android.content.Intent(this, NotificationActivity.class))
-                // ^ temp: reuse notifications until Registrations screen exists
-        );
+        findViewById(R.id.btn_edit_profile).setOnClickListener(v -> {
+            Toast.makeText(this, "Opening profile editor...", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, ProfileEditActivity.class));
+        });
 
         findViewById(R.id.btn_delete_profile).setOnClickListener(v -> {
             new AlertDialog.Builder(this)
                     .setTitle("Delete Profile")
                     .setMessage("Are you sure you want to permanently delete your account?")
-                    .setPositiveButton("Delete", ((dialog, which) -> deleteAccount()))
+                    .setPositiveButton("Delete", (dialog, which) -> deleteAccount())
                     .setNegativeButton("Cancel", null)
                     .show();
         });
 
-        // Optional: organized events (stub)
-        findViewById(R.id.btn_organized_events).setOnClickListener(v ->
-                android.widget.Toast.makeText(this, "Organized Events (todo)", android.widget.Toast.LENGTH_SHORT).show()
-        );
+        Button eventHistoryBtn = findViewById(R.id.btnEventHistory);
+        eventHistoryBtn.setOnClickListener(view -> startActivity(new Intent(this, EventHistoryActivity.class)));
+
+        TextView nameView = findViewById(R.id.tv_profile_name);
+        TextView emailView = findViewById(R.id.tv_profile_email);
+
+        if (currentUser != null) {
+            db.collection("users").document(userId)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            String firstName = documentSnapshot.getString("firstName");
+                            String lastName = documentSnapshot.getString("lastName");
+                            String email = documentSnapshot.getString("email");
+                            nameView.setText((firstName != null && lastName != null) ? firstName + " " + lastName : "Guest User");
+                            emailView.setText(email != null ? email : "guest@example.com");
+                        } else {
+                            nameView.setText("Guest User");
+                            emailView.setText("guest@example.com");
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        nameView.setText("Guest User");
+                        emailView.setText("guest@example.com");
+                    });
+        } else {
+            nameView.setText("Guest User");
+            emailView.setText("guest@example.com");
+        }
 
 
-        // TODO: replace with your real user source (DeviceManager / User singleton / FirebaseAuth)
-        TextView name = findViewById(R.id.tv_profile_name);
-        TextView email = findViewById(R.id.tv_profile_email);
-        name.setText("Guest User");
-        email.setText("guest@example.com");
+        loadUserInfo();
+
+        // Setup RecyclerView for upcoming events
+        RecyclerView rvUpcoming = findViewById(R.id.rv_upcoming_events);
+        rvUpcoming.setLayoutManager(new LinearLayoutManager(this));
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        upcomingEventsAdapter = new UpcomingEventsAdapter(new ArrayList<>(), user);
+        rvUpcoming.setAdapter(upcomingEventsAdapter);
+
+        loadUpcomingEvents();  // Only loads data
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadUserInfo(); // refresh profile whenever page reopens
+    }
+
+    private void loadUserInfo() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) return;
+
+        FirebaseFirestore.getInstance().collection("users").document(currentUser.getUid())
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        String firstName = doc.getString("firstName");
+                        String lastName = doc.getString("lastName");
+                        String email = doc.getString("email");
+
+                        ((TextView)findViewById(R.id.tv_profile_name)).setText(firstName + " " + lastName);
+                        ((TextView)findViewById(R.id.tv_profile_email)).setText(email);
+                    }
+                });
     }
 
 
@@ -90,37 +152,61 @@ public class ProfileActivity extends AppCompatActivity {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        String userId = getSharedPreferences("user_prefs", MODE_PRIVATE).getString("userId", null);
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        String userId = currentUser != null ? currentUser.getUid() : null;
 
-        if (userId == null || auth.getCurrentUser() == null ) {
-            Toast.makeText(this, "Error: No logged in user.",Toast.LENGTH_SHORT).show();
+        if (userId == null || auth.getCurrentUser() == null) {
+            Toast.makeText(this, "Error: No logged in user.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         db.collection("users").document(userId)
                 .delete()
-                .addOnSuccessListener(v -> {
-                    auth.getCurrentUser()
-                            .delete()
-                            .addOnSuccessListener(v2 -> {
-                                getSharedPreferences("user_prefs", MODE_PRIVATE)
-                                        .edit()
-                                        .clear()
-                                        .apply();
+                .addOnSuccessListener(v -> auth.getCurrentUser()
+                        .delete()
+                        .addOnSuccessListener(v2 -> {
+                            getSharedPreferences("user_prefs", MODE_PRIVATE).edit().clear().apply();
+                            Toast.makeText(ProfileActivity.this, "Your account has been deleted.", Toast.LENGTH_LONG).show();
+                            Intent intent = new Intent(ProfileActivity.this, LogInActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                            finish();
+                        })
+                        .addOnFailureListener(e -> Toast.makeText(ProfileActivity.this,
+                                "Failed to delete authentication account: " + e.getMessage(),
+                                Toast.LENGTH_LONG).show()))
+                .addOnFailureListener(e -> Toast.makeText(ProfileActivity.this,
+                        "Failed to delete profile data: " + e.getMessage(),
+                        Toast.LENGTH_LONG).show());
+    }
 
-                                Toast.makeText(ProfileActivity.this, "Your account has been deleted.", Toast.LENGTH_LONG).show();
+    private void loadUpcomingEvents() {
 
-                                Intent intent = new Intent(ProfileActivity.this, LogInActivity.class);
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) return;
 
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                startActivity(intent);
-                                finish();
-                            })
-                            .addOnFailureListener(e ->
-                                    Toast.makeText(ProfileActivity.this, "Failed to delete authentication account: " + e.getMessage(), Toast.LENGTH_LONG).show());
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Date now = new Date();
+
+        db.collection("events")
+                .whereGreaterThan("eventDate", now) // future events only
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<Event> upcomingEvents = new ArrayList<>();
+
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        Event event = doc.toObject(Event.class);
+                        if (event != null) {
+                            upcomingEvents.add(event);
+                        }
+                    }
+
+                    // Update RecyclerView without recreating adapter
+                    upcomingEventsAdapter.submitList(upcomingEvents);
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(ProfileActivity.this, "Failed to delete profile data: " + e.getMessage(), Toast.LENGTH_LONG).show());
-
+                        Toast.makeText(this, "Failed to load upcoming events", Toast.LENGTH_SHORT).show()
+                );
     }
+
 }

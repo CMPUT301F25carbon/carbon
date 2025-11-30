@@ -28,31 +28,25 @@
         android:layout_marginBottom="-10dp"
         android:background="@drawable/rounded_panel">
 
-        <ScrollView
-            android:id="@+id/eventsList_scroll"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingBottom="16dp">
+            android:orientation="vertical">
 
-            <LinearLayout
+            <!-- Filter Section -->
+
+            <TextView
+                android:id="@+id/upcomingEvents_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center_horizontal">
+                android:layout_marginBottom="16dp"
+                android:fontFamily="@font/italiana"
+                android:gravity="center"
+                android:text="Upcoming Events"
+                android:textColor="#F0DAA0"
+                android:textSize="44sp" />
 
-                <TextView
-                    android:id="@+id/upcomingEvents_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:fontFamily="@font/italiana"
-                    android:gravity="center"
-                    android:text="Upcoming Events"
-                    android:textColor="#F0DAA0"
-                    android:textSize="44sp" />
-
-                <!-- Filter Section -->
-                <LinearLayout
+            <LinearLayout
                     android:id="@+id/filter_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -80,7 +74,7 @@
                         <androidx.appcompat.widget.AppCompatSpinner
                             android:id="@+id/spinner_category"
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
+                            android:layout_height="48dp"
                             android:layout_weight="1"
                             android:layout_marginEnd="4dp"
                             android:background="@drawable/rounded_edittext"
@@ -89,7 +83,7 @@
                         <androidx.appcompat.widget.AppCompatSpinner
                             android:id="@+id/spinner_location"
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
+                            android:layout_height="48dp"
                             android:layout_weight="1"
                             android:layout_marginStart="4dp"
                             android:layout_marginEnd="4dp"
@@ -197,14 +191,12 @@
                         android:layout_margin="4dp" />
                 </LinearLayout>
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerEvents"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clipToPadding="false"
-                    android:paddingBottom="16dp" />
-
-            </LinearLayout>
-        </ScrollView>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerEvents"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:paddingBottom="20dp"/>
+        </LinearLayout>
     </FrameLayout>
 </RelativeLayout>

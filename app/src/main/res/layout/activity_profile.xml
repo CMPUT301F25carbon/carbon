@@ -96,7 +96,7 @@
                 android:layout_marginEnd="12dp" />
 
             <Button
-                android:id="@+id/btn_registrations"
+                android:id="@+id/btnEventHistory"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Registrations"
@@ -144,19 +144,9 @@
             android:id="@+id/rv_upcoming_events"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:nestedScrollingEnabled="true"
+            />
 
-        <!-- Optional: Organized Events CTA (matches mockup, can hide for now) -->
-        <Button
-            android:id="@+id/btn_organized_events"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Organized Events"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="12dp"
-            android:backgroundTint="#ED9029"
-            android:textColor="#FFFFFF"
-            android:fontFamily="@font/italiana" />
     </LinearLayout>
 </RelativeLayout>

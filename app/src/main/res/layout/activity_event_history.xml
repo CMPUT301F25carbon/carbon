@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/history_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#8C154F">
+
+    <!-- Top header -->
+    <include
+        android:id="@+id/include_header"
+        layout="@layout/top_header" />
+
+    <!-- Bottom navigation -->
+    <include
+        android:id="@+id/include_bottom_menu"
+        layout="@layout/bottom_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
+
+    <!-- Main panel -->
+    <FrameLayout
+        android:id="@+id/event_card"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/include_header"
+        android:layout_above="@id/include_bottom_menu"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="32dp"
+        android:background="@drawable/rounded_panel">
+
+        <!-- Scrollable content -->
+        <ScrollView
+            android:id="@+id/history_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/include_bottom_menu"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+
+                <!-- Page title -->
+                <TextView
+                    android:id="@+id/history_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:fontFamily="@font/italiana"
+                    android:gravity="center"
+                    android:text="Your Event History"
+                    android:textColor="#F0DAA0"
+                    android:textSize="44sp" />
+
+                <!-- RecyclerView for event history -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_history"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:paddingBottom="16dp" />
+
+                <!-- Empty message -->
+                <TextView
+                    android:id="@+id/empty_message"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No event history found"
+                    android:textColor="#FFFFFF"
+                    android:visibility="gone"
+                    android:layout_marginTop="20dp"
+                    android:textSize="18sp"
+                    android:fontFamily="@font/italiana" />
+
+            </LinearLayout>
+        </ScrollView>
+    </FrameLayout>
+
+</RelativeLayout>
