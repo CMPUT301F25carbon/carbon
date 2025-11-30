@@ -91,6 +91,17 @@
             android:theme="@style/Theme.Carbon" />
 
         <activity
+            android:name=".ProfileEditActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Carbon" />
+
+        <activity
+            android:name=".EventHistoryActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Carbon" />
+
+
+        <activity
             android:name=".NotificationActivity"
             android:exported="true"
             android:theme="@style/Theme.Carbon" />

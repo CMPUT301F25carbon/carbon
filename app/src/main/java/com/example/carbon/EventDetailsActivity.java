@@ -156,16 +156,18 @@ public class EventDetailsActivity extends AppCompatActivity {
                     } else if (eventPoster != null) {
                         eventPoster.setImageResource(R.drawable.carbon_start_logo);
                     }
-                    updateCounts(event, currentWaitlistEntrants);
+
+                    updateCounts(currentEvent, currentWaitlistEntrants);
+                    updateSignUpButton(); //set the correct button state
 
                 } else {
                     Toast.makeText(EventDetailsActivity.this, "Event not found.", Toast.LENGTH_SHORT).show();
                     finish();
                 }
-            } else {
-                Toast.makeText(EventDetailsActivity.this, "Failed to load event data.", Toast.LENGTH_SHORT).show();
-                finish();
-            }
+                } else {
+                    Toast.makeText(EventDetailsActivity.this, "Failed to load event data.", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
         });
     }
 
@@ -232,6 +234,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                     .addOnSuccessListener(aVoid -> {
                         Toast.makeText(this, "Added to waitlist", Toast.LENGTH_SHORT).show();
                         updateCounts(currentEvent, entrants);
+                        updateSignUpButton();
                     })
                     .addOnFailureListener(e -> Toast.makeText(this, "Failed to join waitlist", Toast.LENGTH_LONG).show());
         });
@@ -308,6 +311,59 @@ public class EventDetailsActivity extends AppCompatActivity {
                 .setNegativeButton("Cancel", null)
                 .show();
     }
+
+    private boolean isUserOnWaitlist(FirebaseUser user) {
+        if (user == null || currentWaitlistEntrants == null) return false;
+        for (WaitlistEntrant e : currentWaitlistEntrants) {
+            if (e != null && Objects.equals(e.getUserId(), user.getUid())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void leaveWaitlist(FirebaseUser user) {
+        if (currentWaitlistEntrants == null || eventDocId == null) return;
+
+        List<WaitlistEntrant> updatedList = new ArrayList<>(currentWaitlistEntrants);
+        boolean removed = updatedList.removeIf(e -> e != null && Objects.equals(e.getUserId(), user.getUid()));
+
+        if (!removed) {
+            Toast.makeText(this, "You are not on the waitlist", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Update Firestore
+        FirebaseFirestore.getInstance().collection("events")
+                .document(eventDocId)
+                .update("waitlist.waitlistEntrants", updatedList)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "You have left the waitlist", Toast.LENGTH_SHORT).show();
+                    currentWaitlistEntrants = updatedList;
+                    updateCounts(currentEvent, currentWaitlistEntrants);
+                    updateSignUpButton(); // update button back to "Sign Up"
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to leave waitlist", Toast.LENGTH_LONG).show());
+    }
+
+
+    private void updateSignUpButton() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) return;
+
+        if (isUserOnWaitlist(user)) {
+            signUpButton.setText("Leave Waitlist");
+            signUpButton.setBackgroundColor(0xFFD32F2F); //red color
+            signUpButton.setOnClickListener(v -> leaveWaitlist(user));
+        } else {
+            signUpButton.setText("Sign Up");
+            signUpButton.setBackgroundColor(0xFFED9029);
+            signUpButton.setOnClickListener(v -> joinWaitlist());
+        }
+    }
+
+
+
 
     /**
      * Starts the countdown timer for the event
