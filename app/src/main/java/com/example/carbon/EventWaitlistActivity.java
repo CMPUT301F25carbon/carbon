@@ -193,6 +193,25 @@ public class EventWaitlistActivity extends AppCompatActivity {
         }
     }
 
+    private void sendSelectionNotifications(List<WaitlistEntrant> selected, String eventUuid, String title) {
+        if (selected == null || selected.isEmpty()) return;
+        for (WaitlistEntrant entrant : selected) {
+            if (entrant == null || entrant.getUserId() == null) continue;
+            Notification notification = new Notification(
+                    null,
+                    entrant.getUserId(),
+                    eventUuid,
+                    title,
+                    "Congrats! You have been selected",
+                    NotificationStatus.UNREAD,
+                    new Date(),
+                    "chosen"
+            );
+            FirebaseNotificationService notificationService = new FirebaseNotificationService();
+            notificationService.sendNotification(notification, () -> {}, e -> Log.e("EventWaitlistActivity", "Failed to send selection notification", e));
+        }
+    }
+
     /**
      * Shows a dialog for the organizer to enter a message to broadcast to all waitlist entrants
      */
@@ -392,11 +411,7 @@ public class EventWaitlistActivity extends AppCompatActivity {
                                     .addOnSuccessListener(aVoid -> {
                                         Toast.makeText(this, "Entrant replaced with random selection", Toast.LENGTH_SHORT).show();
                                         // Notify the replacement entrant
-                                        sendSelectionNotifications(
-                                                java.util.Collections.singletonList(replacement),
-                                                event.getUuid(),
-                                                eventTitle != null ? eventTitle : event.getTitle()
-                                        );
+                                        sendSelectionNotifications(java.util.Collections.singletonList(replacement), event.getUuid(), event.getTitle());
                                         loadWaitlistFromDatabase(eventId);
                                         updateTitleCount(allEntrants.size());
                                     })
