@@ -27,6 +27,7 @@ public class NotificationActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private NotificationService notificationService;
     private static final boolean USE_MOCK_SERVICE = false; //set to false for firebase
+    private com.google.firebase.firestore.ListenerRegistration listener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,18 +60,36 @@ public class NotificationActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (listener != null) listener.remove();
+    }
+
     /**
      * Fetches Notifications for a specific user and displays them.
      * @param userId the ID of the user whose notifications are being loaded
      */
     private void loadNotifications(String userId) {
         progressBar.setVisibility(View.VISIBLE);
-        notificationService.fetchNotifications(userId, notifications -> {
-            runOnUiThread(() -> {
-                progressBar.setVisibility(View.GONE);
-                displayNotifications(notifications);
-            });
-        });
+        com.google.firebase.firestore.FirebaseFirestore db = com.google.firebase.firestore.FirebaseFirestore.getInstance();
+        listener = db.collection("notifications")
+                .whereEqualTo("userId", userId)
+                .orderBy("created_at", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                .addSnapshotListener((snap, error) -> {
+                    progressBar.setVisibility(View.GONE);
+                    if (error != null || snap == null) {
+                        emptyView.setVisibility(View.VISIBLE);
+                        return;
+                    }
+                    java.util.List<Notification> list = new java.util.ArrayList<>();
+                    for (com.google.firebase.firestore.QueryDocumentSnapshot doc : snap) {
+                        Notification n = doc.toObject(Notification.class);
+                        n.setId(doc.getId());
+                        list.add(n);
+                    }
+                    displayNotifications(list);
+                });
     }
 
     /**
@@ -101,15 +120,31 @@ public class NotificationActivity extends AppCompatActivity {
             actions.setVisibility(actionable ? View.VISIBLE : View.GONE);
 
             acceptBtn.setOnClickListener(v -> {
+                if (notification.getEventId() == null || notification.getEventId().isEmpty()) {
+                    Toast.makeText(this, "Missing event info for this notification", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 notificationService.markAsAccepted(notification,
-                        () -> runOnUiThread(() -> Toast.makeText(this, "Accepted", Toast.LENGTH_SHORT).show()),
-                        e -> runOnUiThread(() -> Toast.makeText(this, "Failed to accept", Toast.LENGTH_SHORT).show()));
+                        () -> runOnUiThread(() -> {
+                            Toast.makeText(this, "Accepted", Toast.LENGTH_SHORT).show();
+                            notificationContainer.removeView(itemView);
+                            emptyView.setVisibility(notificationContainer.getChildCount() == 0 ? View.VISIBLE : View.GONE);
+                        }),
+                        e -> runOnUiThread(() -> Toast.makeText(this, "Failed to accept: " + e.getMessage(), Toast.LENGTH_LONG).show()));
             });
 
             declineBtn.setOnClickListener(v -> {
+                if (notification.getEventId() == null || notification.getEventId().isEmpty()) {
+                    Toast.makeText(this, "Missing event info for this notification", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 notificationService.markAsDeclined(notification,
-                        () -> runOnUiThread(() -> Toast.makeText(this, "Declined", Toast.LENGTH_SHORT).show()),
-                        e -> runOnUiThread(() -> Toast.makeText(this, "Failed to decline", Toast.LENGTH_SHORT).show()));
+                        () -> runOnUiThread(() -> {
+                            Toast.makeText(this, "Declined", Toast.LENGTH_SHORT).show();
+                            notificationContainer.removeView(itemView);
+                            emptyView.setVisibility(notificationContainer.getChildCount() == 0 ? View.VISIBLE : View.GONE);
+                        }),
+                        e -> runOnUiThread(() -> Toast.makeText(this, "Failed to decline: " + e.getMessage(), Toast.LENGTH_LONG).show()));
             });
 
             itemView.setOnClickListener(v -> {
