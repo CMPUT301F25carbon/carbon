@@ -22,20 +22,41 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+
+/**
+ * Activity that displays the user's profile information, upcoming events,
+ * and account management options. Users can edit their profile, delete
+ * their account, view upcoming events, and toggle notification preferences.
+ */
+
+
 public class ProfileActivity extends AppCompatActivity {
 
+    /**
+     * Adapter for displaying upcoming events in a RecyclerView
+     */
     private UpcomingEventsAdapter upcomingEventsAdapter;
 
+    /**
+     * Called when the activity is first created. Initializes the UI, loads
+     * user information, sets up notification preferences, and prepares
+     * the RecyclerView for upcoming events.
+     *
+     * @param savedInstanceState Bundle containing saved state, if any
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
+        //set up header menu
         UIHelper.setupHeaderAndMenu(this);
 
+        // Initialize Firebase references
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+        // Setup notification toggle
         SwitchCompat notificationSwitch = findViewById(R.id.notifications_switch);
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -63,6 +84,8 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
+        // Setup profile edit and delete buttons
+
         findViewById(R.id.btn_edit_profile).setOnClickListener(v -> {
             Toast.makeText(this, "Opening profile editor...", Toast.LENGTH_SHORT).show();
             startActivity(new Intent(this, ProfileEditActivity.class));
@@ -80,6 +103,8 @@ public class ProfileActivity extends AppCompatActivity {
         Button eventHistoryBtn = findViewById(R.id.btnEventHistory);
         eventHistoryBtn.setOnClickListener(view -> startActivity(new Intent(this, EventHistoryActivity.class)));
 
+
+        // Display user name and email
         TextView nameView = findViewById(R.id.tv_profile_name);
         TextView emailView = findViewById(R.id.tv_profile_email);
 
@@ -108,6 +133,7 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
 
+        // Load user info for additional refresh
         loadUserInfo();
 
         // Setup RecyclerView for upcoming events
@@ -129,6 +155,10 @@ public class ProfileActivity extends AppCompatActivity {
         loadUserInfo(); // refresh profile whenever page reopens
     }
 
+    /**
+     * Loads the user's profile information from Firestore and updates
+     * the displayed name and email in the UI.
+     */
     private void loadUserInfo() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) return;
@@ -141,13 +171,18 @@ public class ProfileActivity extends AppCompatActivity {
                         String lastName = doc.getString("lastName");
                         String email = doc.getString("email");
 
-                        ((TextView)findViewById(R.id.tv_profile_name)).setText(firstName + " " + lastName);
-                        ((TextView)findViewById(R.id.tv_profile_email)).setText(email);
+                        ((TextView) findViewById(R.id.tv_profile_name)).setText(firstName + " " + lastName);
+                        ((TextView) findViewById(R.id.tv_profile_email)).setText(email);
                     }
                 });
     }
 
 
+    /**
+     * Deletes the current user's account from Firebase Authentication
+     * and removes their data from Firestore. Clears local preferences
+     * and redirects the user to the login screen upon success.
+     */
     private void deleteAccount() {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -180,33 +215,49 @@ public class ProfileActivity extends AppCompatActivity {
                         Toast.LENGTH_LONG).show());
     }
 
-    private void loadUpcomingEvents() {
 
+    /**
+     * Loads the upcoming events from Firestore for the current user
+     * and updates the RecyclerView adapter with the new list.
+     * Only events in the future are loaded.
+     */
+    private void loadUpcomingEvents() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) return;
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         Date now = new Date();
+        String userId = currentUser.getUid();
 
         db.collection("events")
-                .whereGreaterThan("eventDate", now) // future events only
+                .whereGreaterThan("eventDate", now) // still get future events only
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
-                    List<Event> upcomingEvents = new ArrayList<>();
+                    List<Event> userEvents = new ArrayList<>();
 
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                         Event event = doc.toObject(Event.class);
-                        if (event != null) {
-                            upcomingEvents.add(event);
+
+                        if (event != null && event.getWaitlist() != null) {
+                            List<WaitlistEntrant> entrants = event.getWaitlist().getWaitlistEntrants();
+
+                            if (entrants != null) {
+                                for (WaitlistEntrant entrant : entrants) {
+                                    if (entrant != null && userId.equals(entrant.getUserId())) {
+
+                                        //Add event ONLY if THIS user is part of the waitlist
+                                        userEvents.add(event);
+                                        break;
+                                    }
+                                }
+                            }
                         }
                     }
 
-                    // Update RecyclerView without recreating adapter
-                    upcomingEventsAdapter.submitList(upcomingEvents);
+                    upcomingEventsAdapter.submitList(userEvents);
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Failed to load upcoming events", Toast.LENGTH_SHORT).show()
                 );
     }
-
 }

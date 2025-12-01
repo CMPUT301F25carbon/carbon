@@ -13,6 +13,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+
+/**
+ * Activity for editing the user's profile information.
+ * Users can update their first name, last name, email, and phone number.
+ * Changes are saved to Firebase Firestore.
+ *
+ */
 public class ProfileEditActivity extends AppCompatActivity {
 
     EditText etFirstName, etLastName, etEmail, etPhone;

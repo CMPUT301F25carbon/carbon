@@ -14,6 +14,12 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+
+/**
+ * RecyclerView Adapter to display a list of past events in the user's event history.
+ * Each item shows the event title, the user's status for that event (Selected, Cancelled, etc.),
+ * and the event date.
+ */
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHolder> {
 
     private final List<EventHistory> list;

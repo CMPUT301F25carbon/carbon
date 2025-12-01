@@ -55,66 +55,95 @@
                     android:textColor="#F0DAA0"
                     android:textSize="44sp" />
 
+                <!-- Row 1: Invited / Accepted / Cancelled -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="3"
+                    android:gravity="center"
+                    android:layout_marginBottom="12dp">
+
+                    <Button
+                        android:id="@+id/view_invited_btn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="View Invited"
+                        android:textColor="#FFFFFF"
+                        android:backgroundTint="#ED9029"
+                        android:fontFamily="@font/italiana"
+                        android:layout_marginEnd="6dp" />
+
+                    <Button
+                        android:id="@+id/view_accepted_btn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="View Accepted"
+                        android:textColor="#FFFFFF"
+                        android:backgroundTint="#ED9029"
+                        android:fontFamily="@font/italiana"
+                        android:layout_marginHorizontal="6dp" />
+
+                    <Button
+                        android:id="@+id/view_cancelled_btn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="View Cancelled"
+                        android:textColor="#FFFFFF"
+                        android:backgroundTint="#ED9029"
+                        android:fontFamily="@font/italiana"
+                        android:layout_marginStart="6dp" />
+                </LinearLayout>
+
+
+                <!-- Row 2: Random + Notify side-by-side -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center"
-                    android:weightSum="3"
+                    android:weightSum="2"
                     android:layout_marginBottom="12dp">
+
                     <Button
-                        android:text="View Invited"
-                        android:id="@+id/view_invited_btn"
+                        android:id="@+id/random_sample_btn"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:text="Random Sample"
                         android:textColor="#FFFFFF"
                         android:backgroundTint="#ED9029"
                         android:fontFamily="@font/italiana"
-                        android:layout_marginEnd="6dp"/>
+                        android:layout_marginEnd="6dp" />
 
                     <Button
-                        android:text="View Accepted"
-                        android:id="@+id/view_accepted_btn"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textColor="#FFFFFF"
-                        android:backgroundTint="#ED9029"
-                        android:fontFamily="@font/italiana"
-                        android:layout_marginHorizontal="6dp"/>
-
-                    <Button
-                        android:text="Notify All Waitlist"
                         android:id="@+id/notify_all_btn"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:text="Notify All Waitlist"
                         android:textColor="#FFFFFF"
                         android:backgroundTint="#ED9029"
                         android:fontFamily="@font/italiana"
-                        android:layout_marginStart="6dp"/>
+                        android:layout_marginStart="6dp" />
+
                 </LinearLayout>
 
+
+                <!-- Row 3: Redraw Pending -->
                 <Button
-                    android:id="@+id/random_sample_btn"
+                    android:id="@+id/redraw_btn"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Randomly Sample Users"
+                    android:text="Redraw Pending"
                     android:textColor="#FFFFFF"
                     android:backgroundTint="#ED9029"
                     android:fontFamily="@font/italiana"
-                    android:layout_marginBottom="8dp"/>
+                    android:layout_marginBottom="16dp" />
 
-                <Button
-                    android:text="Redraw pending"
-                    android:id="@+id/redraw_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#FFFFFF"
-                    android:backgroundTint="#ED9029"
-                    android:fontFamily="@font/italiana"
-                    android:layout_marginBottom="16dp"/>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler_waitlist"

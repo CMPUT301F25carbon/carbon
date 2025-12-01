@@ -11,6 +11,12 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
+
+/**
+ * RecyclerView Adapter to display a list of upcoming events.
+ * Each item shows the event's title and date. Designed for use
+ * in the ProfileActivity or any other screen that shows upcoming events.
+ */
 public class UpcomingEventsAdapter extends RecyclerView.Adapter<UpcomingEventsAdapter.EventViewHolder> {
 
     private List<Event> events;

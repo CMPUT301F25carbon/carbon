@@ -39,6 +39,8 @@ public class EventWaitlistActivity extends AppCompatActivity {
     private WaitlistAdapter adapter;
     private ArrayList<WaitlistEntrant> displayedEntrants = new ArrayList<>();
     private Button viewInvitedButton;
+
+    private Button viewCancelledButton;
     private Button redrawButton;
     private Button notifyAllButton;
     private Button randomSampleButton;
@@ -93,6 +95,16 @@ public class EventWaitlistActivity extends AppCompatActivity {
             newIntent.putExtra("EVENT_ID", eventId);
             startActivity(newIntent);
         });
+
+        // --- View Cancelled Entrants button ---
+        viewCancelledButton = findViewById(R.id.view_cancelled_btn);
+        viewCancelledButton.setOnClickListener(v -> {
+            Intent newIntent = new Intent(EventWaitlistActivity.this, CancelledListActivity.class);
+            newIntent.putExtra("EVENT_ID", eventId);
+            startActivity(newIntent);
+        });
+
+
 
 
         // Set up "Notify All Waitlist" button listener
