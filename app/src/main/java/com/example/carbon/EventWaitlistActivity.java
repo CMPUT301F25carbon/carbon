@@ -387,13 +387,19 @@ public class EventWaitlistActivity extends AppCompatActivity {
                     replacement.setStatus("Pending");
                     replacement.setSelectionDate(new Date());
 
-                    db.collection("events").document(eventDocId)
-                            .update("waitlist.waitlistEntrants", allEntrants)
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(this, "Entrant replaced with random selection", Toast.LENGTH_SHORT).show();
-                                loadWaitlistFromDatabase(eventId);
-                                updateTitleCount(allEntrants.size());
-                            })
+                            db.collection("events").document(eventDocId)
+                                    .update("waitlist.waitlistEntrants", allEntrants)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(this, "Entrant replaced with random selection", Toast.LENGTH_SHORT).show();
+                                        // Notify the replacement entrant
+                                        sendSelectionNotifications(
+                                                java.util.Collections.singletonList(replacement),
+                                                event.getUuid(),
+                                                eventTitle != null ? eventTitle : event.getTitle()
+                                        );
+                                        loadWaitlistFromDatabase(eventId);
+                                        updateTitleCount(allEntrants.size());
+                                    })
                             .addOnFailureListener(e -> {
                                 Toast.makeText(this, "Failed to replace entrant", Toast.LENGTH_SHORT).show();
                                 Log.e("EventWaitlistActivity", "Failed to replace entrant", e);
