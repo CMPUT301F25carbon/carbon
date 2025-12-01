@@ -15,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -26,6 +28,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import com.example.carbon.NotificationStatus;
+import com.example.carbon.Notification;
+import com.example.carbon.FirebaseNotificationService;
 
 /**
  * The EventWaitlistActivity holds the logic of the activity_event_waitlist.xml page.
@@ -174,6 +180,7 @@ public class EventWaitlistActivity extends AppCompatActivity {
                             .update("waitlist.waitlistEntrants", updatedEntrants)
                             .addOnSuccessListener(x -> {
                                 Toast.makeText(this, "Random sample complete", Toast.LENGTH_SHORT).show();
+                                sendSelectionNotifications(selected, event.getUuid(), event.getTitle());
                                 loadWaitlistFromDatabase(eventId);
                                 updateTitleCount(waitlistSize);
 
