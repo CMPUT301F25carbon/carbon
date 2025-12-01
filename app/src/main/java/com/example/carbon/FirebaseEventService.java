@@ -1,5 +1,10 @@
 package com.example.carbon;
 
+/**
+ * Utility service for performing event-related Firestore updates such as adding attendees.
+ * Outstanding issues: does not currently handle retries or offline queuing.
+ */
+
 import android.util.Log;
 
 import com.google.firebase.firestore.FirebaseFirestore;

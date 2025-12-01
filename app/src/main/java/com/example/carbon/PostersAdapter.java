@@ -1,5 +1,10 @@
 package com.example.carbon;
 
+/**
+ * RecyclerView adapter for event posters, supporting deletion and preview taps.
+ * Outstanding issues: assumes external logic handles storage cleanup.
+ */
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

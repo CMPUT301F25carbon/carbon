@@ -7,6 +7,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Data model for an event, including metadata, location, scheduling, and waitlist details.
+ * Outstanding issues: attendee and waitlist updates assume Firestore writes succeed elsewhere.
+ */
 public class Event {
     private String title;
     private String description;
@@ -25,10 +29,23 @@ public class Event {
     private String imageURL;
 
 
-    // Required empty public constructor for Firestore
+    /** Required empty public constructor for Firestore. */
     public Event(){}
 
-    // Constructor for a new event with a registration deadline and opening (forces both)
+    /**
+     * Creates a new event instance with provided metadata and waitlist.
+     * @param title display title for the event
+     * @param des description copy
+     * @param totalSpots total number of seats available
+     * @param newEventDate scheduled date of the event
+     * @param eventLocation street address or venue
+     * @param eventCity city portion of the address
+     * @param eventProvince province or state portion of the address
+     * @param eventCountry country portion of the address
+     * @param ownerId organizer identifier
+     * @param waitlist waitlist instance managing entrants
+     * @param imageURL optional poster URL
+     */
     public Event(String title, String des, Integer totalSpots, Date newEventDate, String eventLocation, String eventCity, String eventProvince, String eventCountry, String ownerId, Waitlist waitlist, String imageURL) {
         this.title = title;
         this.description = des;
@@ -47,32 +64,55 @@ public class Event {
     }
 
 
+    /** @return title of the event */
     public String getTitle() { return title; }
+    /** @return description of the event */
     public String getDescription() { return description; }
+    /** @return whether the event is currently active */
     public boolean isActive() { return active; }
+    /** @return total available seats */
     public Integer getTotalSpots() { return totalSpots; }
+    /** @return scheduled event date */
     public Date getEventDate() { return eventDate; }
+    /** @return location line for the event */
     public String getEventLocation() { return eventLocation; }
+    /** @return event city */
     public String getEventCity() { return eventCity; }
+    /** @return event province or state */
     public String getEventProvince() { return eventProvince; }
+    /** @return event country */
     public String getEventCountry() { return eventCountry; }
+    /** @return category assigned for filtering */
     public String getCategory() { return category; }
+    /** Sets the event category label for filtering. */
     public void setCategory(String category) { this.category = category; }
+    /** @return organizer/owner identifier */
     public String getOwnerId() { return ownerId; }
+    /** @return waitlist backing this event */
     public Waitlist getWaitlist() { return waitlist; }
+    /** @return unique identifier generated at creation time */
     public String getUuid() { return uuid; }
+    /** @return URL to the event poster image */
     public String getImageURL() {return imageURL;}
 
+    /** @return mutable list of attendee identifiers */
     public List<String> getAttendeeList() {
         return attendeeList;
     }
 
+    /**
+     * Replace attendee roster with provided list.
+     * @param attendeeList list of attendee user ids
+     */
     public void setAttendeeList(List<String> attendeeList) {
         this.attendeeList = attendeeList;
     }
 
 
-    // This setter ensures Firestore Timestamp is converted to Date
+    /**
+     * Setter ensures Firestore Timestamp is converted to Date.
+     * @param eventDate either {@link Timestamp} or {@link Date}
+     */
     public void setEventDate(Object eventDate) {
         if (eventDate instanceof Timestamp) {
             this.eventDate = ((Timestamp) eventDate).toDate();
@@ -81,9 +121,16 @@ public class Event {
         }
     }
 
+    /** @param title updated display title */
     public void setTitle(String title) { this.title = title; }
+    /** @param description updated description */
     public void setDescription(String description) { this.description = description; }
+    /** @param active whether event remains open */
     public void setActive(boolean active) { this.active = active; }
+    /**
+     * Evaluates whether the event is open based on waitlist window.
+     * @return true when current date is between opening and deadline; false otherwise
+     */
     public boolean getIsActive() {
         if (this.waitlist == null) return false;
         Date currentDate = new Date();
@@ -92,7 +139,8 @@ public class Event {
     }
 
     /**
-     * Adds a user ID to the attendee list if not already present
+     * Adds a user ID to the attendee list if not already present.
+     * @param userId identifier of attendee to add
      */
     public void addAttendee(String userId) {
         if (attendeeList == null) {
@@ -104,7 +152,8 @@ public class Event {
     }
 
     /**
-     * Removes a user ID from the attendee list
+     * Removes a user ID from the attendee list.
+     * @param userId identifier of attendee to remove
      */
     public void removeAttendee(String userId) {
         if (attendeeList != null)  {
@@ -113,15 +162,19 @@ public class Event {
     }
 
     /**
-     * Checks if a given user is already in the attendee list
+     * Checks if a given user is already in the attendee list.
+     * @param userId identifier to look for
+     * @return true when attendee already registered
      */
     public boolean isAttendee(String userId) {
         return attendeeList != null && attendeeList.contains(userId);
     }
 
     /**
-     * Returns the status of a specific user for this event
+     * Returns the status of a specific user for this event.
      * Possible values: "Selected", "Not Selected", "Cancelled", etc.
+     * @param userId identifier to check against waitlist entrants
+     * @return status string; defaults to "Not Selected" when unknown
      */
     public String getUserStatus(String userId) {
         if (waitlist == null || waitlist.getWaitlistEntrants() == null || userId == null) {

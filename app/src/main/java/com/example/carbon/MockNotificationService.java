@@ -1,5 +1,10 @@
 package com.example.carbon;
 
+/**
+ * In-memory implementation of NotificationService for UI testing without hitting Firebase.
+ * Outstanding issues: state resets between runs and does not persist across process restarts.
+ */
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;

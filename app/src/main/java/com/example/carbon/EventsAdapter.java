@@ -1,5 +1,10 @@
 package com.example.carbon;
 
+/**
+ * RecyclerView adapter for rendering event cards for entrant and organizer views.
+ * Outstanding issues: edit-mode actions assume surrounding activity guards Firestore permissions.
+ */
+
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;

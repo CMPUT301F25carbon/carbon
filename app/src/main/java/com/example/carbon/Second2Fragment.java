@@ -1,5 +1,10 @@
 package com.example.carbon;
 
+/**
+ * Template fragment for navigation sample flows; ready for replacement with production UI.
+ * Outstanding issues: currently only mirrors default navigation actions.
+ */
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;

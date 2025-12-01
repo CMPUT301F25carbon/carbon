@@ -1,5 +1,10 @@
 package com.example.carbon;
 
+/**
+ * Helper for fetching event collections from Firestore for various screens.
+ * Outstanding issues: local caching and offline support are not yet implemented.
+ */
+
 import android.util.Log;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;

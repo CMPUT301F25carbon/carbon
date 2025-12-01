@@ -1,5 +1,10 @@
 package com.example.carbon;
 
+/**
+ * Displays and updates the user's profile, upcoming events, and poster uploads.
+ * Outstanding issues: network failures for profile photo updates are surfaced only via toasts.
+ */
+
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;

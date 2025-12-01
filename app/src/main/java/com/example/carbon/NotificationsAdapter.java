@@ -1,5 +1,10 @@
 package com.example.carbon;
 
+/**
+ * RecyclerView adapter for displaying notifications and basic metadata in admin views.
+ * Outstanding issues: actions on items are delegated to parent; no swipe/mark interactions here.
+ */
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

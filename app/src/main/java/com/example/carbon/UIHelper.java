@@ -1,5 +1,10 @@
 package com.example.carbon;
 
+/**
+ * Shared UI utilities for wiring the app header and bottom navigation menu.
+ * Outstanding issues: menu targets are hard-coded; no role-based hiding beyond home selection.
+ */
+
 import android.app.Activity;
 import android.content.Intent;
 import android.widget.ImageButton;

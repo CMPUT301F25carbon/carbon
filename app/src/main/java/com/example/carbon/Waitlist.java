@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Model that tracks entrants for an event along with registration window constraints.
+ * Outstanding issues: isUserOnWaitlist currently checks object equality and should be revisited
+ * if WaitlistEntrant equality semantics change.
+ */
 public class Waitlist {
 
     private List<WaitlistEntrant> waitlistEntrants;       // Firebase stores user IDs (not the objects entirely)
@@ -11,10 +16,15 @@ public class Waitlist {
     private Date deadline;              // When waitlist closes
     private int maxLimit;               // Max number of entrants allowed
 
-    // --- Firestore requires a no-argument constructor ---
+    /** Firestore requires a no-argument constructor. */
     public Waitlist() {}
 
-    // --- Constructor ---
+    /**
+     * Creates a waitlist with explicit entrant limit.
+     * @param opening when signups begin
+     * @param deadline when signups close
+     * @param maxLimit maximum entrants permitted
+     */
     public Waitlist(Date opening, Date deadline, int maxLimit) {
         this.waitlistEntrants = new ArrayList<WaitlistEntrant>();
         this.opening = opening;
@@ -22,6 +32,11 @@ public class Waitlist {
         this.maxLimit = maxLimit;
     }
 
+    /**
+     * Creates a waitlist with no explicit cap.
+     * @param opening when signups begin
+     * @param deadline when signups close
+     */
     public Waitlist(Date opening, Date deadline) {
         this.waitlistEntrants = new ArrayList<WaitlistEntrant>();
         this.opening = opening;
@@ -29,7 +44,11 @@ public class Waitlist {
         this.maxLimit = Integer.MAX_VALUE;
     }
 
-    // --- Join waitlist ---
+    /**
+     * Attempts to join the waitlist within the open/close window and capacity limits.
+     * @param userId entrant identifier
+     * @return true when the entrant was added; false otherwise
+     */
     public boolean joinWaitlist(String userId) {
         Date now = new Date();
 
@@ -57,7 +76,11 @@ public class Waitlist {
         return true;
     }
 
-    // --- Leave waitlist ---
+    /**
+     * Removes a user from the waitlist if present.
+     * @param userId entrant identifier
+     * @return true when removal succeeds
+     */
     public boolean leaveWaitlist(String userId) {
         for (WaitlistEntrant waitlistEntrant : waitlistEntrants) {
             if (waitlistEntrant.getUserId().equals(userId)) {
@@ -70,20 +93,37 @@ public class Waitlist {
         return false;
     }
 
-    // --- Get total count ---
+    /**
+     * @return number of entrants on the waitlist
+     */
     public int getWaitlistCount() {
         return waitlistEntrants.size();
     }
 
-    // --- Check if a user is on waitlist ---
+    /**
+     * Checks whether a user is already on the waitlist.
+     * @param userId entrant identifier
+     * @return true if present
+     */
     public boolean isUserOnWaitlist(String userId) {
-        return waitlistEntrants.contains(userId);
+        if (waitlistEntrants == null || userId == null) {
+            return false;
+        }
+        for (WaitlistEntrant entrant : waitlistEntrants) {
+            if (entrant != null && userId.equals(entrant.getUserId())) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    // --- Getters for Firebase serialization ---
+    /** @return entrants persisted for the waitlist */
     public List<WaitlistEntrant> getWaitlistEntrants() { return waitlistEntrants; }
+    /** @return opening date */
     public Date getOpening() { return opening; }
+    /** @return deadline date */
     public Date getDeadline() { return deadline; }
+    /** @return maximum allowed entrants */
     public int getMaxLimit() { return maxLimit; }
 
 }

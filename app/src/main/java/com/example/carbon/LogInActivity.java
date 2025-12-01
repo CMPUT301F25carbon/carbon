@@ -1,5 +1,10 @@
 package com.example.carbon;
 
+/**
+ * Handles email/password authentication and device-based sign-in entry points.
+ * Outstanding issues: network failures surface only through toasts; add retry or offline cache later.
+ */
+
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
