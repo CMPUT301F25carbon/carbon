@@ -172,4 +172,5 @@ public class EventHistoryActivity extends AppCompatActivity {
         // User never signed up for this event
         return "NOT_IN_EVENT";
     }
+
 }
