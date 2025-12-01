@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Button;
 import android.widget.Toast;
+import android.widget.ProgressBar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -22,6 +23,8 @@ import java.util.List;
  */
 public class NotificationActivity extends AppCompatActivity {
     private LinearLayout notificationContainer;
+    private TextView emptyView;
+    private ProgressBar progressBar;
     private NotificationService notificationService;
     private static final boolean USE_MOCK_SERVICE = false; //set to false for firebase
 
@@ -33,12 +36,20 @@ public class NotificationActivity extends AppCompatActivity {
         UIHelper.setupHeaderAndMenu(this);
 
         notificationContainer = findViewById(R.id.notifications_list_container);
+        emptyView = findViewById(R.id.notifications_empty);
+        progressBar = findViewById(R.id.notifications_progress);
 
         // Choose between mock and firebase service
         if (USE_MOCK_SERVICE) {
             notificationService = new MockNotificationService();
         } else {
             notificationService = new FirebaseNotificationService();
+        }
+
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            Toast.makeText(this, "Please log in to view notifications", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
 
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -53,8 +64,12 @@ public class NotificationActivity extends AppCompatActivity {
      * @param userId the ID of the user whose notifications are being loaded
      */
     private void loadNotifications(String userId) {
+        progressBar.setVisibility(View.VISIBLE);
         notificationService.fetchNotifications(userId, notifications -> {
-            runOnUiThread(() -> displayNotifications(notifications));
+            runOnUiThread(() -> {
+                progressBar.setVisibility(View.GONE);
+                displayNotifications(notifications);
+            });
         });
     }
 
@@ -106,5 +121,7 @@ public class NotificationActivity extends AppCompatActivity {
 
             notificationContainer.addView(itemView);
         }
+
+        emptyView.setVisibility(notifications == null || notifications.isEmpty() ? View.VISIBLE : View.GONE);
     }
 }
