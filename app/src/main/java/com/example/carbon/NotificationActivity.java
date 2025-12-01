@@ -126,11 +126,14 @@ public class NotificationActivity extends AppCompatActivity {
                 }
                 notificationService.markAsAccepted(notification,
                         () -> runOnUiThread(() -> {
-                            Toast.makeText(this, "Accepted", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Event accepted", Toast.LENGTH_SHORT).show();
                             notificationContainer.removeView(itemView);
                             emptyView.setVisibility(notificationContainer.getChildCount() == 0 ? View.VISIBLE : View.GONE);
+                            Intent intent = new Intent(this, EventDetailsActivity.class);
+                            intent.putExtra(EventDetailsActivity.EXTRA_EVENT_ID, notification.getEventId());
+                            startActivity(intent);
                         }),
-                        e -> runOnUiThread(() -> Toast.makeText(this, "Failed to accept: " + e.getMessage(), Toast.LENGTH_LONG).show()));
+                        e -> runOnUiThread(() -> Toast.makeText(this, "Unable to accept right now. Please try again.", Toast.LENGTH_LONG).show()));
             });
 
             declineBtn.setOnClickListener(v -> {
@@ -140,11 +143,11 @@ public class NotificationActivity extends AppCompatActivity {
                 }
                 notificationService.markAsDeclined(notification,
                         () -> runOnUiThread(() -> {
-                            Toast.makeText(this, "Declined", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Event declined", Toast.LENGTH_SHORT).show();
                             notificationContainer.removeView(itemView);
                             emptyView.setVisibility(notificationContainer.getChildCount() == 0 ? View.VISIBLE : View.GONE);
                         }),
-                        e -> runOnUiThread(() -> Toast.makeText(this, "Failed to decline: " + e.getMessage(), Toast.LENGTH_LONG).show()));
+                        e -> runOnUiThread(() -> Toast.makeText(this, "Unable to decline right now. Please try again.", Toast.LENGTH_LONG).show()));
             });
 
             itemView.setOnClickListener(v -> {
