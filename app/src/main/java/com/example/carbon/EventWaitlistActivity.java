@@ -33,6 +33,10 @@ import com.example.carbon.NotificationStatus;
 import com.example.carbon.Notification;
 import com.example.carbon.FirebaseNotificationService;
 
+import com.example.carbon.NotificationStatus;
+import com.example.carbon.Notification;
+import com.example.carbon.FirebaseNotificationService;
+
 /**
  * The EventWaitlistActivity holds the logic of the activity_event_waitlist.xml page.
  * Allows an organizer to view the waitlist of the event that they own.
@@ -50,6 +54,7 @@ public class EventWaitlistActivity extends AppCompatActivity {
     private Button randomSampleButton;
     private TextView titleView;
     private String eventId;
+    private final FirebaseNotificationService notificationService = new FirebaseNotificationService();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -214,7 +219,6 @@ public class EventWaitlistActivity extends AppCompatActivity {
                     new Date(),
                     "chosen"
             );
-            FirebaseNotificationService notificationService = new FirebaseNotificationService();
             notificationService.sendNotification(notification, () -> {}, e -> Log.e("EventWaitlistActivity", "Failed to send selection notification", e));
         }
     }
