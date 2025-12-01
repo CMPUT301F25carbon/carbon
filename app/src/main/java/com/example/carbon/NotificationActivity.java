@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -73,18 +75,30 @@ public class NotificationActivity extends AppCompatActivity {
 
             TextView titleView = itemView.findViewById(R.id.notification_title);
             TextView messageView = itemView.findViewById(R.id.notification_message);
+            LinearLayout actions = itemView.findViewById(R.id.notification_actions);
+            Button acceptBtn = itemView.findViewById(R.id.btn_accept_notification);
+            Button declineBtn = itemView.findViewById(R.id.btn_decline_notification);
 
             titleView.setText(notification.getEventName());
             messageView.setText(notification.getMessage());
 
+            boolean actionable = "invitation".equalsIgnoreCase(notification.getType()) || "chosen".equalsIgnoreCase(notification.getType());
+            actions.setVisibility(actionable ? View.VISIBLE : View.GONE);
+
+            acceptBtn.setOnClickListener(v -> {
+                notificationService.markAsAccepted(notification,
+                        () -> runOnUiThread(() -> Toast.makeText(this, "Accepted", Toast.LENGTH_SHORT).show()),
+                        e -> runOnUiThread(() -> Toast.makeText(this, "Failed to accept", Toast.LENGTH_SHORT).show()));
+            });
+
+            declineBtn.setOnClickListener(v -> {
+                notificationService.markAsDeclined(notification,
+                        () -> runOnUiThread(() -> Toast.makeText(this, "Declined", Toast.LENGTH_SHORT).show()),
+                        e -> runOnUiThread(() -> Toast.makeText(this, "Failed to decline", Toast.LENGTH_SHORT).show()));
+            });
+
             itemView.setOnClickListener(v -> {
-                if ("invitation".equalsIgnoreCase(notification.getType()) || "chosen".equalsIgnoreCase(notification.getType())) {
-                    // Show Accept/Decline dialog for both invitation and chosen notifications
-                    InvitationDialog dialog = new InvitationDialog(
-                            this, notification, notificationService, itemView
-                    );
-                    dialog.show();
-                } else {
+                if (!actionable) {
                     notificationService.markAsSeen(notification);
                     messageView.setTextColor(getColor(android.R.color.darker_gray));
                 }
