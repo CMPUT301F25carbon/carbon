@@ -161,15 +161,10 @@ public class CreateEventActivity extends AppCompatActivity {
         eventCategorySpinner = findViewById(R.id.create_event_category_spinner);
 
         // Populate categories with a required selection
-        ArrayList<String> categories = new ArrayList<>();
-        categories.add("Select Category");
-        categories.addAll(Arrays.asList(getResources().getStringArray(R.array.event_categories)));
-
         ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, categories);
+                android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.event_categories_with_prompt));
         categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         eventCategorySpinner.setAdapter(categoryAdapter);
-        eventCategorySpinner.setSelection(0);
     }
 
     /**
