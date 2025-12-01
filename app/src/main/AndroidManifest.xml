@@ -100,6 +100,11 @@
             android:exported="true"
             android:theme="@style/Theme.Carbon" />
 
+        <activity
+            android:name=".CancelledListActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Carbon" />
+
 
         <activity
             android:name=".NotificationActivity"

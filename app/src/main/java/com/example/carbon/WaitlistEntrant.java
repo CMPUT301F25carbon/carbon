@@ -23,6 +23,10 @@ public class WaitlistEntrant {
     private String status;
     private Date selectionDate;
 
+    // Only used if status == "Cancelled"
+    private String cancellationReason;
+
+
     // --- Firestore requires a no-argument constructor ---
     public WaitlistEntrant() {
     }
@@ -87,6 +91,15 @@ public class WaitlistEntrant {
      */
     public void setSelectionDate(Date selectionDate) {
         this.selectionDate = selectionDate;
+    }
+
+
+    public String getCancellationReason() {
+        return cancellationReason;
+    }
+
+    public void setCancellationReason(String cancellationReason) {
+        this.cancellationReason = cancellationReason;
     }
 
     /**
