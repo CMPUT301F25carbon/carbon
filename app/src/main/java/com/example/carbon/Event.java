@@ -1,5 +1,7 @@
 package com.example.carbon;
 
+import com.google.firebase.Timestamp;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -70,6 +72,14 @@ public class Event {
     }
 
 
+    // This setter ensures Firestore Timestamp is converted to Date
+    public void setEventDate(Object eventDate) {
+        if (eventDate instanceof Timestamp) {
+            this.eventDate = ((Timestamp) eventDate).toDate();
+        } else if (eventDate instanceof Date) {
+            this.eventDate = (Date) eventDate;
+        }
+    }
 
     public void setTitle(String title) { this.title = title; }
     public void setDescription(String description) { this.description = description; }
@@ -108,5 +118,26 @@ public class Event {
     public boolean isAttendee(String userId) {
         return attendeeList != null && attendeeList.contains(userId);
     }
+
+    /**
+     * Returns the status of a specific user for this event
+     * Possible values: "Selected", "Not Selected", "Cancelled", etc.
+     */
+    public String getUserStatus(String userId) {
+        if (waitlist == null || waitlist.getWaitlistEntrants() == null || userId == null) {
+            return "Not Selected";
+        }
+
+        for (WaitlistEntrant entrant : waitlist.getWaitlistEntrants()) {
+            if (entrant != null && userId.equals(entrant.getUserId())) {
+                String status = entrant.getStatus();
+                return status != null ? status : "Not Selected";
+            }
+        }
+
+        // User not found in waitlist
+        return "Not Selected";
+    }
+
 
 }

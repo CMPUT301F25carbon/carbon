@@ -6,22 +6,26 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.text.TextUtils;
+import android.widget.ImageView;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class EventDetailsActivity extends AppCompatActivity {
@@ -32,11 +36,13 @@ public class EventDetailsActivity extends AppCompatActivity {
     public static final String EXTRA_EVENT_COUNTS = "EXTRA_EVENT_COUNTS"; // e.g., "11 registrations / 5 spots"
 
     private TextView tvTitle, tvDate, tvCounts, tvDescription, tvCountdown;
-    private RecyclerView rvRegistrants;
-    private AttendeesAdapter attendeesAdapter;
+    private ImageView eventPoster;
+    private Button signUpButton;
 
     private String eventId;
+    private String eventDocId;
     private Event currentEvent;
+    private List<WaitlistEntrant> currentWaitlistEntrants = new ArrayList<>();
     private Handler countdownHandler;
     private Runnable countdownRunnable;
 
@@ -51,7 +57,8 @@ public class EventDetailsActivity extends AppCompatActivity {
         tvCounts = findViewById(R.id.tv_event_counts);
         tvDescription = findViewById(R.id.tv_event_description);
         tvCountdown = findViewById(R.id.tv_countdown);
-        rvRegistrants = findViewById(R.id.rv_registrants);
+        signUpButton = findViewById(R.id.btn_sign_up);
+        eventPoster = findViewById(R.id.img_event_poster);
         
         countdownHandler = new Handler(Looper.getMainLooper());
 
@@ -86,11 +93,8 @@ public class EventDetailsActivity extends AppCompatActivity {
         tvTitle.setText(title != null ? title : "Event");
         tvDate.setText(date != null ? date : "");
         tvCounts.setText(counts != null ? counts : "");
-
-        // Setup attendees RecyclerView
-        rvRegistrants.setLayoutManager(new LinearLayoutManager(this));
-        attendeesAdapter = new AttendeesAdapter();
-        rvRegistrants.setAdapter(attendeesAdapter);
+        
+        signUpButton.setOnClickListener(v -> joinWaitlist());
     }
 
     /**
@@ -117,7 +121,12 @@ public class EventDetailsActivity extends AppCompatActivity {
                     Event event = document.toObject(Event.class);
                     currentEvent = event;
                     EventDetailsActivity.this.eventId = event.getUuid();
-                    
+                    EventDetailsActivity.this.eventDocId = document.getId();
+                    currentWaitlistEntrants = event != null && event.getWaitlist() != null &&
+                            event.getWaitlist().getWaitlistEntrants() != null
+                            ? new ArrayList<>(event.getWaitlist().getWaitlistEntrants())
+                            : new ArrayList<>();
+
                     tvTitle.setText(event.getTitle());
                     if (event.getEventDate() != null) {
                         // Format date and time
@@ -137,79 +146,224 @@ public class EventDetailsActivity extends AppCompatActivity {
                     } else {
                         tvDescription.setText("No description available.");
                     }
-                    
-                    // Load and display attendees
-                    loadAttendees(event);
+                    String imageUrl = event.getImageURL();
+                    if (!TextUtils.isEmpty(imageUrl) && eventPoster != null) {
+                        Glide.with(this)
+                                .load(imageUrl)
+                                .placeholder(R.drawable.carbon_start_logo)
+                                .centerCrop()
+                                .into(eventPoster);
+                    } else if (eventPoster != null) {
+                        eventPoster.setImageResource(R.drawable.carbon_start_logo);
+                    }
+
+                    updateCounts(currentEvent, currentWaitlistEntrants);
+                    updateSignUpButton(); //set the correct button state
 
                 } else {
                     Toast.makeText(EventDetailsActivity.this, "Event not found.", Toast.LENGTH_SHORT).show();
                     finish();
                 }
-            } else {
-                Toast.makeText(EventDetailsActivity.this, "Failed to load event data.", Toast.LENGTH_SHORT).show();
-                finish();
-            }
+                } else {
+                    Toast.makeText(EventDetailsActivity.this, "Failed to load event data.", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
         });
     }
 
     /**
-     * Loads attendees from the event and displays them
-     * @param event The event object containing attendee list
+     * Updates the counts text using either the event's waitlist or an override list.
      */
-    private void loadAttendees(Event event) {
-        if (event == null || event.getAttendeeList() == null || event.getAttendeeList().isEmpty()) {
-            attendeesAdapter.updateList(new ArrayList<>());
+    private void updateCounts(Event event) {
+        updateCounts(event, currentWaitlistEntrants);
+    }
+
+    private void updateCounts(Event event, List<WaitlistEntrant> overrideEntrants) {
+        int waitlistCount = 0;
+        if (overrideEntrants != null) {
+            waitlistCount = overrideEntrants.size();
+        } else if (event != null && event.getWaitlist() != null && event.getWaitlist().getWaitlistEntrants() != null) {
+            waitlistCount = event.getWaitlist().getWaitlistEntrants().size();
+        }
+        Integer spots = event != null ? event.getTotalSpots() : null;
+        String text = waitlistCount + " on waitlist";
+        if (spots != null) {
+            text += " / " + spots + " spots";
+        }
+        tvCounts.setText(text);
+    }
+
+    /**
+     * Adds the current user to the waitlist in Firestore.
+     */
+    private void joinWaitlist() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            Toast.makeText(this, "Please log in to join the waitlist", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, LogInActivity.class));
+            return;
+        }
+        if (currentEvent == null || eventDocId == null || eventDocId.isEmpty()) {
+            Toast.makeText(this, "Event not loaded yet", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        List<String> attendeeIds = event.getAttendeeList();
-        String[] placeholderNames = {"John", "Luke", "Aahil"};
-        int[] placeholderIndex = {0};
-        
-        // Initialize list with placeholders (will be replaced if user found)
-        List<String> attendeeNames = new ArrayList<>();
-        for (int i = 0; i < attendeeIds.size(); i++) {
-            attendeeNames.add(placeholderNames[placeholderIndex[0] % placeholderNames.length]);
-            placeholderIndex[0]++;
+        List<WaitlistEntrant> entrants = new ArrayList<>(currentWaitlistEntrants);
+
+        Integer spots = currentEvent.getTotalSpots();
+        if (spots != null && spots > 0 && entrants.size() >= spots * 5) {
+            Toast.makeText(this, "Waitlist is full for this event", Toast.LENGTH_LONG).show();
+            return;
         }
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        int[] loadedCount = {0};
-        int totalCount = attendeeIds.size();
-
-        for (int i = 0; i < attendeeIds.size(); i++) {
-            final int index = i;
-            String userId = attendeeIds.get(i);
-            
-            if (userId == null || userId.isEmpty()) {
-                // Keep placeholder for invalid userId
-                loadedCount[0]++;
-                if (loadedCount[0] == totalCount) {
-                    attendeesAdapter.updateList(attendeeNames);
-                }
-                continue;
+        for (WaitlistEntrant e : entrants) {
+            if (e != null && Objects.equals(e.getUserId(), user.getUid())) {
+            Toast.makeText(this, "You are already on the waitlist", Toast.LENGTH_SHORT).show();
+            return;
             }
+        }
 
-            db.collection("users")
-                    .document(userId)
-                    .get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
-                            User user = task.getResult().toObject(User.class);
-                            if (user != null && user.getFirstName() != null && user.getLastName() != null) {
-                                attendeeNames.set(index, user.getFirstName() + " " + user.getLastName());
-                            }
-                            // Otherwise keep placeholder
-                        }
-                        // If user not found, keep placeholder
-                        
-                        loadedCount[0]++;
-                        if (loadedCount[0] == totalCount) {
-                            attendeesAdapter.updateList(attendeeNames);
-                        }
-                    });
+        ensureUserProfile(user, () -> {
+            WaitlistEntrant newEntrant = new WaitlistEntrant(user.getUid(), new Date());
+            entrants.add(newEntrant);
+            currentWaitlistEntrants = entrants;
+
+            FirebaseFirestore.getInstance().collection("events")
+                    .document(eventDocId)
+                    .update("waitlist.waitlistEntrants", entrants)
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(this, "Added to waitlist", Toast.LENGTH_SHORT).show();
+                        updateCounts(currentEvent, entrants);
+                        updateSignUpButton();
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(this, "Failed to join waitlist", Toast.LENGTH_LONG).show());
+        });
+    }
+
+    /**
+     * Ensures anonymous/device users provide name and email before joining waitlist.
+     */
+    private void ensureUserProfile(FirebaseUser user, Runnable onReady) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(user.getUid()).get()
+                .addOnSuccessListener(doc -> {
+                    String first = doc.getString("firstName");
+                    String last = doc.getString("lastName");
+                    String email = doc.getString("email");
+                    boolean needsInfo = TextUtils.isEmpty(first) || TextUtils.isEmpty(last) || TextUtils.isEmpty(email);
+
+                    if (!needsInfo) {
+                        onReady.run();
+                        return;
+                    }
+                    showProfilePrompt(user, first, last, email, onReady);
+                })
+                .addOnFailureListener(e -> {
+                    showProfilePrompt(user, null, null, null, onReady);
+                });
+    }
+
+    private void showProfilePrompt(FirebaseUser user, String first, String last, String email, Runnable onReady) {
+        android.widget.LinearLayout layout = new android.widget.LinearLayout(this);
+        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        int pad = (int) (16 * getResources().getDisplayMetrics().density);
+        layout.setPadding(pad, pad, pad, pad);
+
+        android.widget.EditText firstInput = new android.widget.EditText(this);
+        firstInput.setHint("First Name");
+        if (!TextUtils.isEmpty(first)) firstInput.setText(first);
+        layout.addView(firstInput);
+
+        android.widget.EditText lastInput = new android.widget.EditText(this);
+        lastInput.setHint("Last Name");
+        if (!TextUtils.isEmpty(last)) lastInput.setText(last);
+        layout.addView(lastInput);
+
+        android.widget.EditText emailInput = new android.widget.EditText(this);
+        emailInput.setHint("Email");
+        emailInput.setInputType(android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        if (!TextUtils.isEmpty(email)) emailInput.setText(email);
+        layout.addView(emailInput);
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Enter your details")
+                .setView(layout)
+                .setPositiveButton("Save", (dialog, which) -> {
+                    String f = firstInput.getText().toString().trim();
+                    String l = lastInput.getText().toString().trim();
+                    String e = emailInput.getText().toString().trim();
+                    if (TextUtils.isEmpty(f) || TextUtils.isEmpty(l) || TextUtils.isEmpty(e)) {
+                        Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    FirebaseFirestore.getInstance().collection("users")
+                            .document(user.getUid())
+                            .set(new java.util.HashMap<String, Object>() {{
+                                put("firstName", f);
+                                put("lastName", l);
+                                put("email", e);
+                                put("anonymous", false);
+                                put("role", "entrant");
+                            }}, com.google.firebase.firestore.SetOptions.merge())
+                            .addOnSuccessListener(x -> onReady.run())
+                            .addOnFailureListener(err -> Toast.makeText(EventDetailsActivity.this, "Failed to save profile", Toast.LENGTH_LONG).show());
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private boolean isUserOnWaitlist(FirebaseUser user) {
+        if (user == null || currentWaitlistEntrants == null) return false;
+        for (WaitlistEntrant e : currentWaitlistEntrants) {
+            if (e != null && Objects.equals(e.getUserId(), user.getUid())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void leaveWaitlist(FirebaseUser user) {
+        if (currentWaitlistEntrants == null || eventDocId == null) return;
+
+        List<WaitlistEntrant> updatedList = new ArrayList<>(currentWaitlistEntrants);
+        boolean removed = updatedList.removeIf(e -> e != null && Objects.equals(e.getUserId(), user.getUid()));
+
+        if (!removed) {
+            Toast.makeText(this, "You are not on the waitlist", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Update Firestore
+        FirebaseFirestore.getInstance().collection("events")
+                .document(eventDocId)
+                .update("waitlist.waitlistEntrants", updatedList)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "You have left the waitlist", Toast.LENGTH_SHORT).show();
+                    currentWaitlistEntrants = updatedList;
+                    updateCounts(currentEvent, currentWaitlistEntrants);
+                    updateSignUpButton(); // update button back to "Sign Up"
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to leave waitlist", Toast.LENGTH_LONG).show());
+    }
+
+
+    private void updateSignUpButton() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) return;
+
+        if (isUserOnWaitlist(user)) {
+            signUpButton.setText("Leave Waitlist");
+            signUpButton.setBackgroundColor(0xFFD32F2F); //red color
+            signUpButton.setOnClickListener(v -> leaveWaitlist(user));
+        } else {
+            signUpButton.setText("Sign Up");
+            signUpButton.setBackgroundColor(0xFFED9029);
+            signUpButton.setOnClickListener(v -> joinWaitlist());
         }
     }
+
+
+
 
     /**
      * Starts the countdown timer for the event
@@ -265,4 +419,3 @@ public class EventDetailsActivity extends AppCompatActivity {
         }
     }
 }
-

@@ -26,6 +26,8 @@ public class DisplayQRCodeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_qrcode);
 
+        UIHelper.setupHeaderAndMenu(this);
+
         // Initialize views
         qrCodeImageView = findViewById(R.id.display_qrcode_image_view);
         doneButton = findViewById(R.id.display_qrcode_done_btn);

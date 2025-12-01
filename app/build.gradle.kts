@@ -64,4 +64,5 @@ dependencies {
     testImplementation("org.mockito:mockito-core:5.11.0")
     // Glide – Image loading library
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
 }

@@ -26,17 +26,37 @@
         android:padding="16dp"
         android:background="@drawable/rounded_panel">
 
-        <!-- Title -->
-        <TextView
-            android:id="@+id/tv_event_title"
-            android:layout_width="wrap_content"
+        <!-- Title + Sign Up -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Urban Gardening 101"
-            android:textColor="#FCD694"
-            android:textSize="28sp"
-            android:fontFamily="@font/italiana"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/tv_event_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Urban Gardening 101"
+                android:textColor="#FCD694"
+                android:textSize="28sp"
+                android:fontFamily="@font/italiana" />
+
+            <Button
+                android:id="@+id/btn_sign_up"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sign Up"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#ED9029"
+                android:fontFamily="@font/italiana"
+                android:minHeight="0dp"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp" />
+        </LinearLayout>
 
         <!-- Meta row -->
         <LinearLayout
@@ -69,6 +89,24 @@
         </LinearLayout>
 
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp">
+            <ImageView
+                android:id="@+id/img_event_poster"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:background="@drawable/rounded_edittext"
+                android:backgroundTint="#A67852"
+                android:contentDescription="Event Poster"
+                android:scaleType="centerCrop"
+                android:src="@drawable/carbon_start_logo" />
+        </LinearLayout>
+
         <!-- Description -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -88,21 +126,6 @@
                 android:fontFamily="@font/italiana"
                 android:textSize="16sp"/>
         </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Registrants"
-            android:textColor="#FCD694"
-            android:fontFamily="@font/italiana"
-            android:textSize="18sp"
-            android:layout_marginBottom="8dp"/>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_registrants"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
 
         <!-- Countdown Timer -->
         <LinearLayout

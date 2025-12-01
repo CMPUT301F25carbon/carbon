@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/edit_profile_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#8C154F">
+
+    <!-- Top header -->
+    <include
+        android:id="@+id/include_header"
+        layout="@layout/top_header" />
+
+    <!-- Bottom navigation -->
+    <include
+        android:id="@+id/include_bottom_menu"
+        layout="@layout/bottom_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
+
+    <!-- Main content panel -->
+    <FrameLayout
+        android:id="@+id/edit_profile_card"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/include_header"
+        android:layout_above="@id/include_bottom_menu"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="32dp"
+        android:background="@drawable/rounded_panel">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingBottom="16dp"
+            android:layout_above="@id/include_bottom_menu">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+
+                <!-- Page title -->
+                <TextView
+                    android:id="@+id/edit_profile_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Edit Profile"
+                    android:textColor="#F0DAA0"
+                    android:textSize="36sp"
+                    android:fontFamily="@font/italiana"
+                    android:gravity="center"
+                    android:layout_marginBottom="24dp"/>
+
+                <!-- First Name -->
+                <EditText
+                    android:id="@+id/et_first_name"
+                    android:hint="First Name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#FCD694"
+                    android:backgroundTint="#FCD694"
+                    android:textColorHint="#E8C3D6"
+                    android:padding="12dp"
+                    android:layout_marginBottom="12dp"
+                    android:fontFamily="@font/italiana"/>
+
+                <!-- Last Name -->
+                <EditText
+                    android:id="@+id/et_last_name"
+                    android:hint="Last Name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#FCD694"
+                    android:backgroundTint="#FCD694"
+                    android:textColorHint="#E8C3D6"
+                    android:padding="12dp"
+                    android:layout_marginBottom="16dp"
+                    android:fontFamily="@font/italiana"/>
+
+                <!-- Email -->
+                <EditText
+                    android:id="@+id/et_email"
+                    android:hint="Email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#FCD694"
+                    android:backgroundTint="#FCD694"
+                    android:textColorHint="#E8C3D6"
+                    android:padding="12dp"
+                    android:layout_marginBottom="16dp"
+                    android:fontFamily="@font/italiana"/>
+
+                <!-- Phone -->
+                <EditText
+                    android:id="@+id/et_phone"
+                    android:hint="Phone Number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#FCD694"
+                    android:backgroundTint="#FCD694"
+                    android:textColorHint="#E8C3D6"
+                    android:padding="12dp"
+                    android:layout_marginBottom="24dp"
+                    android:fontFamily="@font/italiana"/>
+
+                <!-- Save button -->
+                <Button
+                    android:id="@+id/btn_save"
+                    android:text="Save"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#FCD694"
+                    android:textColor="#731B3F"
+                    android:fontFamily="@font/italiana"/>
+            </LinearLayout>
+        </ScrollView>
+    </FrameLayout>
+</RelativeLayout>

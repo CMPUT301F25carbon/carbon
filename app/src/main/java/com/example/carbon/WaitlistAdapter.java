@@ -66,10 +66,12 @@ public class WaitlistAdapter extends RecyclerView.Adapter<WaitlistAdapter.ViewHo
         // --- Use the new callback method ---
         String[] placeholderNames = {"John", "Luke", "Aahil"};
         int placeholderIndex = position % placeholderNames.length;
-        
+
+
         entrant.fetchUserFromDB(new WaitlistEntrant.UserCallback() {
             @Override
             public void onUserFetched(User user) {
+
                 // This code runs ONLY when the user is successfully fetched
                 if (user != null && user.getFirstName() != null && user.getLastName() != null) {
                     holder.userIdTextView.setText("Name: " + user.getFirstName() + " " + user.getLastName());
@@ -95,18 +97,35 @@ public class WaitlistAdapter extends RecyclerView.Adapter<WaitlistAdapter.ViewHo
         }
 
         // Add status
-        if (!Objects.equals(entrant.getStatus(), "Not Selected")) { // If is any status other than selected
-            holder.statusTextView.setText(entrant.getStatus());
-            holder.selectEntrantButton.setVisibility(View.GONE);
-        } else {
-            holder.statusTextView.setText(entrant.getStatus());
+        String status = entrant.getStatus();
+        holder.statusTextView.setText(status);
+
+        if (Objects.equals(status, "Not Selected")) {
             holder.selectEntrantButton.setVisibility(View.VISIBLE);
             holder.selectEntrantButton.setOnClickListener(v -> {
                 if (selectClickListener != null) {
                     selectClickListener.onSelectClick(entrant, position);
                 }
             });
+        } else {
+            holder.selectEntrantButton.setVisibility(View.GONE);
+
+            // show reason if status is Cancelled
+            if ("Cancelled".equals(status)) {
+                holder.reason.setVisibility(View.VISIBLE);
+
+                String reason = entrant.getCancellationReason();
+
+                holder.reason.setText(
+                        (reason != null && !reason.isEmpty())
+                                ? "Reason: " + reason
+                                : "Reason not provided"
+                );
+            } else {
+                holder.reason.setVisibility(View.GONE);
+            }
         }
+
     }
 
     /**
@@ -138,6 +157,8 @@ public class WaitlistAdapter extends RecyclerView.Adapter<WaitlistAdapter.ViewHo
         public TextView statusTextView;
         public Button selectEntrantButton;
 
+        public TextView reason;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             // Find the views from the inflated layout
@@ -145,6 +166,7 @@ public class WaitlistAdapter extends RecyclerView.Adapter<WaitlistAdapter.ViewHo
             registrationDateTextView = itemView.findViewById(R.id.tv_registration_date);
             statusTextView = itemView.findViewById(R.id.tv_status);
             selectEntrantButton = itemView.findViewById(R.id.select_entrant_btn);
+            reason = itemView.findViewById(R.id.tv_reason);
         }
     }
 }

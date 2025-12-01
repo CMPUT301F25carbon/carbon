@@ -62,29 +62,31 @@ public class EventList {
      */
     public void fetchOrganizerEvents(String organizerId, EventListCallback callback) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        Query query = db.collection("events").whereEqualTo("ownerId", organizerId);
+        db.collection("events")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        ArrayList<Event> fetchedEvents = new ArrayList<>();
+                        for (DocumentSnapshot document : task.getResult()) {
+                            try {
+                                Event event = document.toObject(Event.class);
+                                if (event == null) continue;
 
-        query.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful() && task.getResult() != null) {
-                ArrayList<Event> fetchedEvents = new ArrayList<>();
-                for (DocumentSnapshot document : task.getResult()) {
-                    try {
-                        Event event = document.toObject(Event.class);
-                        if (event != null) {
-                            fetchedEvents.add(event);
+                                String ownerId = event.getOwnerId();
+                                // Include events owned by the organizer, and also unassigned ones so they don't disappear.
+                                if (organizerId.equals(ownerId) || ownerId == null || ownerId.isEmpty()) {
+                                    fetchedEvents.add(event);
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error converting document to Event object", e);
+                            }
                         }
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error converting document to Event object", e);
+                        callback.onEventsFetched(fetchedEvents);
+                    } else {
+                        Log.w(TAG, "Error getting documents for organizer.", task.getException());
+                        callback.onError(task.getException());
                     }
-                }
-                // Data is ready, send it back via the callback
-                callback.onEventsFetched(fetchedEvents);
-            } else {
-                // An error occurred, send it back via the callback
-                Log.w(TAG, "Error getting documents for organizer.", task.getException());
-                callback.onError(task.getException());
-            }
-        });
+                });
     }
 
     // Add a single event to the list

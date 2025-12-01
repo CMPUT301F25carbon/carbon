@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -14,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -21,8 +24,18 @@ import com.google.firebase.firestore.Query;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+
+import com.example.carbon.NotificationStatus;
+import com.example.carbon.Notification;
+import com.example.carbon.FirebaseNotificationService;
+
+import com.example.carbon.NotificationStatus;
+import com.example.carbon.Notification;
+import com.example.carbon.FirebaseNotificationService;
 
 /**
  * The EventWaitlistActivity holds the logic of the activity_event_waitlist.xml page.
@@ -36,8 +49,14 @@ public class EventWaitlistActivity extends AppCompatActivity {
     private WaitlistAdapter adapter;
     private ArrayList<WaitlistEntrant> displayedEntrants = new ArrayList<>();
     private Button viewInvitedButton;
+
+    private Button viewCancelledButton;
+    private Button redrawButton;
     private Button notifyAllButton;
+    private Button randomSampleButton;
+    private TextView titleView;
     private String eventId;
+    private final FirebaseNotificationService notificationService = new FirebaseNotificationService();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +79,7 @@ public class EventWaitlistActivity extends AppCompatActivity {
         adapter.setOnSelectClickListener(this::handleSelectEntrant);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
+        titleView = findViewById(R.id.eventWaitlist_title);
 
         // Initialize your Waitlist
         waitlist = new Waitlist();
@@ -80,9 +100,140 @@ public class EventWaitlistActivity extends AppCompatActivity {
             startActivity(newIntent);
         });
 
+        Button viewAcceptedButton = findViewById(R.id.view_accepted_btn);
+        viewAcceptedButton.setOnClickListener(v -> {
+            Intent newIntent = new Intent(EventWaitlistActivity.this, AcceptedListActivity.class);
+            newIntent.putExtra("EVENT_ID", eventId);
+            startActivity(newIntent);
+        });
+
+        // --- View Cancelled Entrants button ---
+        viewCancelledButton = findViewById(R.id.view_cancelled_btn);
+        viewCancelledButton.setOnClickListener(v -> {
+            Intent newIntent = new Intent(EventWaitlistActivity.this, CancelledListActivity.class);
+            newIntent.putExtra("EVENT_ID", eventId);
+            startActivity(newIntent);
+        });
+
+
+
+
         // Set up "Notify All Waitlist" button listener
         notifyAllButton = findViewById(R.id.notify_all_btn);
         notifyAllButton.setOnClickListener(v -> showBroadcastDialog());
+
+        redrawButton = findViewById(R.id.redraw_btn);
+        redrawButton.setOnClickListener(v -> redrawPendingEntrants());
+        randomSampleButton = findViewById(R.id.random_sample_btn);
+        randomSampleButton.setOnClickListener(v -> randomlySampleUsers());
+    }
+
+    /**
+     * Randomly samples entrants based on available spots and updates waitlist/invited list.
+     */
+    private void randomlySampleUsers() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("events").whereEqualTo("uuid", eventId).limit(1)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.isEmpty()) {
+                        Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    DocumentSnapshot doc = snapshot.getDocuments().get(0);
+                    Event event = doc.toObject(Event.class);
+                    if (event == null || event.getWaitlist() == null) {
+                        Toast.makeText(this, "Waitlist missing", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    List<WaitlistEntrant> entrants = event.getWaitlist().getWaitlistEntrants();
+                    if (entrants == null) entrants = new ArrayList<>();
+
+                    // Cap total signups at 5x spots
+                    int spots = event.getTotalSpots() != null ? event.getTotalSpots() : 0;
+                    if (spots > 0 && entrants.size() > spots * 5) {
+                        Toast.makeText(this, "Waitlist limit reached for this event", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    List<WaitlistEntrant> notSelected = new ArrayList<>();
+                    for (WaitlistEntrant e : entrants) {
+                        if (e != null && Objects.equals(e.getStatus(), "Not Selected")) {
+                            notSelected.add(e);
+                        }
+                    }
+
+                    int available = spots > 0 ? Math.max(spots, 0) : notSelected.size();
+                    Collections.shuffle(notSelected);
+
+                    List<WaitlistEntrant> selected = new ArrayList<>();
+                    if (notSelected.size() <= available) {
+                        selected.addAll(notSelected);
+                    } else {
+                        selected.addAll(notSelected.subList(0, available));
+                    }
+
+                    // Mark selected as Pending
+                    for (WaitlistEntrant e : selected) {
+                        e.setStatus("Pending");
+                        e.setSelectionDate(new Date());
+                    }
+
+                    // Rebuild entrants list with updated statuses
+                    for (WaitlistEntrant e : entrants) {
+                        for (WaitlistEntrant sel : selected) {
+                            if (e != null && sel != null && Objects.equals(e.getUserId(), sel.getUserId())) {
+                                e.setStatus(sel.getStatus());
+                                e.setSelectionDate(sel.getSelectionDate());
+                            }
+                        }
+                    }
+
+                    final List<WaitlistEntrant> updatedEntrants = entrants;
+                    final int waitlistSize = updatedEntrants.size();
+
+                    db.collection("events").document(doc.getId())
+                            .update("waitlist.waitlistEntrants", updatedEntrants)
+                            .addOnSuccessListener(x -> {
+                                Toast.makeText(this, "Random sample complete", Toast.LENGTH_SHORT).show();
+                                sendSelectionNotifications(selected, event.getUuid(), event.getTitle());
+                                loadWaitlistFromDatabase(eventId);
+                                updateTitleCount(waitlistSize);
+
+                                // Launch invited list to view
+                                Intent newIntent = new Intent(EventWaitlistActivity.this, SelectedListActivity.class);
+                                newIntent.putExtra("EVENT_ID", eventId);
+                                startActivity(newIntent);
+                            })
+                            .addOnFailureListener(e -> Toast.makeText(this, "Failed to update waitlist", Toast.LENGTH_LONG).show());
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to sample waitlist", Toast.LENGTH_LONG).show());
+    }
+
+    private void updateTitleCount(int count) {
+        if (titleView != null) {
+            titleView.setText("Event Waitlist (" + count + ")");
+        }
+    }
+
+    private void sendSelectionNotifications(List<WaitlistEntrant> selected, String eventUuid, String title) {
+        if (selected == null || selected.isEmpty()) return;
+        String safeEventId = eventUuid != null ? eventUuid : eventId;
+        for (WaitlistEntrant entrant : selected) {
+            if (entrant == null || entrant.getUserId() == null) continue;
+            Notification notification = new Notification(
+                    null,
+                    entrant.getUserId(),
+                    safeEventId,
+                    title,
+                    "Congrats! You have been selected",
+                    NotificationStatus.UNREAD,
+                    new Date(),
+                    "chosen"
+            );
+            notificationService.sendNotification(notification, () -> {}, e -> Log.e("EventWaitlistActivity", "Failed to send selection notification", e));
+        }
     }
 
     /**
@@ -165,18 +316,24 @@ public class EventWaitlistActivity extends AppCompatActivity {
                             displayedEntrants.clear();
                             displayedEntrants.addAll(entrants);
                             adapter.notifyDataSetChanged();
+                            updateTitleCount(displayedEntrants.size());
                             Log.d("Waitlist DB", "Successfully loaded " + entrants.size() + " entrants.");
+                        } else {
+                            updateTitleCount(0);
                         }
 
                             } else {
                                 Toast.makeText(EventWaitlistActivity.this, "Waitlist data is missing in this event.", Toast.LENGTH_SHORT).show();
+                                updateTitleCount(0);
                             }
                         } else {
                             Toast.makeText(EventWaitlistActivity.this, "Event not found.", Toast.LENGTH_SHORT).show();
+                            updateTitleCount(0);
                             finish();
                         }
                     } else {
                         Toast.makeText(EventWaitlistActivity.this, "Failed to load event data.", Toast.LENGTH_SHORT).show();
+                        updateTitleCount(0);
                         finish();
                     }
                 });
@@ -222,6 +379,7 @@ public class EventWaitlistActivity extends AppCompatActivity {
                                 .addOnSuccessListener(aVoid -> {
                                     Toast.makeText(this, "Entrant removed", Toast.LENGTH_SHORT).show();
                                     loadWaitlistFromDatabase(eventId);
+                                    updateTitleCount(entrants.size());
                                 })
                                 .addOnFailureListener(e -> {
                                     Toast.makeText(this, "Failed to remove entrant", Toast.LENGTH_SHORT).show();
@@ -272,12 +430,15 @@ public class EventWaitlistActivity extends AppCompatActivity {
                     replacement.setStatus("Pending");
                     replacement.setSelectionDate(new Date());
 
-                    db.collection("events").document(eventDocId)
-                            .update("waitlist.waitlistEntrants", allEntrants)
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(this, "Entrant replaced with random selection", Toast.LENGTH_SHORT).show();
-                                loadWaitlistFromDatabase(eventId);
-                            })
+                            db.collection("events").document(eventDocId)
+                                    .update("waitlist.waitlistEntrants", allEntrants)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(this, "Entrant replaced with random selection", Toast.LENGTH_SHORT).show();
+                                        // Notify the replacement entrant
+                                        sendSelectionNotifications(java.util.Collections.singletonList(replacement), event.getUuid(), event.getTitle());
+                                        loadWaitlistFromDatabase(eventId);
+                                        updateTitleCount(allEntrants.size());
+                                    })
                             .addOnFailureListener(e -> {
                                 Toast.makeText(this, "Failed to replace entrant", Toast.LENGTH_SHORT).show();
                                 Log.e("EventWaitlistActivity", "Failed to replace entrant", e);
@@ -286,4 +447,150 @@ public class EventWaitlistActivity extends AppCompatActivity {
             }
         });
     }
+
+    /**
+     * Re-draws the lottery:
+     * - All Pending entrants are marked as "No Response"
+     * - For each Pending entrant (as long as there are Not Selected entrants),
+     *   a random Not Selected entrant is set to "Pending" with a new selectionDate.
+     */
+    private void redrawPendingEntrants() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Query query = db.collection("events").whereEqualTo("uuid", eventId).limit(1);
+
+        query.get().addOnCompleteListener(task -> {
+            if (!task.isSuccessful() || task.getResult().isEmpty()) {
+                Toast.makeText(this, "Failed to load event for redraw.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String eventDocId = task.getResult().getDocuments().get(0).getId();
+            DocumentSnapshot document = task.getResult().getDocuments().get(0);
+            Event event = document.toObject(Event.class);
+
+            if (event == null || event.getWaitlist() == null) {
+                Toast.makeText(this, "Waitlist data is missing for this event.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            List<WaitlistEntrant> entrants = event.getWaitlist().getWaitlistEntrants();
+            if (entrants == null || entrants.isEmpty()) {
+                Toast.makeText(this, "No entrants found in the waitlist.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Collect all Pending and all Not Selected entrants
+            List<WaitlistEntrant> pendingEntrants = new ArrayList<>();
+            List<WaitlistEntrant> notSelectedEntrants = new ArrayList<>();
+
+            for (WaitlistEntrant e : entrants) {
+                if (e == null || e.getStatus() == null) continue;
+                switch (e.getStatus()) {
+                    case "Pending":
+                        pendingEntrants.add(e);
+                        break;
+                    case "Not Selected":
+                        notSelectedEntrants.add(e);
+                        break;
+                }
+            }
+
+            if (pendingEntrants.isEmpty()) {
+                Toast.makeText(this, "There are no Pending entrants to redraw.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (notSelectedEntrants.isEmpty()) {
+                // We can still mark all Pending entrants as No Response, but cannot select replacements
+                for (WaitlistEntrant p : pendingEntrants) {
+                    p.setStatus("No Response");
+                    createInvitationRevokedNotification(p, event);
+                }
+
+                db.collection("events").document(eventDocId)
+                        .update("waitlist.waitlistEntrants", entrants)
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(this, "All Pending entrants marked as No Response (no replacements available).", Toast.LENGTH_SHORT).show();
+                            loadWaitlistFromDatabase(eventId);
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(this, "Failed to update entrants during redraw.", Toast.LENGTH_SHORT).show();
+                            Log.e("EventWaitlistActivity", "Redraw update failed", e);
+                        });
+                return;
+            }
+
+            // Randomize the order of Not Selected entrants
+            Collections.shuffle(notSelectedEntrants);
+
+            // Assign replacements for as many Pending entrants as possible
+            int pairs = Math.min(pendingEntrants.size(), notSelectedEntrants.size());
+            Date now = new Date();
+
+            for (int i = 0; i < pairs; i++) {
+                WaitlistEntrant pending = pendingEntrants.get(i);
+                WaitlistEntrant replacement = notSelectedEntrants.get(i);
+
+                // Old Pending entrant → No Response
+                pending.setStatus("No Response");
+                createInvitationRevokedNotification(pending, event);
+
+                // Random Not Selected entrant → Pending with new selectionDate
+                replacement.setStatus("Pending");
+                replacement.setSelectionDate(now);
+            }
+
+            // If there are more Pending entrants than replacements,
+            // mark the remaining Pending entrants as No Response
+            if (pendingEntrants.size() > notSelectedEntrants.size()) {
+                for (int i = notSelectedEntrants.size(); i < pendingEntrants.size(); i++) {
+                    WaitlistEntrant extraPending = pendingEntrants.get(i);
+                    extraPending.setStatus("No Response");
+                    createInvitationRevokedNotification(extraPending, event);
+                }
+            }
+
+            db.collection("events").document(eventDocId)
+                    .update("waitlist.waitlistEntrants", entrants)
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(this, "Redraw completed: Pending entrants updated.", Toast.LENGTH_SHORT).show();
+                        loadWaitlistFromDatabase(eventId);
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Failed to redraw entrants.", Toast.LENGTH_SHORT).show();
+                        Log.e("EventWaitlistActivity", "Redraw failed", e);
+                    });
+        });
+    }
+
+
+    /**
+     * Creates a Firestore notification indicating that an invitation
+     * was revoked because the user did not respond.
+     */
+    private void createInvitationRevokedNotification(WaitlistEntrant entrant, Event event) {
+        if (entrant == null || entrant.getUserId() == null) {
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        Map<String, Object> notification = new HashMap<>();
+        notification.put("userId", entrant.getUserId());
+        notification.put("eventId", eventId);
+        notification.put("eventName", event.getTitle());
+        notification.put("created_at", new Date());
+        notification.put("status", "UNREAD");
+        notification.put("type", "invitation_revoked");
+        notification.put("message",
+                "Your invitation for \"" + event.getTitle() + "\" was revoked because you did not respond in time.");
+
+
+        db.collection("notifications")
+                .add(notification)
+                .addOnFailureListener(e -> {
+                    Log.e("Notifications", "Failed to create no response notification", e);
+                });
+    }
+
 }
