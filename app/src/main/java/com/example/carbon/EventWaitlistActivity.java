@@ -15,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -26,6 +28,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import com.example.carbon.NotificationStatus;
+import com.example.carbon.Notification;
+import com.example.carbon.FirebaseNotificationService;
+
+import com.example.carbon.NotificationStatus;
+import com.example.carbon.Notification;
+import com.example.carbon.FirebaseNotificationService;
 
 /**
  * The EventWaitlistActivity holds the logic of the activity_event_waitlist.xml page.
@@ -44,6 +54,7 @@ public class EventWaitlistActivity extends AppCompatActivity {
     private Button randomSampleButton;
     private TextView titleView;
     private String eventId;
+    private final FirebaseNotificationService notificationService = new FirebaseNotificationService();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -174,6 +185,7 @@ public class EventWaitlistActivity extends AppCompatActivity {
                             .update("waitlist.waitlistEntrants", updatedEntrants)
                             .addOnSuccessListener(x -> {
                                 Toast.makeText(this, "Random sample complete", Toast.LENGTH_SHORT).show();
+                                sendSelectionNotifications(selected, event.getUuid(), event.getTitle());
                                 loadWaitlistFromDatabase(eventId);
                                 updateTitleCount(waitlistSize);
 
@@ -190,6 +202,25 @@ public class EventWaitlistActivity extends AppCompatActivity {
     private void updateTitleCount(int count) {
         if (titleView != null) {
             titleView.setText("Event Waitlist (" + count + ")");
+        }
+    }
+
+    private void sendSelectionNotifications(List<WaitlistEntrant> selected, String eventUuid, String title) {
+        if (selected == null || selected.isEmpty()) return;
+        String safeEventId = eventUuid != null ? eventUuid : eventId;
+        for (WaitlistEntrant entrant : selected) {
+            if (entrant == null || entrant.getUserId() == null) continue;
+            Notification notification = new Notification(
+                    null,
+                    entrant.getUserId(),
+                    safeEventId,
+                    title,
+                    "Congrats! You have been selected",
+                    NotificationStatus.UNREAD,
+                    new Date(),
+                    "chosen"
+            );
+            notificationService.sendNotification(notification, () -> {}, e -> Log.e("EventWaitlistActivity", "Failed to send selection notification", e));
         }
     }
 
@@ -387,13 +418,15 @@ public class EventWaitlistActivity extends AppCompatActivity {
                     replacement.setStatus("Pending");
                     replacement.setSelectionDate(new Date());
 
-                    db.collection("events").document(eventDocId)
-                            .update("waitlist.waitlistEntrants", allEntrants)
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(this, "Entrant replaced with random selection", Toast.LENGTH_SHORT).show();
-                                loadWaitlistFromDatabase(eventId);
-                                updateTitleCount(allEntrants.size());
-                            })
+                            db.collection("events").document(eventDocId)
+                                    .update("waitlist.waitlistEntrants", allEntrants)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(this, "Entrant replaced with random selection", Toast.LENGTH_SHORT).show();
+                                        // Notify the replacement entrant
+                                        sendSelectionNotifications(java.util.Collections.singletonList(replacement), event.getUuid(), event.getTitle());
+                                        loadWaitlistFromDatabase(eventId);
+                                        updateTitleCount(allEntrants.size());
+                                    })
                             .addOnFailureListener(e -> {
                                 Toast.makeText(this, "Failed to replace entrant", Toast.LENGTH_SHORT).show();
                                 Log.e("EventWaitlistActivity", "Failed to replace entrant", e);

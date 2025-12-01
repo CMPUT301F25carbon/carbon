@@ -68,21 +68,18 @@ public class EventHistoryActivity extends AppCompatActivity {
 
                     pastEvents.clear(); // clear old data
 
-                    Date now = new Date(); // current date/time
-
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                         Event event = doc.toObject(Event.class);
 
-                        if (event == null || event.getEventDate() == null) continue;
-
-                        // Only include past events
-                        if (!event.getEventDate().before(now)) continue;
+                        if (event == null) continue;
 
                         // Determine user status
                         String userStatus = getUserStatus(doc, uid);
 
-                        // Add to history list
-                        pastEvents.add(new EventHistory(event, userStatus));
+                        // Only include events where the user appears
+                        if (!"Not Selected".equals(userStatus)) {
+                            pastEvents.add(new EventHistory(event, userStatus));
+                        }
                     }
 
                     // Update RecyclerView

@@ -3,7 +3,7 @@
     android:orientation="horizontal"
     android:padding="12dp"
     android:layout_marginVertical="4dp"
-    android:background="@drawable/rounded_edittext"
+    android:background="#F0DAA0"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -39,6 +39,42 @@
             android:textSize="14sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:id="@+id/notification_actions"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
+
+            <Button
+                android:id="@+id/btn_accept_notification"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Accept"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#4CAF50"
+                android:fontFamily="@font/italiana"
+                android:minHeight="0dp"
+                android:paddingVertical="8dp"/>
+
+            <View
+                android:layout_width="8dp"
+                android:layout_height="1dp"/>
+
+            <Button
+                android:id="@+id/btn_decline_notification"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Decline"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#D32F2F"
+                android:fontFamily="@font/italiana"
+                android:minHeight="0dp"
+                android:paddingVertical="8dp"/>
+        </LinearLayout>
 
     </LinearLayout>
 
