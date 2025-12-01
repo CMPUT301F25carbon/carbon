@@ -207,12 +207,13 @@ public class EventWaitlistActivity extends AppCompatActivity {
 
     private void sendSelectionNotifications(List<WaitlistEntrant> selected, String eventUuid, String title) {
         if (selected == null || selected.isEmpty()) return;
+        String safeEventId = eventUuid != null ? eventUuid : eventId;
         for (WaitlistEntrant entrant : selected) {
             if (entrant == null || entrant.getUserId() == null) continue;
             Notification notification = new Notification(
                     null,
                     entrant.getUserId(),
-                    eventUuid,
+                    safeEventId,
                     title,
                     "Congrats! You have been selected",
                     NotificationStatus.UNREAD,
