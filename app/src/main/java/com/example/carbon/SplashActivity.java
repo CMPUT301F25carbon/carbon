@@ -1,5 +1,10 @@
 package com.example.carbon;
 
+/**
+ * Simple splash/redirect activity used to forward users into the login flow.
+ * Outstanding issues: no session detection; always redirects after a short delay.
+ */
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;

@@ -1,5 +1,10 @@
 package com.example.carbon;
 
+/**
+ * Template fragment from the starter navigation graph used for placeholder flows.
+ * Outstanding issues: replace with real content once navigation targets are finalized.
+ */
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;

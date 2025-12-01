@@ -1,5 +1,10 @@
 package com.example.carbon;
 
+/**
+ * Second template fragment from the starter navigation graph; used for placeholder transitions.
+ * Outstanding issues: replace once real navigation destinations are finalized.
+ */
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;

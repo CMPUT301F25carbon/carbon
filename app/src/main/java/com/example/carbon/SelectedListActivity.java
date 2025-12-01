@@ -1,5 +1,10 @@
 package com.example.carbon;
 
+/**
+ * Displays waitlist entrants marked as selected/pending and lets organizers broadcast reminders.
+ * Outstanding issues: depends on live Firestore and lacks offline/empty-state caching.
+ */
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;

@@ -1,5 +1,10 @@
 package com.example.carbon;
 
+/**
+ * RecyclerView adapter for displaying user cards with optional delete callbacks.
+ * Outstanding issues: relies on parent to enforce admin permissions for deletions.
+ */
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

@@ -1,5 +1,10 @@
 package com.example.carbon;
 
+/**
+ * Splash-like launcher activity that routes users into authentication flow.
+ * Outstanding issues: currently always forwards to login without session detection.
+ */
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;

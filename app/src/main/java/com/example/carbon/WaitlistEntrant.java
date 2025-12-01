@@ -98,6 +98,10 @@ public class WaitlistEntrant {
         return cancellationReason;
     }
 
+    /**
+     * Sets the recorded cancellation reason for the entrant.
+     * @param cancellationReason descriptive string supplied by user
+     */
     public void setCancellationReason(String cancellationReason) {
         this.cancellationReason = cancellationReason;
     }

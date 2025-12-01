@@ -1,5 +1,10 @@
 package com.example.carbon;
 
+/**
+ * Displays detailed event info for entrants and handles sign-up flow and poster loading.
+ * Outstanding issues: network failures from Firestore/Storage are only surfaced via toasts.
+ */
+
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;

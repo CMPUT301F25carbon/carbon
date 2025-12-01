@@ -1,5 +1,10 @@
 package com.example.carbon;
 
+/**
+ * Displays accepted waitlist entrants for an event and supports CSV export for organizers.
+ * Outstanding issues: depends on live Firestore data; offline behavior is not yet defined.
+ */
+
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
