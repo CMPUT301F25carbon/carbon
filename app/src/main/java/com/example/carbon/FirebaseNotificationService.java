@@ -55,44 +55,28 @@ public class FirebaseNotificationService implements NotificationService{
     public void markAsAccepted(Notification notification, Runnable onSuccess, Consumer<Exception> onError) {
         db.collection("notifications").document(notification.getId())
                 .update("status", NotificationStatus.ACCEPTED.name())
-                .addOnSuccessListener(Void -> {
-                    // Update notification log
-                    updateNotificationLog(notification.getId(), NotificationStatus.ACCEPTED);
-                    
-                    // Update waitlist entrant status to "Accepted"
-                    updateWaitlistEntrantStatus(notification.getEventId(), notification.getUserId(), "Accepted");
-                    
-                    // Find event document ID from UUID
-                    db.collection("events")
-                            .whereEqualTo("uuid", notification.getEventId())
-                            .limit(1)
-                            .get()
-                            .addOnSuccessListener(querySnapshot -> {
-                                if (!querySnapshot.isEmpty()) {
-                                    String eventDocId = querySnapshot.getDocuments().get(0).getId();
-                                    FirebaseEventService eventService = new FirebaseEventService();
-                                    eventService.addAttendee(
-                                            eventDocId,
-                                            notification.getUserId(),
-                                            () -> {
-                                                Log.d("FirebaseNotificationService", "Attendee added for event "+ notification.getEventId());
-                                                onSuccess.run();
-                                            },
-                                            e -> {
-                                                Log.e("FirebaseNotificationService", "Failed to add attendee", e);
-                                                onError.accept(e);
-                                            }
-                                    );
-                                } else {
-                                    Log.e("FirebaseNotificationService", "Event not found with UUID: " + notification.getEventId());
-                                    onError.accept(new Exception("Event not found"));
-                                }
-                            })
-                            .addOnFailureListener(e -> {
-                                Log.e("FirebaseNotificationService", "Failed to find event", e);
-                                onError.accept(e);
-                            });
-                })
+                .addOnSuccessListener(Void -> resolveEvent(notification,
+                        (eventDocId, eventUuid) -> {
+                            // Update notification log
+                            updateNotificationLog(notification.getId(), NotificationStatus.ACCEPTED);
+                            // Update waitlist entrant status to "Accepted"
+                            updateWaitlistEntrantStatus(eventUuid, notification.getUserId(), "Accepted");
+
+                            FirebaseEventService eventService = new FirebaseEventService();
+                            eventService.addAttendee(
+                                    eventDocId,
+                                    notification.getUserId(),
+                                    () -> {
+                                        Log.d("FirebaseNotificationService", "Attendee added for event " + eventUuid);
+                                        onSuccess.run();
+                                    },
+                                    e -> {
+                                        Log.e("FirebaseNotificationService", "Failed to add attendee", e);
+                                        onError.accept(e);
+                                    }
+                            );
+                        },
+                        onError))
                 .addOnFailureListener(onError::accept);
 
     }
@@ -107,14 +91,16 @@ public class FirebaseNotificationService implements NotificationService{
     public void markAsDeclined(Notification notification, Runnable onSuccess, Consumer<Exception> onError) {
         db.collection("notifications").document(notification.getId())
                 .update("status", NotificationStatus.DECLINED.name())
-                .addOnSuccessListener(Void -> {
-                    // Update notification log
-                    updateNotificationLog(notification.getId(), NotificationStatus.DECLINED);
-                    // Update waitlist entrant status to "Denied"
-                    updateWaitlistEntrantStatus(notification.getEventId(), notification.getUserId(), "Denied");
-                    // Automatically select a replacement
-                    selectReplacementEntrant(notification.getEventId(), notification.getEventName(), onSuccess, onError);
-                })
+                .addOnSuccessListener(Void -> resolveEvent(notification,
+                        (eventDocId, eventUuid) -> {
+                            // Update notification log
+                            updateNotificationLog(notification.getId(), NotificationStatus.DECLINED);
+                            // Update waitlist entrant status to "Denied"
+                            updateWaitlistEntrantStatus(eventUuid, notification.getUserId(), "Denied");
+                            // Automatically select a replacement
+                            selectReplacementEntrant(eventUuid, notification.getEventName(), onSuccess, onError);
+                        },
+                        onError))
                 .addOnFailureListener(onError::accept);
     }
 
@@ -359,6 +345,51 @@ public class FirebaseNotificationService implements NotificationService{
                 .addOnFailureListener(e -> {
                     Log.e("FirebaseNotificationService", "Failed to log notification", e);
                 });
+    }
+
+    /**
+     * Resolves an event using either its UUID (notification.eventId) or falls back to treating it
+     * as a document ID if the UUID lookup fails.
+     *
+     * @param notification the notification containing the event id
+     * @param onResolved callback with (eventDocId, eventUuid)
+     * @param onError error callback
+     */
+    private void resolveEvent(Notification notification,
+                              java.util.function.BiConsumer<String, String> onResolved,
+                              Consumer<Exception> onError) {
+        String eventId = notification.getEventId();
+        if (eventId == null || eventId.isEmpty()) {
+            onError.accept(new Exception("Missing event ID"));
+            return;
+        }
+
+        // Try lookup by UUID field
+        db.collection("events")
+                .whereEqualTo("uuid", eventId)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        String eventDocId = querySnapshot.getDocuments().get(0).getId();
+                        onResolved.accept(eventDocId, eventId);
+                    } else {
+                        // Fallback: treat eventId as document ID
+                        db.collection("events").document(eventId)
+                                .get()
+                                .addOnSuccessListener(doc -> {
+                                    if (doc.exists()) {
+                                        Event event = doc.toObject(Event.class);
+                                        String uuid = event != null && event.getUuid() != null ? event.getUuid() : eventId;
+                                        onResolved.accept(doc.getId(), uuid);
+                                    } else {
+                                        onError.accept(new Exception("Event not found with ID or UUID: " + eventId));
+                                    }
+                                })
+                                .addOnFailureListener(onError::accept);
+                    }
+                })
+                .addOnFailureListener(onError::accept);
     }
 
     /**
