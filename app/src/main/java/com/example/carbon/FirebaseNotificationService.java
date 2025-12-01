@@ -177,6 +177,7 @@ public class FirebaseNotificationService implements NotificationService{
      */
     private void updateWaitlistEntrantStatus(String eventUuid, String userId, String newStatus) {
         // Find the event by UUID
+        // First try by UUID field
         db.collection("events")
                 .whereEqualTo("uuid", eventUuid)
                 .limit(1)
@@ -184,45 +185,52 @@ public class FirebaseNotificationService implements NotificationService{
                 .addOnSuccessListener(querySnapshot -> {
                     if (!querySnapshot.isEmpty()) {
                         String eventDocId = querySnapshot.getDocuments().get(0).getId();
-                        // Get the event to access waitlist
-                        querySnapshot.getDocuments().get(0).getReference()
+                        updateEntrantStatusOnDoc(eventDocId, userId, newStatus);
+                    } else {
+                        // Fallback: treat eventUuid as document ID
+                        db.collection("events").document(eventUuid)
                                 .get()
                                 .addOnSuccessListener(documentSnapshot -> {
-                                    Event event = documentSnapshot.toObject(Event.class);
-                                    if (event != null && event.getWaitlist() != null) {
-                                        List<WaitlistEntrant> entrants = event.getWaitlist().getWaitlistEntrants();
-                                        if (entrants != null) {
-                                            // Find and update the entrant
-                                            for (WaitlistEntrant entrant : entrants) {
-                                                if (entrant != null && entrant.getUserId().equals(userId)) {
-                                                    entrant.setStatus(newStatus);
-                                                    if ("Pending".equals(newStatus)) {
-                                                        entrant.setSelectionDate(new Date());
-                                                    }
-                                                    break;
-                                                }
-                                            }
-                                            // Update the event in Firestore
-                                            db.collection("events").document(eventDocId)
-                                                    .update("waitlist.waitlistEntrants", entrants)
-                                                    .addOnSuccessListener(aVoid -> {
-                                                        Log.d("FirebaseNotificationService", 
-                                                                "Waitlist entrant status updated to " + newStatus + " for user " + userId);
-                                                    })
-                                                    .addOnFailureListener(e -> {
-                                                        Log.e("FirebaseNotificationService", "Failed to update waitlist entrant status", e);
-                                                    });
-                                        }
+                                    if (documentSnapshot.exists()) {
+                                        updateEntrantStatusOnDoc(documentSnapshot.getId(), userId, newStatus);
+                                    } else {
+                                        Log.e("FirebaseNotificationService", "Event not found with UUID/doc: " + eventUuid);
                                     }
                                 })
-                                .addOnFailureListener(e -> {
-                                    Log.e("FirebaseNotificationService", "Failed to get event document", e);
-                                });
+                                .addOnFailureListener(e -> Log.e("FirebaseNotificationService", "Failed to get event doc by id", e));
                     }
                 })
                 .addOnFailureListener(e -> {
                     Log.e("FirebaseNotificationService", "Failed to find event", e);
                 });
+    }
+
+    private void updateEntrantStatusOnDoc(String eventDocId, String userId, String newStatus) {
+        db.collection("events").document(eventDocId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    Event event = documentSnapshot.toObject(Event.class);
+                    if (event != null && event.getWaitlist() != null) {
+                        List<WaitlistEntrant> entrants = event.getWaitlist().getWaitlistEntrants();
+                        if (entrants != null) {
+                            for (WaitlistEntrant entrant : entrants) {
+                                if (entrant != null && entrant.getUserId().equals(userId)) {
+                                    entrant.setStatus(newStatus);
+                                    if ("Pending".equals(newStatus)) {
+                                        entrant.setSelectionDate(new Date());
+                                    }
+                                    break;
+                                }
+                            }
+                            db.collection("events").document(eventDocId)
+                                    .update("waitlist.waitlistEntrants", entrants)
+                                    .addOnSuccessListener(aVoid -> Log.d("FirebaseNotificationService",
+                                            "Waitlist entrant status updated to " + newStatus + " for user " + userId))
+                                    .addOnFailureListener(e -> Log.e("FirebaseNotificationService", "Failed to update waitlist entrant status", e));
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> Log.e("FirebaseNotificationService", "Failed to get event document", e));
     }
 
     /**
